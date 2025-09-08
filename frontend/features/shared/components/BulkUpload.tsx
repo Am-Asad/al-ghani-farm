@@ -2,27 +2,60 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, FileText, X } from "lucide-react";
-import { parseCSVFile, ParseResult } from "@/utils/csv-parser";
 import {
-  useCreateBulkFarms,
-  convertFarmRecordsToAPI,
-} from "../hooks/useCreateBulkFarms";
-import FarmDataPreview from "./FarmDataPreview";
+  parseCSVFile,
+  ParseResult,
+  CSVConfig,
+  downloadCSVTemplate,
+} from "@/utils/csvParser";
+import { useBulkUpload } from "../hooks/useBulkUpload";
+import BulkDataPreview from "./BulkDataPreview";
 import { toast } from "sonner";
 import { validateFileType } from "@/utils/validateFileType";
 import { getFileIcon } from "@/utils/getFileIcon";
 
-type CreateFarmBulkProps = {
+type BulkUploadProps<T, R = T> = {
+  entityName: string;
+  csvConfig: CSVConfig<T>;
+  uploadConfig: {
+    endpoint: string;
+    queryKey: string[];
+    transformData?: (data: T[]) => R[];
+    successMessage?: (count: number) => string;
+    errorMessage?: string;
+    loadingMessage?: string;
+  };
+  columns: Array<{
+    key: keyof T;
+    label: string;
+  }>;
+  templateHeaders: string[];
+  sampleData: string[];
   onSuccess?: () => void;
+  uploadTitle?: string;
+  uploadDescription?: string;
 };
 
-const CreateFarmBulk = ({ onSuccess: _onSuccess }: CreateFarmBulkProps) => {
+const BulkUpload = <T extends Record<string, unknown>, R = T>({
+  entityName,
+  csvConfig,
+  uploadConfig,
+  columns,
+  templateHeaders,
+  sampleData,
+  onSuccess: _onSuccess,
+  uploadTitle,
+  uploadDescription,
+}: BulkUploadProps<T, R>) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [parseResult, setParseResult] = useState<ParseResult | null>(null);
+  const [parseResult, setParseResult] = useState<ParseResult<T> | null>(null);
   const [isParsing, setIsParsing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { mutateAsync: createBulkFarms, isPending } = useCreateBulkFarms();
+  const { mutateAsync: bulkUpload, isPending } = useBulkUpload<T, R>({
+    ...uploadConfig,
+    entityName,
+  });
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -34,10 +67,10 @@ const CreateFarmBulk = ({ onSuccess: _onSuccess }: CreateFarmBulkProps) => {
       setIsParsing(true);
 
       try {
-        const result = await parseCSVFile(file);
+        const result = await parseCSVFile(file, csvConfig);
         setParseResult(result);
       } catch (error) {
-        console.error("Error parsing CSV:", error);
+        console.error(`Error parsing CSV:`, error);
         toast.error("Failed to parse CSV file");
         setParseResult(null);
       } finally {
@@ -64,26 +97,36 @@ const CreateFarmBulk = ({ onSuccess: _onSuccess }: CreateFarmBulkProps) => {
     if (!parseResult?.data) return;
 
     try {
-      const farmsData = convertFarmRecordsToAPI(parseResult.data);
-      await createBulkFarms(farmsData);
+      await bulkUpload(parseResult.data);
 
       // Reset form on success
       handleRemoveFile();
       _onSuccess?.();
     } catch (error) {
-      console.error("Error creating farms:", error);
+      console.error(`Error creating ${entityName}s:`, error);
     }
   };
+
+  const handleDownloadTemplate = () => {
+    downloadCSVTemplate(
+      templateHeaders,
+      sampleData,
+      `${entityName}_template.csv`
+    );
+  };
+
+  const title = uploadTitle || `Upload ${entityName} Data`;
+  const description =
+    uploadDescription ||
+    `Upload a CSV or Excel file with ${entityName} information`;
 
   return (
     <div className="space-y-4">
       {!selectedFile && (
         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
           <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">Upload Farm Data</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Upload a CSV or Excel file with farm information
-          </p>
+          <h3 className="text-lg font-medium mb-2">{title}</h3>
+          <p className="text-sm text-muted-foreground mb-4">{description}</p>
 
           <input
             ref={fileInputRef}
@@ -136,14 +179,18 @@ const CreateFarmBulk = ({ onSuccess: _onSuccess }: CreateFarmBulkProps) => {
 
       {/* Data Preview and Upload */}
       {parseResult && (
-        <FarmDataPreview
+        <BulkDataPreview
           parseResult={parseResult}
           onUpload={handleBulkUpload}
           isUploading={isPending}
+          entityName={entityName}
+          columns={columns}
+          onDownloadTemplate={handleDownloadTemplate}
+          templateHeaders={templateHeaders}
         />
       )}
     </div>
   );
 };
 
-export default CreateFarmBulk;
+export default BulkUpload;

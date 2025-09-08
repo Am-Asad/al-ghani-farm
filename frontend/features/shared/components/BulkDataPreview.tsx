@@ -1,21 +1,31 @@
 import React from "react";
-import { ParseResult } from "@/utils/csv-parser";
+import { ParseResult } from "@/utils/csvParser";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, XCircle, AlertTriangle, Download } from "lucide-react";
-import { downloadCSVTemplate } from "@/utils/csv-parser";
 
-type FarmDataPreviewProps = {
-  parseResult: ParseResult;
+type BulkDataPreviewProps<T> = {
+  parseResult: ParseResult<T>;
   onUpload: () => void;
   isUploading: boolean;
+  entityName: string;
+  columns: Array<{
+    key: keyof T;
+    label: string;
+  }>;
+  onDownloadTemplate: () => void;
+  templateHeaders: string[];
 };
 
-const FarmDataPreview = ({
+const BulkDataPreview = <T extends Record<string, unknown>>({
   parseResult,
   onUpload,
   isUploading,
-}: FarmDataPreviewProps) => {
+  entityName,
+  columns,
+  onDownloadTemplate,
+  templateHeaders,
+}: BulkDataPreviewProps<T>) => {
   const { success, data, errors, totalRows, validRows, invalidRows } =
     parseResult;
 
@@ -82,23 +92,14 @@ const FarmDataPreview = ({
                   <ul className="text-xs text-red-700 space-y-1">
                     <li>
                       • Make sure your CSV has headers:{" "}
-                      <code className="bg-red-200 px-1 rounded">name</code>,{" "}
-                      <code className="bg-red-200 px-1 rounded">
-                        supervisor
-                      </code>
-                      ,{" "}
-                      <code className="bg-red-200 px-1 rounded">
-                        totalSheds
-                      </code>
-                    </li>
-                    <li>
-                      • Headers can also be:{" "}
-                      <code className="bg-red-200 px-1 rounded">farm_name</code>
-                      , <code className="bg-red-200 px-1 rounded">manager</code>
-                      ,{" "}
-                      <code className="bg-red-200 px-1 rounded">
-                        total_sheds
-                      </code>
+                      {templateHeaders.map((header, index) => (
+                        <span key={header}>
+                          <code className="bg-red-200 px-1 rounded">
+                            {header}
+                          </code>
+                          {index < templateHeaders.length - 1 && ", "}
+                        </span>
+                      ))}
                     </li>
                     <li>• Download the template to see the correct format</li>
                   </ul>
@@ -113,33 +114,42 @@ const FarmDataPreview = ({
       {data && data.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Preview Data ({data.length} farms)</CardTitle>
+            <CardTitle>
+              Preview Data ({data.length} {entityName}s)
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-2 font-medium">Name</th>
-                    <th className="text-left p-2 font-medium">Supervisor</th>
-                    <th className="text-left p-2 font-medium">Total Sheds</th>
+                    {columns.map((column) => (
+                      <th
+                        key={String(column.key)}
+                        className="text-left p-2 font-medium"
+                      >
+                        {column.label}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {data.slice(0, 10).map((farm, index) => (
+                  {data.slice(0, 10).map((item, index) => (
                     <tr key={index} className="border-b">
-                      <td className="p-2">{farm.name}</td>
-                      <td className="p-2">{farm.supervisor}</td>
-                      <td className="p-2">{farm.totalSheds}</td>
+                      {columns.map((column) => (
+                        <td key={String(column.key)} className="p-2">
+                          {String(item[column.key])}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                   {data.length > 10 && (
                     <tr>
                       <td
-                        colSpan={3}
+                        colSpan={columns.length}
                         className="p-2 text-center text-muted-foreground"
                       >
-                        ... and {data.length - 10} more farms
+                        ... and {data.length - 10} more {entityName}s
                       </td>
                     </tr>
                   )}
@@ -154,13 +164,15 @@ const FarmDataPreview = ({
       <div className="flex flex-col sm:flex-row gap-3">
         {success && data && data.length > 0 ? (
           <Button onClick={onUpload} disabled={isUploading} className="flex-1">
-            {isUploading ? "Creating Farms..." : `Create ${data.length} Farms`}
+            {isUploading
+              ? `Creating ${entityName}s...`
+              : `Create ${data.length} ${entityName}s`}
           </Button>
         ) : (
           <div className="flex flex-col sm:flex-row gap-3 flex-1">
             <Button
               variant="outline"
-              onClick={downloadCSVTemplate}
+              onClick={onDownloadTemplate}
               className="flex-1"
             >
               <Download className="w-4 h-4 mr-2" />
@@ -176,4 +188,4 @@ const FarmDataPreview = ({
   );
 };
 
-export default FarmDataPreview;
+export default BulkDataPreview;

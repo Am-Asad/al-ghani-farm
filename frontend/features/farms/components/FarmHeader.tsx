@@ -6,9 +6,10 @@ import Searchbar from "@/features/shared/components/Searchbar";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash } from "lucide-react";
-import CreateFarmForm from "./CreateFarmForm";
-import CreateFarmBulk from "./CreateFarmBulk";
+
+import CreateBulkFarm from "./CreateBulkFarm";
 import RoleGuard from "@/features/shared/components/RoleGuard";
+import CreateSingleFarm from "./CreateSingleFarm";
 
 type FarmHeaderProps = {
   search: string;
@@ -65,8 +66,8 @@ const FarmHeader = ({ search, setSearch, totalFarms }: FarmHeaderProps) => {
             entityType="farm"
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            SingleEntityForm={<CreateFarmForm onSuccess={handleSuccess} />}
-            BulkEntityForm={<CreateFarmBulk onSuccess={handleSuccess} />}
+            SingleEntityForm={<CreateSingleFarm onSuccess={handleSuccess} />}
+            BulkEntityForm={<CreateBulkFarm onSuccess={handleSuccess} />}
           />
         </RoleGuard>
       </div>

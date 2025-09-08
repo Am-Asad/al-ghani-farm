@@ -12,11 +12,11 @@ import {
   createFarmSchema,
 } from "@/features/farms/schemas/createFarmSchema";
 
-type CreateFarmFormProps = {
+type CreateSingleFarmProps = {
   onSuccess?: () => void;
 };
 
-const CreateFarmForm = ({ onSuccess }: CreateFarmFormProps) => {
+const CreateSingleFarm = ({ onSuccess }: CreateSingleFarmProps) => {
   const { mutate: createFarm } = useCreateFarm();
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -145,4 +145,4 @@ const CreateFarmForm = ({ onSuccess }: CreateFarmFormProps) => {
   );
 };
 
-export default CreateFarmForm;
+export default CreateSingleFarm;
