@@ -1,5 +1,5 @@
 import { asyncHandler } from "../middleware/asyncHandler.js";
-import UserModel from "../models/users.js";
+import { UserModel } from "../models/users.js";
 import { AppError } from "../utils/AppError.js";
 import { updatePermissions } from "../utils/updatePermissions.js";
 import bcrypt from "bcryptjs";

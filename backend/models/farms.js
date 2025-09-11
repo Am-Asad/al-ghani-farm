@@ -19,12 +19,10 @@ const farmSchema = new mongoose.Schema(
       positive: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 farmSchema.index({ createdAt: -1 });
 farmSchema.index({ updatedAt: -1 });
 
-const FarmModel = mongoose.model("Farm", farmSchema);
-
-export default FarmModel;
+export const FarmModel = mongoose.model("Farm", farmSchema);

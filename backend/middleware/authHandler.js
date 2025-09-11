@@ -4,8 +4,6 @@ import jwt from "jsonwebtoken";
 export const authHandler = (req, res, next) => {
   const access_token = req.cookies.access_token;
   const refresh_token = req.cookies.refresh_token;
-  console.log("access_token", access_token);
-  console.log("refresh_token", refresh_token);
 
   if (!access_token || !refresh_token) {
     const err = new AppError(

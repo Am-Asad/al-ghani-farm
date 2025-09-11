@@ -14,6 +14,7 @@ import logger from "./utils/logger.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import farmRoutes from "./routes/farmRoutes.js";
+import flockRoutes from "./routes/flockRoutes.js";
 
 dotenv.config(); // Load environment variables
 const app = express(); // Create express app
@@ -63,6 +64,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/farms", farmRoutes);
+app.use("/api/v1/flocks", flockRoutes);
 
 // ERROR HANDLING MIDDLEWARES
 app.use(notFound);

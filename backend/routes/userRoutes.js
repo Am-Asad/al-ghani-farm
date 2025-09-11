@@ -8,7 +8,7 @@ import {
   deleteSingleUser,
   getMeUser,
   createUserBulk,
-} from "../controllers/usersController.js";
+} from "../controllers/userController.js";
 import { authHandler } from "../middleware/authHandler.js";
 import { authorizeRoles } from "../middleware/authorizeRoles.js";
 import { zodValidate } from "../middleware/zodValidate.js";

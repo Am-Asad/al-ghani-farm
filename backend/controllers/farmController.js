@@ -1,5 +1,6 @@
 import { asyncHandler } from "../middleware/asyncHandler.js";
-import FarmModel from "../models/farms.js";
+import { FarmModel } from "../models/farms.js";
+import { FlockModel } from "../models/flocks.js";
 import { AppError } from "../utils/AppError.js";
 
 export const getAllFarms = asyncHandler(async (req, res) => {
@@ -12,8 +13,8 @@ export const getAllFarms = asyncHandler(async (req, res) => {
 });
 
 export const getSingleFarm = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const farm = await FarmModel.findById(id);
+  const { farmId } = req.params;
+  const farm = await FarmModel.findById(farmId);
   if (!farm) {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
@@ -21,6 +22,29 @@ export const getSingleFarm = asyncHandler(async (req, res) => {
     status: "success",
     message: "Farm fetched successfully",
     data: farm,
+  });
+});
+
+export const getAllFlocksByFarmId = asyncHandler(async (req, res, next) => {
+  const { farmId } = req.params;
+
+  // First check if the farm exists
+  const farm = await FarmModel.findById(farmId);
+  if (!farm) {
+    const error = new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
+    return next(error);
+  }
+
+  // Get all flocks for this farm
+  const flocks = await FlockModel.find({ farmId }).sort({ createdAt: -1 });
+
+  res.status(200).json({
+    status: "success",
+    message: "Flocks fetched successfully",
+    data: {
+      ...farm.toObject(),
+      flocks,
+    },
   });
 });
 
@@ -48,9 +72,9 @@ export const createBulkFarms = asyncHandler(async (req, res) => {
 
 // Update
 export const updateSingleFarm = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { farmId } = req.params;
 
-  const farm = await FarmModel.findByIdAndUpdate(id, req.body, {
+  const farm = await FarmModel.findByIdAndUpdate(farmId, req.body, {
     new: true,
     runValidators: true, // Ensure validation runs on update
   });
@@ -68,8 +92,8 @@ export const updateSingleFarm = asyncHandler(async (req, res) => {
 
 // Delete
 export const deleteSingleFarm = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const farm = await FarmModel.findByIdAndDelete(id);
+  const { farmId } = req.params;
+  const farm = await FarmModel.findByIdAndDelete(farmId);
   if (!farm) {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }

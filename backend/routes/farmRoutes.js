@@ -7,6 +7,7 @@ import {
   deleteAllFarms,
   deleteSingleFarm,
   createBulkFarms,
+  getAllFlocksByFarmId,
 } from "../controllers/farmController.js";
 import { authHandler } from "../middleware/authHandler.js";
 import { authorizeRoles } from "../middleware/authorizeRoles.js";
@@ -24,7 +25,8 @@ router.use(authHandler);
 
 // Routes
 router.get("/", getAllFarms);
-router.get("/:id", getSingleFarm);
+router.get("/:farmId/flocks", getAllFlocksByFarmId);
+router.get("/:farmId", getSingleFarm);
 
 router.post(
   "/",
@@ -40,13 +42,13 @@ router.post(
 );
 
 router.put(
-  "/:id",
+  "/:farmId",
   authorizeRoles(["admin", "manager"]),
   zodValidate(updateFarmSchema),
   updateSingleFarm
 );
 
 router.delete("/all", authorizeRoles(["admin"]), deleteAllFarms);
-router.delete("/:id", authorizeRoles(["admin"]), deleteSingleFarm);
+router.delete("/:farmId", authorizeRoles(["admin"]), deleteSingleFarm);
 
 export default router;
