@@ -7,14 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { User, Mail, Calendar } from "lucide-react";
+import { User, Mail, Calendar, Pencil } from "lucide-react";
 import { User as UserType } from "@/types/user-types";
-import EditUserForm from "./EditUserForm";
+import CreateEditUserForm from "./CreateEditUserForm";
 import { formatDate } from "@/utils/format-date";
 import { cn } from "@/lib/utils";
 import { useDeleteUser } from "../hooks/useDeleteUser";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
+import { Button } from "@/components/ui/button";
 
 type UserCardProps = {
   user: UserType;
@@ -90,9 +91,17 @@ const UserCard = ({ user }: UserCardProps) => {
           </p>
         </div>
 
-        <div className="flex space-x-2">
+        <div className="flex gap-2">
           <RoleGuard requiredRole={["admin", "manager"]}>
-            <EditUserForm selectedUser={user} />
+            <CreateEditUserForm
+              selectedUser={user}
+              triggerButton={
+                <Button variant="outline" size="sm" className="flex-1">
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit User
+                </Button>
+              }
+            />
           </RoleGuard>
           <RoleGuard requiredRole={["admin"]}>
             <ConfirmationDialog

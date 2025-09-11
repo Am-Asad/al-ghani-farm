@@ -4,6 +4,7 @@ import {
   userSignin,
   userLogout,
   refreshAccessToken,
+  userSignupBulk,
 } from "../controllers/authController.js";
 import { zodValidate } from "../middleware/zodValidate.js";
 import { signupSchema, signinSchema } from "../validations/authSchemas.js";

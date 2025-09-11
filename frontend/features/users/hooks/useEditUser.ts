@@ -4,6 +4,7 @@ import { User as UserType } from "@/types/user-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
+import { APIResponse } from "@/types";
 
 export const useEditUser = () => {
   const queryClient = useQueryClient();
@@ -12,10 +13,12 @@ export const useEditUser = () => {
     onMutate: () => {
       toast.loading("Editing user...", { id: "editUser" });
     },
-    mutationFn: async (
-      userData: Omit<UserType, "createdAt" | "updatedAt" | "permissions">
-    ) => {
-      const response = await api.put(`/users/${userData._id}`, userData);
+    mutationFn: async (userData: Omit<UserType, "createdAt" | "updatedAt">) => {
+      console.log("userData in edit user hook", userData);
+      const response = await api.put<APIResponse<UserType>>(
+        `/users/${userData._id}`,
+        userData
+      );
       return response.data;
     },
     onSuccess: (response) => {

@@ -3,6 +3,7 @@ import { queryKeys } from "@/lib/query-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
+import { APIResponse } from "@/types";
 
 export const useDeleteFarm = () => {
   const queryClient = useQueryClient();
@@ -12,7 +13,9 @@ export const useDeleteFarm = () => {
       toast.loading("Deleting farm...", { id: "deleteFarm" });
     },
     mutationFn: async (id: string) => {
-      const response = await api.delete(`/farms/${id}`);
+      const response = await api.delete<APIResponse<{ id: string }>>(
+        `/farms/${id}`
+      );
       return response.data;
     },
     onSuccess: (response) => {

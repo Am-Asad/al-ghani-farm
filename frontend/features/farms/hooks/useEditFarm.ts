@@ -4,6 +4,7 @@ import { Farm as FarmType } from "@/types/farm-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
+import { APIResponse } from "@/types";
 
 export const useEditFarm = () => {
   const queryClient = useQueryClient();
@@ -13,7 +14,10 @@ export const useEditFarm = () => {
       toast.loading("Editing farm...", { id: "editFarm" });
     },
     mutationFn: async (farmData: Omit<FarmType, "createdAt" | "updatedAt">) => {
-      const response = await api.put(`/farms/${farmData._id}`, farmData);
+      const response = await api.put<APIResponse<FarmType>>(
+        `/farms/${farmData._id}`,
+        farmData
+      );
       return response.data;
     },
     onSuccess: (response) => {

@@ -4,18 +4,18 @@ import {
   getSingleUser,
   createUser,
   updateSingleUser,
-  updateUserRole,
   deleteAllUsers,
   deleteSingleUser,
   getMeUser,
+  createUserBulk,
 } from "../controllers/usersController.js";
 import { authHandler } from "../middleware/authHandler.js";
 import { authorizeRoles } from "../middleware/authorizeRoles.js";
 import { zodValidate } from "../middleware/zodValidate.js";
 import {
   updateUserSchema,
-  updateUserRoleSchema,
   createUserSchema,
+  createUserBulkSchema,
 } from "../validations/userSchemas.js";
 
 const router = Router();
@@ -34,13 +34,13 @@ router.post(
   zodValidate(createUserSchema),
   createUser
 );
-
-router.patch(
-  "/:id/role",
+router.post(
+  "/bulk",
   authorizeRoles(["admin", "manager"]),
-  zodValidate(updateUserRoleSchema),
-  updateUserRole
+  zodValidate(createUserBulkSchema),
+  createUserBulk
 );
+
 router.put(
   "/:id",
   authorizeRoles(["admin", "manager"]),

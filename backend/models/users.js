@@ -33,63 +33,8 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "manager", "viewer"],
       default: "viewer",
     },
-    permissions: {
-      type: [
-        {
-          resource: {
-            type: String,
-            enum: [
-              "farms",
-              "ledgers",
-              "reports",
-              "users",
-              "vehicles",
-              "brokers",
-            ],
-            required: true,
-          },
-          actions: {
-            type: [String],
-            enum: ["create", "read", "update", "delete"],
-            required: true,
-            validate: {
-              validator: function (actions) {
-                return actions && actions.length > 0;
-              },
-              message: "At least one action must be specified",
-            },
-          },
-        },
-      ],
-      default: [
-        {
-          resource: "farms",
-          actions: ["read"],
-        },
-        {
-          resource: "ledgers",
-          actions: ["read"],
-        },
-        {
-          resource: "reports",
-          actions: ["read"],
-        },
-        {
-          resource: "users",
-          actions: ["read"],
-        },
-        {
-          resource: "vehicles",
-          actions: ["read"],
-        },
-        {
-          resource: "brokers",
-          actions: ["read"],
-        },
-      ],
-    },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 // INDEXES

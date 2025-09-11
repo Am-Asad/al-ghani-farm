@@ -52,6 +52,42 @@ export const createUser = asyncHandler(async (req, res) => {
   });
 });
 
+export const createUserBulk = asyncHandler(async (req, res, next) => {
+  // Hash the password for each user
+  const usersWithHashedPassword = await Promise.all(
+    req.body.map(async (user) => {
+      user.password = await bcrypt.hash(user.password, 10);
+      return user;
+    })
+  );
+
+  // Insert the users into the database
+  const users = await UserModel.insertMany(usersWithHashedPassword);
+
+  // Check if no users were created
+  if (users.length === 0) {
+    const error = new AppError(
+      "No users created",
+      400,
+      "NO_USERS_CREATED",
+      true
+    );
+    return next(error);
+  }
+
+  // Remove the password from the users
+  users.forEach((user) => {
+    user.password = undefined;
+  });
+
+  // Return the users
+  res.status(201).json({
+    status: "success",
+    message: "Users created successfully",
+    data: users.map((user) => user.toObject()),
+  });
+});
+
 // Update
 export const updateSingleUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -87,30 +123,6 @@ export const updateSingleUser = asyncHandler(async (req, res) => {
   res.status(200).json({
     status: "success",
     message: "User updated successfully",
-    data: user,
-  });
-});
-
-export const updateUserRole = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { role } = req.body;
-  const updatedPermissions = updatePermissions(role);
-  const user = await UserModel.findByIdAndUpdate(
-    id,
-    {
-      role: role,
-      permissions: updatedPermissions,
-    },
-    { new: true }
-  ).select("-password");
-
-  if (!user) {
-    throw new AppError("User not found", 404, "USER_NOT_FOUND", true);
-  }
-
-  res.status(200).json({
-    status: "success",
-    message: "User role updated successfully",
     data: user,
   });
 });

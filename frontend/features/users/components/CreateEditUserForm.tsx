@@ -1,6 +1,6 @@
 "use client";
-
-import { useState } from "react";
+import React, { useState } from "react";
+import { createEditUserSchema } from "../schemas/createEditUserSchema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,10 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { User, Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
-import { toast } from "sonner";
-import { editUserSchema } from "@/features/users/schemas/editUserSchema";
-import { User as UserType } from "@/types/user-types";
 import {
   Select,
   SelectContent,
@@ -24,19 +20,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEditUser } from "@/features/users/hooks/useEditUser";
+import { User, Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
+import { User as UserType } from "@/types/user-types";
+import { useEditUser } from "../hooks/useEditUser";
+import { useCreateUser } from "../hooks/useCreateUser";
+import { toast } from "sonner";
+import { CreateEditUserSchema } from "../schemas/createEditUserSchema";
 
-type EditUserFormProps = {
-  selectedUser: UserType;
+type CreateEditUserFormProps = {
+  selectedUser?: UserType;
+  triggerButton?: React.ReactNode;
 };
 
-const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
-  const { mutate: editUser } = useEditUser();
+const CreateEditUserForm = ({
+  selectedUser,
+  triggerButton,
+}: CreateEditUserFormProps) => {
+  const isEditMode = !!selectedUser;
   const [isOpen, setIsOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  const {
+    mutate: createUser,
+    isPending: isCreatePending,
+    data: createUserData,
+  } = useCreateUser();
+  const {
+    mutate: editUser,
+    isPending: isEditPending,
+    data: editUserData,
+  } = useEditUser();
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setValidationErrors({});
+    setShowPassword(false);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,74 +67,66 @@ const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
 
     // Get form data using FormData API
     const formData = new FormData(e.target as HTMLFormElement);
-    const rawData = Object.fromEntries(formData) as Record<string, string>;
-
-    // Convert empty password string to undefined
-    if (rawData.password === "") {
-      delete rawData.password;
-    }
+    const rawData = Object.fromEntries(formData);
 
     // Validate with Zod schema
-    const validatedData = editUserSchema.safeParse(rawData);
+    const validatedData = createEditUserSchema(isEditMode).safeParse(rawData);
     if (!validatedData.success) {
       const formatted: Record<string, string> = {};
       validatedData.error.issues.forEach((err) => {
         formatted[err.path[0] as string] = err.message;
       });
       setValidationErrors(formatted);
-      toast.error("Edit user failed", { id: "editUser" });
-    } else {
-      setValidationErrors({});
-      toast.success("Edit user successful", { id: "editUser" });
-
-      // Only include password if it's provided and not empty
-      const userData: Partial<
-        Omit<UserType, "createdAt" | "updatedAt" | "permissions">
-      > = {
-        _id: selectedUser._id,
-        username: validatedData.data.username,
-        email: validatedData.data.email,
-        role: validatedData.data.role,
-      };
-
-      // Only include password if it's provided and not empty
-      if (
-        validatedData.data.password &&
-        validatedData.data.password.trim() !== ""
-      ) {
-        userData.password = validatedData.data.password;
-      }
-
-      editUser(
-        userData as Omit<UserType, "createdAt" | "updatedAt" | "permissions">
-      );
-      (e.target as HTMLFormElement).reset();
-      setIsOpen(false);
+      return;
     }
+
+    if (isEditMode) {
+      const payload = { ...validatedData.data } as Record<string, unknown>;
+      if (payload.password === "") delete payload.password;
+      editUser({
+        ...(payload as typeof validatedData.data),
+        _id: selectedUser?._id,
+      } as Omit<UserType, "createdAt" | "updatedAt">);
+      if (editUserData?.status === "success") {
+        toast.success(editUserData.message, { id: "editUser" });
+      }
+    } else {
+      const payload = { ...validatedData.data } as Record<string, unknown>;
+      createUser(payload as Omit<UserType, "_id" | "createdAt" | "updatedAt">);
+      if (createUserData?.status === "success") {
+        toast.success(createUserData.message, { id: "createUser" });
+      }
+    }
+    (e.target as HTMLFormElement).reset();
+    setIsOpen(false);
   };
 
-  const getFieldError = (
-    fieldName: keyof EditUserFormProps["selectedUser"]
-  ) => {
+  const getFieldError = (fieldName: keyof CreateEditUserSchema) => {
     return validationErrors[fieldName as string] || "";
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="flex-1">
-          <UserPlus className="w-4 h-4 mr-2" />
-          Edit User
-        </Button>
+        {triggerButton || (
+          <Button className="w-fit">
+            <UserPlus className="w-4 h-4 mr-2" />
+            {isEditMode ? "Edit User" : "Add User"}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <div className="flex items-center justify-center w-10 h-10 mx-auto bg-primary/10 rounded-full mb-2">
             <UserPlus className="w-5 h-5 text-primary" />
           </div>
-          <DialogTitle className="text-center">Edit User</DialogTitle>
+          <DialogTitle className="text-center">
+            {isEditMode ? "Edit User" : "Add new User"}
+          </DialogTitle>
           <DialogDescription className="text-center">
-            Edit the user with appropriate values
+            {isEditMode
+              ? "Edit the user with appropriate values"
+              : "Add a new user to the system with appropriate values"}
           </DialogDescription>
         </DialogHeader>
 
@@ -126,7 +140,7 @@ const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
                 name="username"
                 type="text"
                 placeholder="Enter username"
-                defaultValue={selectedUser.username}
+                defaultValue={selectedUser?.username || ""}
                 autoFocus={false}
                 className={`pl-10 ${
                   getFieldError("username") ? "border-destructive" : ""
@@ -154,7 +168,7 @@ const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
                 name="email"
                 type="email"
                 placeholder="Enter email address"
-                defaultValue={selectedUser.email}
+                defaultValue={selectedUser?.email || ""}
                 autoFocus={false}
                 className={`pl-10 ${
                   getFieldError("email") ? "border-destructive" : ""
@@ -174,7 +188,7 @@ const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password (optional)</Label>
+            <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -182,10 +196,12 @@ const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Create a password"
+                defaultValue={""}
                 autoFocus={false}
                 className={`pl-10 pr-10 ${
                   getFieldError("password") ? "border-destructive" : ""
                 }`}
+                required={!isEditMode}
               />
               <button
                 type="button"
@@ -213,7 +229,11 @@ const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
           {/* Role */}
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
-            <Select name="role" defaultValue={selectedUser.role}>
+            <Select
+              name="role"
+              defaultValue={selectedUser?.role || "viewer"}
+              required
+            >
               <SelectTrigger>
                 <SelectValue defaultValue="Select role" />
               </SelectTrigger>
@@ -226,14 +246,12 @@ const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
           </div>
 
           <DialogFooter className="gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-            >
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit">Edit User</Button>
+            <Button type="submit" disabled={isEditPending || isCreatePending}>
+              {isEditMode ? "Edit User" : "Create User"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -241,4 +259,4 @@ const EditUserForm = ({ selectedUser }: EditUserFormProps) => {
   );
 };
 
-export default EditUserForm;
+export default CreateEditUserForm;

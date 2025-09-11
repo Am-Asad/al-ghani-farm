@@ -1,14 +1,30 @@
 import { AppError } from "../utils/AppError.js";
 
 export const mongoErrorTranslator = (err, req, res, next) => {
-  // 1. Duplicate key
-  if (err.name === "MongoServerError" && err.code === 11000) {
-    // err.keyValue like { email: "a@b.com" }
-    const field = Object.keys(err.keyValue)[0];
-    const value = err.keyValue[field];
+  // 1) Duplicate key (single write or bulk write)
+  const isDupKey =
+    err?.code === 11000 ||
+    (err?.name === "MongoServerError" && err?.code === 11000) ||
+    (err?.name === "MongoBulkWriteError" && err?.code === 11000);
+
+  if (isDupKey) {
+    // Try to get field/value from the most reliable place available
+    const keyValue =
+      err?.keyValue ||
+      err?.writeErrors?.[0]?.err?.keyValue ||
+      err?.writeErrors?.[0]?.keyValue ||
+      null;
+
+    const field = keyValue ? Object.keys(keyValue)[0] : "unique_field";
+    const value = keyValue ? keyValue[field] : "duplicate";
+
     const message = `${field} "${value}" already exists`;
     const appErr = new AppError(message, 409, "DUPLICATE_KEY", true);
-    appErr.meta = { keyValue: err.keyValue };
+    appErr.meta = {
+      keyValue: keyValue || undefined,
+      index: err?.index,
+      nInserted: err?.result?.nInserted ?? undefined,
+    };
     return next(appErr);
   }
 

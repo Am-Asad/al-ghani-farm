@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-// User edit validation schema
-export const editFarmSchema = z.object({
+// Create farm validation schema
+export const createEditFarmSchema = z.object({
   name: z
     .string()
     .min(3, "Farm name must be at least 3 characters")
@@ -21,4 +21,4 @@ export const editFarmSchema = z.object({
 });
 
 // Types derived from schemas
-export type EditFarmFormData = z.infer<typeof editFarmSchema>;
+export type CreateEditFarmSchema = z.infer<typeof createEditFarmSchema>;

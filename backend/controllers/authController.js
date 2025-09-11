@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { UserModel } from "../models/users.js";
 import { AppError } from "../utils/AppError.js";
+import bcrypt from "bcryptjs";
 
 export const userSignup = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -14,7 +15,43 @@ export const userSignup = asyncHandler(async (req, res) => {
   res.status(201).json({
     status: "success",
     message: "User created successfully",
-    data: user,
+    data: user.toObject(),
+  });
+});
+
+export const userSignupBulk = asyncHandler(async (req, res, next) => {
+  // Hash the password for each user
+  const usersWithHashedPassword = await Promise.all(
+    req.body.map(async (user) => {
+      user.password = await bcrypt.hash(user.password, 10);
+      return user;
+    })
+  );
+
+  // Insert the users into the database
+  const users = await UserModel.insertMany(usersWithHashedPassword);
+
+  // Check if no users were created
+  if (users.length === 0) {
+    const error = new AppError(
+      "No users created",
+      400,
+      "NO_USERS_CREATED",
+      true
+    );
+    return next(error);
+  }
+
+  // Remove the password from the users
+  users.forEach((user) => {
+    user.password = undefined;
+  });
+
+  // Return the users
+  res.status(201).json({
+    status: "success",
+    message: "Users created successfully",
+    data: users.map((user) => user.toObject()),
   });
 });
 
@@ -38,7 +75,7 @@ export const userSignin = asyncHandler(async (req, res) => {
   const access_token = jwt.sign(
     { id: user._id, role: user.role },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "7d" } // Change it when finishing the working session to 15m
   );
   const refresh_token = jwt.sign(
     { id: user._id, role: user.role },
@@ -71,7 +108,7 @@ export const userSignin = asyncHandler(async (req, res) => {
   res.status(200).json({
     status: "success",
     message: "User signed in successfully",
-    data: user,
+    data: user.toObject(),
   });
 });
 
@@ -94,7 +131,7 @@ export const userLogout = asyncHandler(async (req, res) => {
   res.status(200).json({
     status: "success",
     message: "User logged out successfully",
-    data: {},
+    data: {}, // empty object
   });
 });
 

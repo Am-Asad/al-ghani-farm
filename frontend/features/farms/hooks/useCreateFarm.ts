@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { queryKeys } from "@/lib/query-client";
 import { Farm as FarmType } from "@/types/farm-types";
+import { APIResponse } from "@/types";
 
 export const useCreateFarm = () => {
   const queryClient = useQueryClient();
@@ -15,11 +16,10 @@ export const useCreateFarm = () => {
     mutationFn: async (
       farmData: Pick<FarmType, "name" | "supervisor" | "totalSheds">
     ) => {
-      const response = await api.post<{
-        status: "success" | "error";
-        message: string;
-        data: FarmType;
-      }>(`/farms`, farmData);
+      const response = await api.post<APIResponse<FarmType>>(
+        `/farms`,
+        farmData
+      );
       return response.data;
     },
     onSuccess: (response) => {

@@ -2,10 +2,10 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2 } from "lucide-react";
-import { Farm } from "@/types/farm-types";
+import { Farm } from "@/types";
 import { formatDate } from "@/utils/format-date";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
-import EditFarmForm from "./EditFarmForm";
+import CreateEditFarmForm from "./CreateEditFarmForm";
 import { useDeleteFarm } from "../hooks/useDeleteFarm";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 
@@ -44,7 +44,7 @@ const FarmCard = ({ farm }: FarmCardProps) => {
 
         <div className="flex space-x-2">
           <RoleGuard requiredRole={["admin", "manager"]}>
-            <EditFarmForm selectedFarm={farm} />
+            <CreateEditFarmForm selectedFarm={farm} />
           </RoleGuard>
           <RoleGuard requiredRole={["admin"]}>
             <ConfirmationDialog

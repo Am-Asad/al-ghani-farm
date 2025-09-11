@@ -3,7 +3,8 @@ import { SignupFormData } from "@/lib/validations/signupSchema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { SignupResponse } from "@/types/user-types";
+import { APIResponse } from "@/types";
+import { User as UserType } from "@/types/user-types";
 import { queryKeys } from "@/lib/query-client";
 
 export const useSignupUser = () => {
@@ -14,7 +15,10 @@ export const useSignupUser = () => {
       toast.loading("Signing up...", { id: "signup" });
     },
     mutationFn: async (userData: Omit<SignupFormData, "confirmPassword">) => {
-      const response = await api.post<SignupResponse>(`/auth/signup`, userData);
+      const response = await api.post<APIResponse<UserType>>(
+        `/auth/signup`,
+        userData
+      );
       return response.data;
     },
     onSuccess: (response) => {

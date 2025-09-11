@@ -4,6 +4,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Mail, Lock, Building2 } from "lucide-react";
+import { toast } from "sonner";
+import { useCreateFarm } from "@/features/farms/hooks/useCreateFarm";
+import {
+  CreateEditFarmSchema,
+  createEditFarmSchema,
+} from "@/features/farms/schemas/createEditFarmSchema";
+import { Farm as FarmType } from "@/types/farm-types";
+import { useEditFarm } from "../hooks/useEditFarm";
 import {
   Dialog,
   DialogContent,
@@ -13,22 +22,37 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Lock, Building2, PersonStanding } from "lucide-react";
-import { toast } from "sonner";
-import { editFarmSchema } from "@/features/farms/schemas/editFarmSchema";
-import { useEditFarm } from "../hooks/useEditFarm";
-import { Farm as FarmType } from "@/types/farm-types";
 
-type EditFarmFormProps = {
-  selectedFarm: FarmType;
+type CreateEditFarmFormProps = {
+  selectedFarm?: FarmType;
+  triggerButton?: React.ReactNode;
 };
 
-const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
-  const { mutate: editFarm } = useEditFarm();
+const CreateEditFarmForm = ({
+  selectedFarm,
+  triggerButton,
+}: CreateEditFarmFormProps) => {
+  const isEditMode = !!selectedFarm;
   const [isOpen, setIsOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  const {
+    mutate: createFarm,
+    isPending: isCreatePending,
+    data: createFarmData,
+  } = useCreateFarm();
+  const {
+    mutate: editFarm,
+    isPending: isEditPending,
+    data: editFarmData,
+  } = useEditFarm();
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setValidationErrors({});
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +64,7 @@ const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
     const rawData = Object.fromEntries(formData) as Record<string, string>;
 
     // Validate with Zod schema
-    const validatedData = editFarmSchema.safeParse({
+    const validatedData = createEditFarmSchema.safeParse({
       name: rawData.name,
       supervisor: rawData.supervisor,
       totalSheds: parseInt(rawData.totalSheds),
@@ -51,46 +75,56 @@ const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
         formatted[err.path[0] as string] = err.message;
       });
       setValidationErrors(formatted);
-      toast.error("Edit farm failed", { id: "editFarm" });
-    } else {
-      setValidationErrors({});
-      toast.success("Edit farm successful", { id: "editFarm" });
-
-      const farmData: Partial<Omit<FarmType, "createdAt" | "updatedAt">> = {
-        _id: selectedFarm._id,
-        name: validatedData.data.name,
-        supervisor: validatedData.data.supervisor,
-        totalSheds: validatedData.data.totalSheds,
-      };
-
-      editFarm(farmData as Omit<FarmType, "createdAt" | "updatedAt">);
-      (e.target as HTMLFormElement).reset();
-      setIsOpen(false);
+      return;
     }
+
+    if (isEditMode) {
+      const payload = { ...validatedData.data } as Record<string, unknown>;
+      editFarm({
+        ...(payload as typeof validatedData.data),
+        _id: selectedFarm?._id,
+      } as Omit<FarmType, "createdAt" | "updatedAt">);
+      if (editFarmData?.status === "success") {
+        toast.success(editFarmData.message, { id: "editFarm" });
+      }
+    } else {
+      const payload = { ...validatedData.data } as Record<string, unknown>;
+      createFarm(payload as Omit<FarmType, "_id" | "createdAt" | "updatedAt">);
+      if (createFarmData?.status === "success") {
+        toast.success(createFarmData.message, { id: "createFarm" });
+      }
+    }
+    (e.target as HTMLFormElement).reset();
+    setIsOpen(false);
   };
 
-  const getFieldError = (
-    fieldName: keyof EditFarmFormProps["selectedFarm"]
-  ) => {
+  const getFieldError = (fieldName: keyof CreateEditFarmSchema) => {
     return validationErrors[fieldName as string] || "";
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="flex-1">
-          <Building2 className="w-4 h-4 mr-2" />
-          Edit Farm
-        </Button>
+        {triggerButton || (
+          <Button className="w-fit">
+            <Building2 className="w-4 h-4 mr-2" />
+            {isEditMode ? "Edit Farm" : "Add Farm"}
+          </Button>
+        )}
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <div className="flex items-center justify-center w-10 h-10 mx-auto bg-primary/10 rounded-full mb-2">
             <Building2 className="w-5 h-5 text-primary" />
           </div>
-          <DialogTitle className="text-center">Edit User</DialogTitle>
+          <DialogTitle className="text-center">
+            {isEditMode ? "Edit Farm" : "Add new Farm"}
+          </DialogTitle>
           <DialogDescription className="text-center">
-            Edit the user with appropriate values
+            {isEditMode
+              ? "Edit the farm with appropriate values"
+              : "Add a new farm to the system with appropriate values"}
           </DialogDescription>
         </DialogHeader>
 
@@ -103,8 +137,8 @@ const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
                 id="name"
                 name="name"
                 type="text"
-                placeholder="Enter username"
-                defaultValue={selectedFarm.name}
+                placeholder="Enter farm name"
+                defaultValue={selectedFarm?.name || ""}
                 autoFocus={false}
                 className={`pl-10 ${
                   getFieldError("name") ? "border-destructive" : ""
@@ -118,7 +152,7 @@ const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Farm name must be between 3 and 50 characters
+                Farm Name must be between 3 and 50 characters
               </p>
             )}
           </div>
@@ -126,13 +160,13 @@ const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
           <div className="space-y-2">
             <Label htmlFor="supervisor">Supervisor</Label>
             <div className="relative">
-              <PersonStanding className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="supervisor"
                 name="supervisor"
                 type="text"
                 placeholder="Enter supervisor name"
-                defaultValue={selectedFarm.supervisor}
+                defaultValue={selectedFarm?.supervisor || ""}
                 autoFocus={false}
                 className={`pl-10 ${
                   getFieldError("supervisor") ? "border-destructive" : ""
@@ -160,11 +194,12 @@ const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
                 name="totalSheds"
                 type="number"
                 placeholder="Enter total sheds"
-                defaultValue={selectedFarm.totalSheds.toString()}
+                defaultValue={selectedFarm?.totalSheds.toString() || ""}
                 autoFocus={false}
                 className={`pl-10 pr-10 ${
                   getFieldError("totalSheds") ? "border-destructive" : ""
                 }`}
+                required
               />
             </div>
             {getFieldError("totalSheds") ? (
@@ -179,14 +214,12 @@ const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
           </div>
 
           <DialogFooter className="gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-            >
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit">Edit User</Button>
+            <Button type="submit" disabled={isEditPending || isCreatePending}>
+              {isEditMode ? "Edit Farm" : "Create Farm"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -194,4 +227,4 @@ const EditFarmForm = ({ selectedFarm }: EditFarmFormProps) => {
   );
 };
 
-export default EditFarmForm;
+export default CreateEditFarmForm;

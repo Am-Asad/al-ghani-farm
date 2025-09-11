@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-client";
+import { APIResponse } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -12,7 +13,9 @@ export const useDeleteUser = () => {
       toast.loading("Deleting user...", { id: "deleteUser" });
     },
     mutationFn: async (id: string) => {
-      const response = await api.delete(`/users/${id}`);
+      const response = await api.delete<APIResponse<{ id: string }>>(
+        `/users/${id}`
+      );
       return response.data;
     },
     onSuccess: (response) => {

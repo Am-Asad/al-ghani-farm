@@ -3,7 +3,8 @@ import { queryKeys } from "@/lib/query-client";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { AllFarmsResponse } from "@/types/farm-types";
+import { Farm as FarmType } from "@/types/farm-types";
+import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 export const useGetAllFarms = () => {
@@ -13,7 +14,7 @@ export const useGetAllFarms = () => {
     queryKey: queryKeys.farms,
     queryFn: async () => {
       try {
-        const response = await api.get<AllFarmsResponse>("/farms");
+        const response = await api.get<APIResponse<FarmType[]>>(`/farms`);
         return response.data;
       } catch (error) {
         toast.error(

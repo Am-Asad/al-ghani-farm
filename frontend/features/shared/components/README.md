@@ -4,32 +4,21 @@ This directory contains a generic, reusable bulk upload system that can be used 
 
 ## Components Overview
 
-### 1. `BulkUpload.tsx`
+### 1. `BulkCreate.tsx`
 
-The main component that orchestrates the entire bulk upload process. It handles:
+An entity-agnostic wrapper around `BulkUpload` that exposes a concise API for CSV/Excel driven bulk creation. Prefer using `BulkCreate` in your features.
 
-- File selection and validation
-- CSV parsing using the generic parser
-- Data preview and validation
-- Upload functionality
+### 2. `BulkUpload.tsx`
 
-### 2. `BulkDataPreview.tsx`
+The lower-level component that orchestrates the upload flow (file selection, parse, preview, upload).
 
-A generic component that displays:
+### 3. `BulkDataPreview.tsx`
 
-- Parse results summary (total, valid, invalid rows)
-- Validation errors with helpful tips
-- Data preview table
-- Action buttons (upload or download template)
+Displays parse results, validation errors, preview table, and actions.
 
-### 3. `useBulkUpload.ts`
+### 4. `useBulkUpload.ts`
 
-A generic React Query hook that handles:
-
-- API calls for bulk creation
-- Loading states and toast notifications
-- Query invalidation after successful uploads
-- Error handling
+React Query mutation for bulk creation with toasts and cache invalidation.
 
 ## How to Use
 
@@ -38,182 +27,186 @@ A generic React Query hook that handles:
 For each entity (e.g., farms, users), create a configuration file:
 
 ```typescript
-// features/[entity]/config/[entity]BulkConfig.ts
+// features/[entity]/utils/[entity]BulkConfig.ts
 import { z } from "zod";
-import { CSVConfig } from "@/utils/generic-csv-parser";
+import { CSVConfig } from "@/utils/csvParser";
 
-// 1. Define the schema for your entity
 export const entityRecordSchema = z.object({
-  name: z.string().min(3).max(50),
-  // ... other fields
+  name: z.string().min(3).max(50).trim(),
 });
 
-// 2. Define header variations for CSV parsing
-export const entityHeaders = {
+export type EntityRecord = z.infer<typeof entityRecordSchema>;
+
+export const entityHeaders: Record<keyof EntityRecord, string[]> = {
   name: ["name", "entity_name", "entity name"],
-  // ... other fields with their variations
 } as const;
 
-// 3. Create CSV configuration
 export const entityCSVConfig: CSVConfig<EntityRecord> = {
   schema: entityRecordSchema,
   headers: entityHeaders,
   entityName: "entity",
 };
 
-// 4. Define columns for data preview
-export const entityColumns = [
-  { key: "name" as keyof EntityRecord, label: "Name" },
-  // ... other columns
-];
+export const entityColumns = [{ key: "name" as const, label: "Name" }];
 
-// 5. Template configuration
-export const entityTemplateHeaders = ["name", "field2", "field3"];
-export const entitySampleData = ["Sample Name", "Sample Value", "Sample Value"];
+export const entityTemplateHeaders = ["name"];
+export const entitySampleData = ["Sample Name"];
 
-// 6. Transform function (optional)
-export function transformEntityRecordsToAPI(records: EntityRecord[]) {
-  return records.map((record) => ({
-    // Transform to API format
-  }));
-}
+export const transformEntityRecordsToAPI = (rows: EntityRecord[]) =>
+  rows.map((r) => ({ name: r.name }));
 ```
 
-### Step 2: Create the Bulk Upload Component
+### Step 2: Use `BulkCreate` in your feature component
 
-```typescript
-// features/[entity]/components/Create[Entity]Bulk.tsx
-import React from "react";
-import BulkUpload from "@/features/shared/components/BulkUpload";
+```tsx
+import BulkCreate from "@/features/shared/components/BulkCreate";
 import {
   entityCSVConfig,
   entityColumns,
   entityTemplateHeaders,
   entitySampleData,
   transformEntityRecordsToAPI,
-  EntityRecord,
-} from "../config/entityBulkConfig";
-import { queryKeys } from "@/lib/query-client";
+} from "@/features/[entity]/utils/[entity]BulkConfig";
 
-type CreateEntityBulkProps = {
-  onSuccess?: () => void;
-};
-
-const CreateEntityBulk = ({ onSuccess }: CreateEntityBulkProps) => {
-  return (
-    <BulkUpload<EntityRecord>
-      entityName="entity"
-      csvConfig={entityCSVConfig}
-      uploadConfig={{
-        endpoint: "entities",
-        queryKey: [...queryKeys.entities],
-        transformData: transformEntityRecordsToAPI, // optional
-        successMessage: (count) =>
-          `Successfully created ${count} entity${count > 1 ? "s" : ""}`,
-        loadingMessage: "Creating entities in bulk...",
-        errorMessage: "Failed to create entities",
-      }}
-      columns={entityColumns}
-      templateHeaders={entityTemplateHeaders}
-      sampleData={entitySampleData}
-      onSuccess={onSuccess}
-      uploadTitle="Upload Entity Data"
-      uploadDescription="Upload a CSV or Excel file with entity information"
-    />
-  );
-};
-
-export default CreateEntityBulk;
+export const CreateBulkEntities = () => (
+  <BulkCreate
+    entityName="entity"
+    csvConfig={entityCSVConfig}
+    uploadConfig={{
+      endpoint: "entities",
+      queryKey: ["entities"],
+      transformData: transformEntityRecordsToAPI,
+      loadingMessage: "Creating entities in bulk...",
+    }}
+    columns={entityColumns}
+    templateHeaders={entityTemplateHeaders}
+    sampleData={entitySampleData}
+  />
+);
 ```
 
-### Step 3: Integrate with Header Component
+### Step 3: Integrate with `CreateSingleBulkFormDialog`
 
-```typescript
-// features/[entity]/components/[Entity]Header.tsx
-import CreateEntityBulk from "./CreateEntityBulk";
+```tsx
 import CreateSingleBulkFormDialog from "@/features/shared/components/CreateSingleBulkFormDialog";
+import { CreateBulkEntities } from "./CreateBulkEntities";
 
-// In your header component:
 <CreateSingleBulkFormDialog
   trigger={<Button>Add Entity</Button>}
   entityType="entity"
   isOpen={isOpen}
   setIsOpen={setIsOpen}
   SingleEntityForm={<CreateEntityForm onSuccess={handleSuccess} />}
-  BulkEntityForm={<CreateEntityBulk onSuccess={handleSuccess} />}
+  BulkEntityForm={<CreateBulkEntities />}
 />;
 ```
 
-## Features
+## Concrete Examples
 
-### CSV Parsing
+### Farms
 
-- Supports CSV and Excel files (.csv, .xlsx, .xls)
-- Flexible header mapping (e.g., "name", "entity_name", "entity name")
-- Zod-based validation with detailed error messages
-- Handles missing headers and invalid data gracefully
+See `features/farms/utils/farmBulkConfig.ts` for a complete config. Use it with:
 
-### Data Preview
+```tsx
+import BulkCreate from "@/features/shared/components/BulkCreate";
+import {
+  farmCSVConfig,
+  farmColumns,
+  farmTemplateHeaders,
+  farmSampleData,
+  transformFarmRecordsToAPI,
+} from "@/features/farms/utils/farmBulkConfig";
 
-- Shows parse results summary
-- Displays validation errors with helpful tips
-- Preview table with first 10 records
-- Download template functionality
-
-### Upload Process
-
-- Loading states and progress indicators
-- Toast notifications for success/error
-- Automatic query invalidation
-- Form reset after successful upload
-
-### Error Handling
-
-- File type validation
-- CSV parsing errors
-- Data validation errors
-- API errors with user-friendly messages
-
-## Configuration Options
-
-### CSVConfig
-
-```typescript
-type CSVConfig<T> = {
-  schema: z.ZodSchema<T>; // Zod schema for validation
-  headers: Record<keyof T, string[]>; // Header variations
-  entityName: string; // Entity name for error messages
-};
+export const CreateBulkFarms = () => (
+  <BulkCreate
+    entityName="farm"
+    csvConfig={farmCSVConfig}
+    uploadConfig={{
+      endpoint: "farms",
+      queryKey: ["farms"],
+      transformData: transformFarmRecordsToAPI,
+      loadingMessage: "Creating farms in bulk...",
+    }}
+    columns={farmColumns}
+    templateHeaders={farmTemplateHeaders}
+    sampleData={farmSampleData}
+  />
+);
 ```
 
-### UploadConfig
+### Users (example)
 
-```typescript
-type BulkUploadConfig<T, R> = {
-  endpoint: string; // API endpoint (e.g., "farms")
-  queryKey: string[]; // Query key for invalidation
-  entityName: string; // Entity name for messages
-  transformData?: (data: T[]) => R[]; // Optional data transformation
-  successMessage?: (count: number) => string; // Custom success message
-  errorMessage?: string; // Custom error message
-  loadingMessage?: string; // Custom loading message
+Create a `features/users/utils/userBulkConfig.ts` similar to farms:
+
+```ts
+import { z } from "zod";
+import type { CSVConfig } from "@/utils/csvParser";
+
+export const userRecordSchema = z.object({
+  name: z.string().min(2).max(50).trim(),
+  email: z.string().email().trim(),
+  role: z.enum(["admin", "supervisor", "farmer"]),
+});
+
+export type UserRecord = z.infer<typeof userRecordSchema>;
+
+export const userHeaders: Record<keyof UserRecord, string[]> = {
+  name: ["name", "full_name", "full name"],
+  email: ["email", "email_address", "email address"],
+  role: ["role", "user_role", "user role"],
 };
+
+export const userCSVConfig: CSVConfig<UserRecord> = {
+  schema: userRecordSchema,
+  headers: userHeaders,
+  entityName: "user",
+};
+
+export const userColumns = [
+  { key: "name" as const, label: "Name" },
+  { key: "email" as const, label: "Email" },
+  { key: "role" as const, label: "Role" },
+];
+
+export const userTemplateHeaders = ["name", "email", "role"];
+export const userSampleData = ["Jane Doe", "jane@example.com", "farmer"];
+
+export const transformUserRecordsToAPI = (rows: UserRecord[]) =>
+  rows.map((r) => ({ name: r.name, email: r.email, role: r.role }));
 ```
 
-## Examples
+Use it:
 
-See the following implementations:
+```tsx
+import BulkCreate from "@/features/shared/components/BulkCreate";
+import {
+  userCSVConfig,
+  userColumns,
+  userTemplateHeaders,
+  userSampleData,
+  transformUserRecordsToAPI,
+} from "@/features/users/utils/userBulkConfig";
 
-- `features/farms/config/farmBulkConfig.ts` - Farm configuration
-- `features/farms/components/CreateFarmBulk.tsx` - Farm bulk upload
-- `features/users/config/userBulkConfig.ts` - User configuration
-- `features/users/components/CreateUserBulk.tsx` - User bulk upload
+export const CreateBulkUsers = () => (
+  <BulkCreate
+    entityName="user"
+    csvConfig={userCSVConfig}
+    uploadConfig={{
+      endpoint: "users",
+      queryKey: ["users"],
+      transformData: transformUserRecordsToAPI,
+      loadingMessage: "Creating users in bulk...",
+    }}
+    columns={userColumns}
+    templateHeaders={userTemplateHeaders}
+    sampleData={userSampleData}
+  />
+);
+```
 
-## Benefits
+## Notes
 
-1. **Reusability**: Single implementation for all entities
-2. **Type Safety**: Full TypeScript support with generics
-3. **Consistency**: Uniform UX across all modules
-4. **Maintainability**: Centralized logic, easy to update
-5. **Flexibility**: Configurable for different data structures
-6. **Error Handling**: Comprehensive validation and user feedback
+- Validation is enforced via Zod in `csvConfig.schema`.
+- Header variations are handled via `csvConfig.headers`.
+- `transformData` maps parsed rows to your API payload.
+- Cache invalidation is controlled with `uploadConfig.queryKey`.

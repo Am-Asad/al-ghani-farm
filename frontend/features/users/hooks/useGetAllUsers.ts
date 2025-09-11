@@ -3,7 +3,8 @@ import { queryKeys } from "@/lib/query-client";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { AllUsersResponse } from "@/types/user-types";
+import { APIResponse } from "@/types";
+import { User as UserType } from "@/types/user-types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 export const useGetAllUsers = () => {
@@ -12,7 +13,7 @@ export const useGetAllUsers = () => {
     queryKey: queryKeys.users,
     queryFn: async () => {
       try {
-        const response = await api.get<AllUsersResponse>("/users");
+        const response = await api.get<APIResponse<UserType[]>>("/users");
         return response.data;
       } catch (error) {
         toast.error(

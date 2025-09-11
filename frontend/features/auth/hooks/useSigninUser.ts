@@ -4,7 +4,8 @@ import { SigninFormData } from "@/lib/validations/signinSchema";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { SigninResponse } from "@/types/user-types";
+import { APIResponse } from "@/types";
+import { User as UserType } from "@/types/user-types";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
 
@@ -17,7 +18,10 @@ export const useSigninUser = () => {
       toast.loading("Signing in...", { id: "signin" });
     },
     mutationFn: async (userData: SigninFormData) => {
-      const response = await api.post<SigninResponse>(`/auth/signin`, userData);
+      const response = await api.post<APIResponse<UserType>>(
+        `/auth/signin`,
+        userData
+      );
       return response.data;
     },
     onSuccess: async (response) => {
