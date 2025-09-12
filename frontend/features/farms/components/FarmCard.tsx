@@ -9,6 +9,7 @@ import CreateEditFarmForm from "./CreateEditFarmForm";
 import { useDeleteFarm } from "../hooks/useDeleteFarm";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import { useRouter } from "next/navigation";
+import { formatSingleDigit } from "@/utils/format-single-digit";
 
 type FarmCardProps = {
   farm: Farm;
@@ -34,7 +35,7 @@ const FarmCard = ({ farm }: FarmCardProps) => {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Total Flocks</p>
-            <p className="font-medium">{farm.flocksCount}</p>
+            <p className="font-medium">{formatSingleDigit(farm.flocksCount)}</p>
           </div>
           <div>
             <p className="text-muted-foreground">Supervisor</p>

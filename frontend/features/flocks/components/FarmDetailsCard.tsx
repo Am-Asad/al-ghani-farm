@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Farm } from "@/types";
 import { formatDate } from "@/utils/format-date";
+import { formatSingleDigit } from "@/utils/format-single-digit";
 import { Building2 } from "lucide-react";
 import React from "react";
 
@@ -25,7 +26,9 @@ const FarmDetailsCard = ({ farm }: FarmDetailsCardProps) => {
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Flocks</p>
-            <p className="text-lg font-medium">{farm.flocksCount}</p>
+            <p className="text-lg font-medium">
+              {formatSingleDigit(farm.flocksCount)}
+            </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Created At</p>

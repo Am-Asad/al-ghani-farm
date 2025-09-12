@@ -4,24 +4,29 @@ import { AppError } from "../utils/AppError.js";
 import { FarmModel } from "../models/farms.js";
 
 export const getAllFlocks = asyncHandler(async (req, res) => {
-  const flocks = await FlockModel.find().sort({ createdAt: -1 });
+  const flocksWithTotalChicks = await FlockModel.getAllFlocksWithTotalChicks();
+
   res.status(200).json({
     status: "success",
     message: "Flocks fetched successfully",
-    data: flocks,
+    data: flocksWithTotalChicks,
   });
 });
 
 export const getFlockById = asyncHandler(async (req, res, next) => {
-  const flock = await FlockModel.findById(req.params.flockId);
-  if (!flock) {
+  const flocks = await FlockModel.getFlockByIdWithTotalChicks(
+    req.params.flockId
+  );
+
+  if (!flocks || flocks.length === 0) {
     const error = new AppError("Flock not found", 404, "FLOCK_NOT_FOUND", true);
     return next(error);
   }
+
   res.status(200).json({
     status: "success",
     message: "Flock fetched successfully",
-    data: flock,
+    data: flocks[0], // Return the first (and only) result from aggregation
   });
 });
 

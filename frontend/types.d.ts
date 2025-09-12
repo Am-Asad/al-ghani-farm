@@ -32,6 +32,7 @@ export type Flock = {
   status: string;
   startDate: string;
   endDate?: string;
+  totalChicks: number;
   createdAt: string;
   updatedAt: string;
 };

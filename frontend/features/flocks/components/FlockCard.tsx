@@ -8,6 +8,7 @@ import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog"
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import CreateEditFlockForm from "./CreateEditFlockForm";
 import { useDeleteFlock } from "../hooks/useDeleteFlock";
+import { formatSingleDigit } from "@/utils/format-single-digit";
 
 type FlockCardProps = {
   flock: Flock;
@@ -58,6 +59,15 @@ const FlockCard = ({ flock }: FlockCardProps) => {
               {flock?.endDate ? formatDate(flock.endDate) : "N/A"}
             </p>
           </div>
+        </div>
+
+        <div className="pt-2 border-t">
+          <div className="flex items-center space-x-2">
+            <p className="text-sm text-muted-foreground">Total Chicks</p>
+          </div>
+          <p className="text-lg font-semibold text-primary">
+            {formatSingleDigit(flock.totalChicks?.toLocaleString() || 0)}
+          </p>
         </div>
 
         <div className="pt-2 border-t">
