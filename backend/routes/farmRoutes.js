@@ -2,12 +2,11 @@ import { Router } from "express";
 import {
   createFarm,
   getAllFarms,
-  getSingleFarm,
-  updateSingleFarm,
+  getFarmById,
+  updateFarmById,
   deleteAllFarms,
-  deleteSingleFarm,
+  deleteFarmById,
   createBulkFarms,
-  getAllFlocksByFarmId,
 } from "../controllers/farmController.js";
 import { authHandler } from "../middleware/authHandler.js";
 import { authorizeRoles } from "../middleware/authorizeRoles.js";
@@ -25,30 +24,29 @@ router.use(authHandler);
 
 // Routes
 router.get("/", getAllFarms);
-router.get("/:farmId/flocks", getAllFlocksByFarmId);
-router.get("/:farmId", getSingleFarm);
+router.get("/:farmId", getFarmById);
 
-router.post(
-  "/",
-  authorizeRoles(["admin", "manager"]),
-  zodValidate(createFarmSchema),
-  createFarm
-);
 router.post(
   "/bulk",
   authorizeRoles(["admin", "manager"]),
   zodValidate(createBulkFarmsSchema),
   createBulkFarms
 );
+router.post(
+  "/",
+  authorizeRoles(["admin", "manager"]),
+  zodValidate(createFarmSchema),
+  createFarm
+);
 
 router.put(
   "/:farmId",
   authorizeRoles(["admin", "manager"]),
   zodValidate(updateFarmSchema),
-  updateSingleFarm
+  updateFarmById
 );
 
 router.delete("/all", authorizeRoles(["admin"]), deleteAllFarms);
-router.delete("/:farmId", authorizeRoles(["admin"]), deleteSingleFarm);
+router.delete("/:farmId", authorizeRoles(["admin"]), deleteFarmById);
 
 export default router;

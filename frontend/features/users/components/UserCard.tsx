@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { User, Mail, Calendar, Pencil } from "lucide-react";
-import { User as UserType } from "@/types/user-types";
+import { User as UserType } from "@/types";
 import CreateEditUserForm from "./CreateEditUserForm";
 import { formatDate } from "@/utils/format-date";
 import { cn } from "@/lib/utils";
@@ -107,6 +107,7 @@ const UserCard = ({ user }: UserCardProps) => {
             <ConfirmationDialog
               title="Delete User"
               description="Are you sure you want to delete this user?"
+              confirmationText={user.username}
               onConfirm={() => deleteUser(user._id)}
             />
           </RoleGuard>

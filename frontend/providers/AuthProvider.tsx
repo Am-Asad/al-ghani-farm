@@ -8,7 +8,7 @@ import {
   useCallback,
 } from "react";
 import { api } from "@/lib/api";
-import { User as UserType } from "@/types/user-types";
+import { APIResponse, User as UserType } from "@/types";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import GlobalLoader from "@/features/shared/components/GlobalLoader";
@@ -51,11 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUser = useCallback(async () => {
     try {
       setError(null);
-      const res = await api.get<{
-        status: string;
-        message: string;
-        data: UserType;
-      }>("/users/me");
+      const res = await api.get<APIResponse<UserType>>("/users/me");
       setUser(res.data?.data);
     } catch (error) {
       const errorMessage =

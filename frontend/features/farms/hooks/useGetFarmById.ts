@@ -1,29 +1,31 @@
-import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-client";
 import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { APIResponse, FarmWithFlocks } from "@/types";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { Farm as FarmType } from "@/types";
-import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllFarms = () => {
+export const useGetFarmById = (farmId: string) => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: queryKeys.farms,
+    queryKey: queryKeys.farmById(farmId),
     queryFn: async () => {
       try {
-        const response = await api.get<APIResponse<FarmType[]>>(`/farms`);
+        const response = await api.get<APIResponse<FarmWithFlocks>>(
+          `/farms/${farmId}`
+        );
         return response.data;
       } catch (error) {
         toast.error(
           error instanceof AxiosError
             ? error.response?.data?.error?.message
-            : "Failed to fetch farms"
+            : "Failed to fetch farm",
+          { id: "getFarmById" }
         );
       }
     },
-    enabled: !!user?._id,
+    enabled: !!farmId && !!user?._id,
   });
 };

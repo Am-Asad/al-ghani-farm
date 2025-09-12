@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { User as UserType } from "@/types/user-types";
+import { User as UserType } from "@/types";
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-client";
 import { AxiosError } from "axios";

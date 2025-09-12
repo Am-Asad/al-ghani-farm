@@ -5,6 +5,7 @@ import { AppError } from "../utils/AppError.js";
 
 export const getAllFarms = asyncHandler(async (req, res) => {
   const farms = await FarmModel.find().sort({ createdAt: -1 });
+
   res.status(200).json({
     status: "success",
     message: "Farms fetched successfully",
@@ -12,52 +13,24 @@ export const getAllFarms = asyncHandler(async (req, res) => {
   });
 });
 
-export const getSingleFarm = asyncHandler(async (req, res) => {
+export const getFarmById = asyncHandler(async (req, res) => {
   const { farmId } = req.params;
   const farm = await FarmModel.findById(farmId);
   if (!farm) {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
+  const flocks = await FlockModel.find({ farmId });
   res.status(200).json({
     status: "success",
     message: "Farm fetched successfully",
-    data: farm,
-  });
-});
-
-export const getAllFlocksByFarmId = asyncHandler(async (req, res, next) => {
-  const { farmId } = req.params;
-
-  // First check if the farm exists
-  const farm = await FarmModel.findById(farmId);
-  if (!farm) {
-    const error = new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
-    return next(error);
-  }
-
-  // Get all flocks for this farm
-  const flocks = await FlockModel.find({ farmId }).sort({ createdAt: -1 });
-
-  res.status(200).json({
-    status: "success",
-    message: "Flocks fetched successfully",
     data: {
       ...farm.toObject(),
-      flocks,
+      flocks: [...flocks],
     },
   });
 });
 
 // Post
-export const createFarm = asyncHandler(async (req, res) => {
-  const farm = await FarmModel.create(req.body);
-  res.status(201).json({
-    status: "success",
-    message: "Farm created successfully",
-    data: farm,
-  });
-});
-
 export const createBulkFarms = asyncHandler(async (req, res) => {
   const farms = await FarmModel.insertMany(req.body);
   if (farms.length === 0) {
@@ -70,8 +43,17 @@ export const createBulkFarms = asyncHandler(async (req, res) => {
   });
 });
 
+export const createFarm = asyncHandler(async (req, res) => {
+  const farm = await FarmModel.create(req.body);
+  res.status(201).json({
+    status: "success",
+    message: "Farm created successfully",
+    data: farm,
+  });
+});
+
 // Update
-export const updateSingleFarm = asyncHandler(async (req, res) => {
+export const updateFarmById = asyncHandler(async (req, res) => {
   const { farmId } = req.params;
 
   const farm = await FarmModel.findByIdAndUpdate(farmId, req.body, {
@@ -91,26 +73,36 @@ export const updateSingleFarm = asyncHandler(async (req, res) => {
 });
 
 // Delete
-export const deleteSingleFarm = asyncHandler(async (req, res) => {
-  const { farmId } = req.params;
-  const farm = await FarmModel.findByIdAndDelete(farmId);
-  if (!farm) {
-    throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
-  }
-  res.status(200).json({
-    status: "success",
-    message: "Farm deleted successfully",
-    data: {
-      _id: farm._id,
-    },
-  });
-});
-
 export const deleteAllFarms = asyncHandler(async (req, res) => {
+  await FlockModel.deleteMany({});
   await FarmModel.deleteMany({});
   res.status(200).json({
     status: "success",
     message: "All farms deleted successfully",
     data: [],
+  });
+});
+
+export const deleteFarmById = asyncHandler(async (req, res) => {
+  const { farmId } = req.params;
+
+  // First check if the farm exists
+  const farm = await FarmModel.findById(farmId);
+  if (!farm) {
+    throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
+  }
+
+  // Delete all flocks associated with this farm
+  await FlockModel.deleteMany({ farmId });
+
+  // Delete the farm
+  await FarmModel.findByIdAndDelete(farmId);
+
+  res.status(200).json({
+    status: "success",
+    message: "Farm and associated flocks deleted successfully",
+    data: {
+      farmId: farm._id,
+    },
   });
 });

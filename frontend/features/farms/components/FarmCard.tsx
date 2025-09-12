@@ -8,6 +8,7 @@ import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog"
 import CreateEditFarmForm from "./CreateEditFarmForm";
 import { useDeleteFarm } from "../hooks/useDeleteFarm";
 import RoleGuard from "@/features/shared/components/RoleGuard";
+import { useRouter } from "next/navigation";
 
 type FarmCardProps = {
   farm: Farm;
@@ -15,8 +16,12 @@ type FarmCardProps = {
 
 const FarmCard = ({ farm }: FarmCardProps) => {
   const { mutate: deleteFarm } = useDeleteFarm();
+  const router = useRouter();
   return (
-    <Card className="hover:shadow-md transition-shadow h-fit">
+    <Card
+      className="hover:shadow-md transition-shadow h-fit cursor-pointer"
+      onClick={() => router.push(`/farms/${farm._id}`)}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -28,8 +33,8 @@ const FarmCard = ({ farm }: FarmCardProps) => {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">Sheds</p>
-            <p className="font-medium">{farm.totalSheds}</p>
+            <p className="text-muted-foreground">Total Flocks</p>
+            <p className="font-medium">{farm.flocksCount}</p>
           </div>
           <div>
             <p className="text-muted-foreground">Supervisor</p>
@@ -42,7 +47,7 @@ const FarmCard = ({ farm }: FarmCardProps) => {
           <p className="text-sm font-medium">{formatDate(farm.createdAt)}</p>
         </div>
 
-        <div className="flex space-x-2">
+        <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
           <RoleGuard requiredRole={["admin", "manager"]}>
             <CreateEditFarmForm selectedFarm={farm} />
           </RoleGuard>
@@ -50,6 +55,7 @@ const FarmCard = ({ farm }: FarmCardProps) => {
             <ConfirmationDialog
               title="Delete Farm"
               description="Are you sure you want to delete this farm?"
+              confirmationText={farm.name}
               onConfirm={() => deleteFarm(farm._id)}
             />
           </RoleGuard>

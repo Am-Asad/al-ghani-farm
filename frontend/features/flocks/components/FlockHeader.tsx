@@ -1,52 +1,53 @@
 "use client";
 import React from "react";
-import { useDeleteBulkFarms } from "@/features/farms/hooks/useDeleteBulkFarms";
 import Searchbar from "@/features/shared/components/Searchbar";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
-
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import CreateBulkFarms from "./CreateBulkFarms";
-import CreateEditFarmForm from "./CreateEditFarmForm";
+import CreateEditFlockForm from "./CreateEditFlockForm";
+import CreateBulkFlocks from "./CreateBulkFlocks";
+import { useParams } from "next/navigation";
+import { useDeleteBulkFlocks } from "../hooks/useDeleteBulkFlocks";
 
-type FarmHeaderProps = {
+type FlockHeaderProps = {
   search: string;
   setSearch: (search: string) => void;
-  totalFarms: number;
+  totalFlocks: number;
 };
 
-const FarmHeader = ({ search, setSearch, totalFarms }: FarmHeaderProps) => {
-  const { mutate: deleteBulkFarms } = useDeleteBulkFarms();
+const FlockHeader = ({ search, setSearch, totalFlocks }: FlockHeaderProps) => {
+  const { farmId } = useParams() as { farmId: string };
+  const { mutate: deleteBulkFlocks } = useDeleteBulkFlocks();
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Farms</h1>
+          <h1 className="text-3xl font-bold text-foreground">Flocks</h1>
           <p className="text-muted-foreground">
-            Manage system farms and their operations
+            Manage system flocks and their operations
           </p>
         </div>
         <Searchbar
           search={search}
           setSearch={setSearch}
-          placeholder="Search farms"
+          placeholder="Search flocks"
         />
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">
-        {totalFarms > 0 && (
+        {totalFlocks > 0 && (
           <RoleGuard requiredRole={["admin"]}>
             <ConfirmationDialog
-              title={`Delete All Farms (${totalFarms})`}
-              description={`Are you sure you want to delete all ${totalFarms} farms?`}
-              confirmationText={"Delete_All_Farms"}
-              onConfirm={() => deleteBulkFarms()}
+              title={`Delete All Flocks (${totalFlocks})`}
+              description={`Are you sure you want to delete all ${totalFlocks} flocks?`}
+              confirmationText="Delete_All_Flocks"
+              onConfirm={() => deleteBulkFlocks({ farmId })}
               trigger={
                 <Button className="w-fit">
                   <Trash className="w-4 h-4 mr-2" />
-                  Delete All Farms ({totalFarms})
+                  Delete All Flocks ({totalFlocks})
                 </Button>
               }
             />
@@ -54,12 +55,12 @@ const FarmHeader = ({ search, setSearch, totalFarms }: FarmHeaderProps) => {
         )}
 
         <RoleGuard requiredRole={["admin", "manager"]}>
-          <CreateEditFarmForm />
-          <CreateBulkFarms />
+          <CreateEditFlockForm />
+          <CreateBulkFlocks />
         </RoleGuard>
       </div>
     </div>
   );
 };
 
-export default FarmHeader;
+export default FlockHeader;

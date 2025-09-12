@@ -8,10 +8,16 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import FarmHeader from "@/features/farms/components/FarmHeader";
 import { useState } from "react";
+import CreateEditFarmForm from "@/features/farms/components/CreateEditFarmForm";
 
 export default function FarmsPage() {
   const [search, setSearch] = useState("");
   const { data, isLoading, isError, error } = useGetAllFarms();
+
+  const farms = data?.data || [];
+  const filteredFarms = farms.filter((farm) =>
+    farm.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -30,10 +36,16 @@ export default function FarmsPage() {
     );
   }
 
-  const farms = data?.data || [];
-  const filteredFarms = farms.filter((farm) =>
-    farm.name.toLowerCase().includes(search.toLowerCase())
-  );
+  if (farms.length === 0) {
+    return (
+      <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
+        <DataNotFound title="farms" icon={<Building2 className="w-10 h-10" />}>
+          <CreateEditFarmForm />
+        </DataNotFound>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
       {/* Page header */}

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { queryKeys } from "@/lib/query-client";
-import { Farm as FarmType } from "@/types/farm-types";
+import { Farm as FarmType } from "@/types";
 import { APIResponse } from "@/types";
 
 export const useCreateFarm = () => {
@@ -13,9 +13,7 @@ export const useCreateFarm = () => {
     onMutate: () => {
       toast.loading("Creating farm...", { id: "createFarm" });
     },
-    mutationFn: async (
-      farmData: Pick<FarmType, "name" | "supervisor" | "totalSheds">
-    ) => {
+    mutationFn: async (farmData: Pick<FarmType, "name" | "supervisor">) => {
       const response = await api.post<APIResponse<FarmType>>(
         `/farms`,
         farmData

@@ -13,16 +13,32 @@ const farmSchema = new mongoose.Schema(
       required: [true, "Supervisor is required"],
       trim: true,
     },
-    totalSheds: {
-      type: Number,
-      required: [true, "Total sheds is required"],
-      positive: true,
-    },
   },
-  { timestamps: true, versionKey: false }
+  {
+    timestamps: true,
+    versionKey: false,
+    id: false, // Disable the default id virtual
+  }
 );
 
 farmSchema.index({ createdAt: -1 });
 farmSchema.index({ updatedAt: -1 });
+
+// expose virtuals in JSON/Object output
+farmSchema.set("toObject", { virtuals: true });
+farmSchema.set("toJSON", { virtuals: true });
+
+// virtual populate that returns a NUMBER (count), not an array
+farmSchema.virtual("flocksCount", {
+  ref: "Flock",
+  localField: "_id",
+  foreignField: "farmId",
+  count: true, // <- key bit
+});
+
+farmSchema.pre(/^find/, function (next) {
+  this.populate({ path: "flocksCount" }); // returns a number
+  next();
+});
 
 export const FarmModel = mongoose.model("Farm", farmSchema);

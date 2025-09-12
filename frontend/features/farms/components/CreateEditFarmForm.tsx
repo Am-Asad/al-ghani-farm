@@ -4,14 +4,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, Building2 } from "lucide-react";
+import { Mail, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateFarm } from "@/features/farms/hooks/useCreateFarm";
 import {
   CreateEditFarmSchema,
   createEditFarmSchema,
 } from "@/features/farms/schemas/createEditFarmSchema";
-import { Farm as FarmType } from "@/types/farm-types";
+import { Farm as FarmType } from "@/types";
 import { useEditFarm } from "../hooks/useEditFarm";
 import {
   Dialog,
@@ -67,7 +67,6 @@ const CreateEditFarmForm = ({
     const validatedData = createEditFarmSchema.safeParse({
       name: rawData.name,
       supervisor: rawData.supervisor,
-      totalSheds: parseInt(rawData.totalSheds),
     });
     if (!validatedData.success) {
       const formatted: Record<string, string> = {};
@@ -89,7 +88,7 @@ const CreateEditFarmForm = ({
       }
     } else {
       const payload = { ...validatedData.data } as Record<string, unknown>;
-      createFarm(payload as Omit<FarmType, "_id" | "createdAt" | "updatedAt">);
+      createFarm(payload as Omit<FarmType, "createdAt" | "updatedAt">);
       if (createFarmData?.status === "success") {
         toast.success(createFarmData.message, { id: "createFarm" });
       }
@@ -181,34 +180,6 @@ const CreateEditFarmForm = ({
             ) : (
               <p className="text-xs text-muted-foreground">
                 Supervisor must be a valid name
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="totalSheds">Total Sheds</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                id="totalSheds"
-                name="totalSheds"
-                type="number"
-                placeholder="Enter total sheds"
-                defaultValue={selectedFarm?.totalSheds.toString() || ""}
-                autoFocus={false}
-                className={`pl-10 pr-10 ${
-                  getFieldError("totalSheds") ? "border-destructive" : ""
-                }`}
-                required
-              />
-            </div>
-            {getFieldError("totalSheds") ? (
-              <p className="text-xs text-destructive">
-                {getFieldError("totalSheds")}
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Total sheds must be at least 1
               </p>
             )}
           </div>

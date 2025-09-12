@@ -12,13 +12,6 @@ export const createFarmSchema = z.object({
       .min(3, "Supervisor name must be at least 3 characters")
       .max(50, "Supervisor name must be at most 50 characters")
       .trim(),
-    totalSheds: z
-      .number({
-        required_error: "Total sheds is required",
-        invalid_type_error: "Total sheds must be a number",
-      })
-      .int("Total sheds must be an integer")
-      .min(1, "Total sheds must be at least 1"),
   }),
   query: z.object({}).optional(),
   params: z.object({}).optional(),
@@ -36,13 +29,6 @@ const farmObjectSchema = z.object({
     .min(3, "Supervisor name must be at least 3 characters")
     .max(50, "Supervisor name must be at most 50 characters")
     .trim(),
-  totalSheds: z
-    .number({
-      required_error: "Total sheds is required",
-      invalid_type_error: "Total sheds must be a number",
-    })
-    .int("Total sheds must be an integer")
-    .min(1, "Total sheds must be at least 1"),
 });
 
 export const createBulkFarmsSchema = z.object({
@@ -64,13 +50,6 @@ export const updateFarmSchema = z.object({
       .min(3, "Supervisor name must be at least 3 characters")
       .max(100, "Supervisor name must be at most 100 characters")
       .trim()
-      .optional(),
-    totalSheds: z
-      .number({
-        invalid_type_error: "Total sheds must be a number",
-      })
-      .int("Total sheds must be an integer")
-      .min(1, "Total sheds must be at least 1")
       .optional(),
   }),
   query: z.object({}).optional(),

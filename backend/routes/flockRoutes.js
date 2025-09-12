@@ -10,11 +10,11 @@ import {
 import {
   getAllFlocks,
   getFlockById,
-  updateFlock,
-  deleteFlock,
-  createFlock,
   createBulkFlocks,
+  createFlock,
+  updateFlockById,
   deleteAllFlocks,
+  deleteFlockById,
 } from "../controllers/flockController.js";
 
 const router = Router();
@@ -28,17 +28,17 @@ router.get("/:flockId", getFlockById); // Get a flock by id
 
 // Create a new flock
 router.post(
-  "/",
-  authorizeRoles(["admin", "manager"]),
-  zodValidate(createFlockSchema),
-  createFlock
-);
-
-router.post(
   "/bulk",
   authorizeRoles(["admin", "manager"]),
   zodValidate(createBulkFlocksSchema),
   createBulkFlocks
+);
+
+router.post(
+  "/",
+  authorizeRoles(["admin", "manager"]),
+  zodValidate(createFlockSchema),
+  createFlock
 );
 
 // Update flock
@@ -46,11 +46,11 @@ router.put(
   "/:flockId",
   authorizeRoles(["admin", "manager"]),
   zodValidate(updateFlockSchema),
-  updateFlock
+  updateFlockById
 );
 
 // Delete flock
 router.delete("/all", authorizeRoles(["admin"]), deleteAllFlocks);
-router.delete("/:flockId", authorizeRoles(["admin"]), deleteFlock);
+router.delete("/:flockId", authorizeRoles(["admin"]), deleteFlockById);
 
 export default router;

@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { User, Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
-import { User as UserType } from "@/types/user-types";
+import { User as UserType } from "@/types";
 import { useEditUser } from "../hooks/useEditUser";
 import { useCreateUser } from "../hooks/useCreateUser";
 import { toast } from "sonner";

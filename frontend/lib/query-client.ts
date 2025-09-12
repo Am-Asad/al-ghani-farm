@@ -17,9 +17,11 @@ export const queryClient = new QueryClient({
 // Query Keys
 export const queryKeys = {
   farms: ["farms"] as const,
-  farm: (id: string) => ["farm", id] as const,
+  farmById: (farmId: string) => ["flocks", "farm", farmId] as const,
+
   flocks: ["flocks"] as const,
   flock: (id: string) => ["flock", id] as const,
+
   ledgers: ["ledgers"] as const,
   ledger: (id: string) => ["ledger", id] as const,
   vehicles: ["vehicles"] as const,

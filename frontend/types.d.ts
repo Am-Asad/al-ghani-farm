@@ -20,7 +20,22 @@ export type Farm = {
   _id: string;
   name: string;
   supervisor: string;
-  totalSheds: number;
   createdAt: string;
   updatedAt: string;
+  flocksCount: number;
+};
+
+export type Flock = {
+  _id: string;
+  farmId: string;
+  name: string;
+  status: string;
+  startDate: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FarmWithFlocks = Farm & {
+  flocks: Flock[];
 };

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { APIResponse } from "@/types";
-import { User as UserType } from "@/types/user-types";
+import { User as UserType } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 export const useGetAllUsers = () => {
