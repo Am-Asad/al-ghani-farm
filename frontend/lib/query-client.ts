@@ -20,7 +20,9 @@ export const queryKeys = {
   farmById: (farmId: string) => ["flocks", "farm", farmId] as const,
 
   flocks: ["flocks"] as const,
-  flock: (id: string) => ["flock", id] as const,
+  flockById: (flockId: string) => ["sheds", "flock", flockId] as const,
+
+  sheds: ["sheds"] as const,
 
   ledgers: ["ledgers"] as const,
   ledger: (id: string) => ["ledger", id] as const,

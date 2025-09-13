@@ -8,7 +8,7 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import FarmDetailsCard from "@/features/flocks/components/FarmDetailsCard";
+import FarmDetailsCard from "@/features/farms/components/FarmDetailsCard";
 import FlockHeader from "@/features/flocks/components/FlockHeader";
 import { useGetFarmById } from "@/features/farms/hooks/useGetFarmById";
 import CreateEditFlockForm from "@/features/flocks/components/CreateEditFlockForm";

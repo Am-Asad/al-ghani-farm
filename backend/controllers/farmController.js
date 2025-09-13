@@ -19,7 +19,7 @@ export const getFarmById = asyncHandler(async (req, res) => {
   if (!farm) {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
-  const flocks = await FlockModel.find({ farmId });
+  const flocks = await FlockModel.getAllFlocksWithTotalChicksForFarm(farmId);
   res.status(200).json({
     status: "success",
     message: "Farm fetched successfully",
@@ -74,11 +74,14 @@ export const updateFarmById = asyncHandler(async (req, res) => {
 
 // Delete
 export const deleteAllFarms = asyncHandler(async (req, res) => {
-  await FlockModel.deleteMany({});
-  await FarmModel.deleteMany({});
+  const farms = await FarmModel.deleteMany({});
+  if (!farms) {
+    throw new AppError("No farms deleted", 400, "NO_FARMS_DELETED", true);
+  }
   res.status(200).json({
     status: "success",
-    message: "All farms deleted successfully",
+    message:
+      "All farms and their associated flocks and sheds deleted successfully",
     data: [],
   });
 });
@@ -86,21 +89,14 @@ export const deleteAllFarms = asyncHandler(async (req, res) => {
 export const deleteFarmById = asyncHandler(async (req, res) => {
   const { farmId } = req.params;
 
-  // First check if the farm exists
-  const farm = await FarmModel.findById(farmId);
+  const farm = await FarmModel.findByIdAndDelete(farmId);
   if (!farm) {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
 
-  // Delete all flocks associated with this farm
-  await FlockModel.deleteMany({ farmId });
-
-  // Delete the farm
-  await FarmModel.findByIdAndDelete(farmId);
-
   res.status(200).json({
     status: "success",
-    message: "Farm and associated flocks deleted successfully",
+    message: `Farm with id ${farmId} and all its associated flocks and sheds deleted successfully`,
     data: {
       farmId: farm._id,
     },

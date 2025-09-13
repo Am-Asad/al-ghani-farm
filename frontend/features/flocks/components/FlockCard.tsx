@@ -9,12 +9,14 @@ import RoleGuard from "@/features/shared/components/RoleGuard";
 import CreateEditFlockForm from "./CreateEditFlockForm";
 import { useDeleteFlock } from "../hooks/useDeleteFlock";
 import { formatSingleDigit } from "@/utils/format-single-digit";
+import { useRouter } from "next/navigation";
 
 type FlockCardProps = {
   flock: Flock;
 };
 
 const FlockCard = ({ flock }: FlockCardProps) => {
+  const router = useRouter();
   const { mutate: deleteFlock } = useDeleteFlock(flock.farmId);
 
   const getStatusColor = (status: string) => {
@@ -31,7 +33,10 @@ const FlockCard = ({ flock }: FlockCardProps) => {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow h-fit">
+    <Card
+      className="hover:shadow-md transition-shadow h-fit cursor-pointer"
+      onClick={() => router.push(`/flocks/${flock._id}`)}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -61,13 +66,23 @@ const FlockCard = ({ flock }: FlockCardProps) => {
           </div>
         </div>
 
-        <div className="pt-2 border-t">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm text-muted-foreground">Total Chicks</p>
+        <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t">
+          <div className="">
+            <div className="flex items-center space-x-2">
+              <p className="text-sm text-muted-foreground">Total Sheds</p>
+            </div>
+            <p className="text-lg font-semibold text-primary">
+              {formatSingleDigit(flock.shedsCount?.toLocaleString() || 0)}
+            </p>
           </div>
-          <p className="text-lg font-semibold text-primary">
-            {formatSingleDigit(flock.totalChicks?.toLocaleString() || 0)}
-          </p>
+          <div className="">
+            <div className="flex items-center space-x-2">
+              <p className="text-sm text-muted-foreground">Total Chicks</p>
+            </div>
+            <p className="text-lg font-semibold text-primary">
+              {formatSingleDigit(flock.totalChicks?.toLocaleString() || 0)}
+            </p>
+          </div>
         </div>
 
         <div className="pt-2 border-t">
@@ -75,7 +90,7 @@ const FlockCard = ({ flock }: FlockCardProps) => {
           <p className="text-sm font-medium">{formatDate(flock.createdAt)}</p>
         </div>
 
-        <div className="flex space-x-2">
+        <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
           <RoleGuard requiredRole={["admin", "manager"]}>
             <CreateEditFlockForm selectedFlock={flock} />
           </RoleGuard>

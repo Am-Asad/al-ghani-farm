@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { FlockModel } from "./flocks.js";
+import { ShedModel } from "./sheds.js";
 
 const farmSchema = new mongoose.Schema(
   {
@@ -38,6 +40,36 @@ farmSchema.virtual("flocksCount", {
 
 farmSchema.pre(/^find/, function (next) {
   this.populate({ path: "flocksCount" }); // returns a number
+  next();
+});
+
+// Cascading delete middleware - deletes all flocks and their sheds when a farm is deleted
+farmSchema.pre(/^delete/, async function (next) {
+  const farmId = this.getQuery()._id;
+
+  if (farmId) {
+    try {
+      // Find all flocks belonging to this farm
+      const flocks = await FlockModel.find({ farmId });
+      const flockIds = flocks.map((flock) => flock._id);
+
+      // Delete all sheds belonging to these flocks
+      if (flockIds.length > 0) {
+        await ShedModel.deleteMany({ flockId: { $in: flockIds } });
+      }
+
+      // Delete all flocks belonging to this farm
+      await FlockModel.deleteMany({ farmId });
+
+      console.log(
+        `Cascading delete: Deleted ${flockIds.length} flocks and their sheds for farm ${farmId}`
+      );
+    } catch (error) {
+      console.error("Error in cascading delete for farm:", error);
+      return next(error);
+    }
+  }
+
   next();
 });
 

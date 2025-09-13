@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 
 const shedSchema = new mongoose.Schema(
   {
+    name: { type: String, required: [true, "Name is required"] },
+    totalChicks: { type: Number, required: [true, "Total chicks is required"] },
     flockId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Flock",
       required: [true, "Flock is required"],
     },
-    name: { type: String, required: [true, "Name is required"] }, // Shed-1, Shed-2
-    totalChicks: { type: Number, required: [true, "Total chicks is required"] },
   },
   { timestamps: true, versionKey: false }
 );

@@ -33,10 +33,24 @@ export type Flock = {
   startDate: string;
   endDate?: string;
   totalChicks: number;
+  shedsCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Shed = {
+  _id: string;
+  name: string;
+  totalChicks: number;
+  flockId: string;
   createdAt: string;
   updatedAt: string;
 };
 
 export type FarmWithFlocks = Farm & {
   flocks: Flock[];
+};
+
+export type FlockWithSheds = Flock & {
+  sheds: Shed[];
 };

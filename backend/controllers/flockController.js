@@ -1,10 +1,12 @@
-import { FlockModel } from "../models/flocks.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
-import { AppError } from "../utils/AppError.js";
 import { FarmModel } from "../models/farms.js";
+import { FlockModel } from "../models/flocks.js";
+import { ShedModel } from "../models/sheds.js";
+import { AppError } from "../utils/AppError.js";
 
 export const getAllFlocks = asyncHandler(async (req, res) => {
-  const flocksWithTotalChicks = await FlockModel.getAllFlocksWithTotalChicks();
+  const flocksWithTotalChicks =
+    await FlockModel.getAllFlocksWithTotalChicks().sort({ createdAt: -1 });
 
   res.status(200).json({
     status: "success",
@@ -14,19 +16,25 @@ export const getAllFlocks = asyncHandler(async (req, res) => {
 });
 
 export const getFlockById = asyncHandler(async (req, res, next) => {
-  const flocks = await FlockModel.getFlockByIdWithTotalChicks(
-    req.params.flockId
-  );
+  const { flockId } = req.params;
+  const flock = await FlockModel.getFlockByIdWithTotalChicks(flockId).sort({
+    createdAt: -1,
+  });
 
-  if (!flocks || flocks.length === 0) {
+  if (!flock || flock.length === 0) {
     const error = new AppError("Flock not found", 404, "FLOCK_NOT_FOUND", true);
     return next(error);
   }
 
+  const sheds = await ShedModel.find({ flockId }).sort({ createdAt: -1 });
+
   res.status(200).json({
     status: "success",
     message: "Flock fetched successfully",
-    data: flocks[0], // Return the first (and only) result from aggregation
+    data: {
+      ...flock[0],
+      sheds: [...sheds],
+    },
   });
 });
 
@@ -110,7 +118,7 @@ export const updateFlockById = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const deleteAllFlocks = asyncHandler(async (req, res) => {
+export const deleteAllFlocks = asyncHandler(async (req, res, next) => {
   const { farmId } = req.query;
 
   if (farmId) {
@@ -118,21 +126,29 @@ export const deleteAllFlocks = asyncHandler(async (req, res) => {
     if (!deletedFlocks) {
       throw new AppError("No flocks deleted", 400, "NO_FLOCKS_DELETED", true);
     }
+    res.status(200).json({
+      status: "success",
+      message: `All flocks and their associated sheds deleted successfully for farm ${farmId}`,
+      data: [],
+    });
   } else {
     const deletedFlocks = await FlockModel.deleteMany({});
     if (!deletedFlocks) {
       throw new AppError("No flocks deleted", 400, "NO_FLOCKS_DELETED", true);
     }
+    res.status(200).json({
+      status: "success",
+      message:
+        "All flocks and their associated sheds deleted successfully for all farms",
+      data: [],
+    });
   }
-  res.status(200).json({
-    status: "success",
-    message: "All flocks deleted successfully",
-    data: [],
-  });
 });
 
 export const deleteFlockById = asyncHandler(async (req, res, next) => {
-  const flock = await FlockModel.findByIdAndDelete(req.params.flockId);
+  const { flockId } = req.params;
+
+  const flock = await FlockModel.findByIdAndDelete(flockId);
   if (!flock) {
     const error = new AppError("Flock not found", 404, "FLOCK_NOT_FOUND", true);
     return next(error);
@@ -140,7 +156,7 @@ export const deleteFlockById = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    message: "Flock deleted successfully",
+    message: `Flock with id ${flockId} and all its associated sheds deleted successfully`,
     data: {
       _id: flock._id,
     },
