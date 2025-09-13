@@ -31,6 +31,15 @@ const ledgerSchema = new mongoose.Schema(
     driverContact: {
       type: String,
       required: [true, "Driver contact is required"],
+      validate: {
+        validator: function (v) {
+          return /^((\+92)|(0092))-{0,1}3[0-9]{2}-{0,1}[0-9]{7}$|^03[0-9]{2}[0-9]{7}$/.test(
+            v
+          );
+        },
+      },
+      message:
+        "Invalid Pakistani contact number format. It should start with +92, 0092, or 03, followed by 10 digits.",
     },
     accountantName: {
       type: String,
@@ -50,7 +59,6 @@ const ledgerSchema = new mongoose.Schema(
     rate: { type: Number, required: [true, "Rate is required"] },
     totalAmount: { type: Number, required: [true, "Total amount is required"] },
     amountPaid: { type: Number, default: 0 },
-
     date: { type: Date, required: [true, "Date is required"] },
   },
   { timestamps: true, versionKey: false }
