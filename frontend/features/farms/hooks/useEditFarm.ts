@@ -13,10 +13,10 @@ export const useEditFarm = () => {
     onMutate: () => {
       toast.loading("Editing farm...", { id: "editFarm" });
     },
-    mutationFn: async (farmData: Omit<FarmType, "createdAt" | "updatedAt">) => {
+    mutationFn: async (payload: Omit<FarmType, "createdAt" | "updatedAt">) => {
       const response = await api.put<APIResponse<FarmType>>(
-        `/farms/${farmData._id}`,
-        farmData
+        `/farms/${payload._id}`,
+        payload
       );
       return response.data;
     },

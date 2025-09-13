@@ -1,33 +1,35 @@
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-client";
+import { Buyer as BuyerType } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { APIResponse } from "@/types";
 
-export const useDeleteFarm = () => {
+export const useEditBuyer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     onMutate: () => {
-      toast.loading("Deleting farm...", { id: "deleteFarm" });
+      toast.loading("Editing buyer...", { id: "editBuyer" });
     },
-    mutationFn: async (farmId: string) => {
-      const response = await api.delete<APIResponse<{ id: string }>>(
-        `/farms/${farmId}`
+    mutationFn: async (payload: Omit<BuyerType, "createdAt" | "updatedAt">) => {
+      const response = await api.put<APIResponse<BuyerType>>(
+        `/buyers/${payload._id}`,
+        payload
       );
       return response.data;
     },
     onSuccess: (response) => {
-      toast.success(response.message, { id: "deleteFarm" });
-      queryClient.invalidateQueries({ queryKey: queryKeys.farms });
+      toast.success(response.message, { id: "editBuyer" });
+      queryClient.invalidateQueries({ queryKey: queryKeys.buyers });
     },
     onError: (error) => {
       toast.error(
         error instanceof AxiosError
           ? error.response?.data?.error?.message
-          : error.message,
-        { id: "deleteFarm" }
+          : "Edit buyer failed",
+        { id: "editBuyer" }
       );
     },
   });

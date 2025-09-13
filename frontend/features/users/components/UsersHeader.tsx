@@ -40,6 +40,7 @@ const UsersHeader = ({ search, setSearch, totalUsers }: UsersHeaderProps) => {
             <ConfirmationDialog
               title={`Delete All Users (${totalUsers})`}
               description={`Are you sure you want to delete all ${totalUsers} users?`}
+              confirmationText={`Delete All Users (${totalUsers})`}
               onConfirm={() => deleteBulkUsers()}
               trigger={
                 <Button className="w-fit">

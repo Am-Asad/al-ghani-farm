@@ -13,11 +13,10 @@ export const useEditUser = () => {
     onMutate: () => {
       toast.loading("Editing user...", { id: "editUser" });
     },
-    mutationFn: async (userData: Omit<UserType, "createdAt" | "updatedAt">) => {
-      console.log("userData in edit user hook", userData);
+    mutationFn: async (payload: Omit<UserType, "createdAt" | "updatedAt">) => {
       const response = await api.put<APIResponse<UserType>>(
-        `/users/${userData._id}`,
-        userData
+        `/users/${payload._id}`,
+        payload
       );
       return response.data;
     },

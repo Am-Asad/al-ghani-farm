@@ -47,7 +47,7 @@ export default function FarmsPage() {
   }
 
   return (
-    <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
+    <div className="p-6 overflow-y-scroll flex flex-col flex-1 space-y-6">
       {/* Page header */}
       <FarmHeader
         search={search}
@@ -57,7 +57,7 @@ export default function FarmsPage() {
 
       {/* Farms grid */}
       {filteredFarms.length > 0 ? (
-        <div className="flex-1 overflow-y-scroll grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredFarms.map((farm) => (
             <FarmCard key={farm._id} farm={farm} />
           ))}

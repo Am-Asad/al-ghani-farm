@@ -107,25 +107,4 @@ flockSchema.statics.getAllFlocksWithTotalChicksForFarm = function (farmId) {
   ]);
 };
 
-// Cascading delete middleware - deletes all sheds when a flock is deleted
-flockSchema.pre(/^delete/, async function (next) {
-  const flockId = this.getQuery()._id;
-
-  if (flockId) {
-    try {
-      // Delete all sheds belonging to this flock
-      const deletedSheds = await ShedModel.deleteMany({ flockId });
-
-      console.log(
-        `Cascading delete: Deleted ${deletedSheds.deletedCount} sheds for flock ${flockId}`
-      );
-    } catch (error) {
-      console.error("Error in cascading delete for flock:", error);
-      return next(error);
-    }
-  }
-
-  next();
-});
-
 export const FlockModel = mongoose.model("Flock", flockSchema);

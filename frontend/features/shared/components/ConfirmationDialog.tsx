@@ -33,7 +33,9 @@ const ConfirmationDialog = ({
   const [text, setText] = useState<string>("");
 
   const isAllowedToDelete = (confirmationText: string) => {
-    return text.toLowerCase().trim() === confirmationText.toLowerCase().trim();
+    return (
+      text?.toLowerCase()?.trim() === confirmationText?.toLowerCase()?.trim()
+    );
   };
 
   const handleConfirm = () => {
@@ -49,7 +51,7 @@ const ConfirmationDialog = ({
         {trigger ? (
           trigger
         ) : (
-          <Button size="sm" variant="outline" className="flex-1">
+          <Button variant="outline" className="flex-1">
             <Trash className="w-4 h-4 mr-2" />
             {title}
           </Button>

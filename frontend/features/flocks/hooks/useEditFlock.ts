@@ -13,7 +13,12 @@ export const useEditFlock = () => {
     onMutate: () => {
       toast.loading("Editing flock...", { id: "editFlock" });
     },
-    mutationFn: async (payload: Omit<FlockType, "createdAt" | "updatedAt">) => {
+    mutationFn: async (
+      payload: Omit<
+        FlockType,
+        "totalChicks" | "shedsCount" | "createdAt" | "updatedAt"
+      >
+    ) => {
       const response = await api.put<APIResponse<FlockType>>(
         `/flocks/${payload._id}`,
         payload

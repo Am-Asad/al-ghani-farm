@@ -72,16 +72,18 @@ const CreateEditShedForm = ({
     if (isEditMode) {
       const payload = {
         ...validatedData.data,
+      } as Record<string, unknown>;
+      editShed({
+        ...(payload as typeof validatedData.data),
         _id: selectedShed?._id,
         flockId: selectedShed?.flockId,
-      } as Record<string, unknown>;
-      editShed(payload as Omit<ShedType, "createdAt" | "updatedAt">);
+      } as Omit<ShedType, "createdAt" | "updatedAt">);
     } else {
       const payload = { ...validatedData.data, flockId } as Record<
         string,
         unknown
       >;
-      createShed(payload as Omit<ShedType, "createdAt" | "updatedAt">);
+      createShed(payload as Omit<ShedType, "_id" | "createdAt" | "updatedAt">);
     }
     (e.target as HTMLFormElement).reset();
     setIsOpen(false);
@@ -159,7 +161,7 @@ const CreateEditShedForm = ({
             />
           </div>
 
-          <DialogFooter className="gap-4">
+          <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>

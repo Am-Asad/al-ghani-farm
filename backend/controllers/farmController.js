@@ -1,10 +1,13 @@
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { FarmModel } from "../models/farms.js";
 import { FlockModel } from "../models/flocks.js";
+import { ShedModel } from "../models/sheds.js";
 import { AppError } from "../utils/AppError.js";
 
 export const getAllFarms = asyncHandler(async (req, res) => {
-  const farms = await FarmModel.find().sort({ createdAt: -1 });
+  const farms = await FarmModel.getAllFarmsWithFlocksCount().sort({
+    createdAt: -1,
+  });
 
   res.status(200).json({
     status: "success",
@@ -15,7 +18,9 @@ export const getAllFarms = asyncHandler(async (req, res) => {
 
 export const getFarmById = asyncHandler(async (req, res) => {
   const { farmId } = req.params;
-  const farm = await FarmModel.findById(farmId);
+  const farm = await FarmModel.getFarmByIdWithFlocksCount(farmId).sort({
+    createdAt: -1,
+  });
   if (!farm) {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
@@ -24,7 +29,7 @@ export const getFarmById = asyncHandler(async (req, res) => {
     status: "success",
     message: "Farm fetched successfully",
     data: {
-      ...farm.toObject(),
+      ...farm[0],
       flocks: [...flocks],
     },
   });
@@ -78,6 +83,10 @@ export const deleteAllFarms = asyncHandler(async (req, res) => {
   if (!farms) {
     throw new AppError("No farms deleted", 400, "NO_FARMS_DELETED", true);
   }
+  await ShedModel.deleteMany({});
+  await FlockModel.deleteMany({});
+  await FarmModel.deleteMany({});
+
   res.status(200).json({
     status: "success",
     message:
@@ -89,10 +98,17 @@ export const deleteAllFarms = asyncHandler(async (req, res) => {
 export const deleteFarmById = asyncHandler(async (req, res) => {
   const { farmId } = req.params;
 
-  const farm = await FarmModel.findByIdAndDelete(farmId);
+  const farm = await FarmModel.findById(farmId);
   if (!farm) {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
+
+  // Delete all the flocks and all the sheds associated with the farm
+  const flocks = await FlockModel.find({ farmId });
+  const flocksIds = flocks.map((flock) => flock._id);
+  await ShedModel.deleteMany({ flockId: { $in: flocksIds } });
+  await FlockModel.deleteMany({ farmId });
+  await FarmModel.findByIdAndDelete(farmId);
 
   res.status(200).json({
     status: "success",

@@ -24,7 +24,6 @@ import { User, Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
 import { User as UserType } from "@/types";
 import { useEditUser } from "../hooks/useEditUser";
 import { useCreateUser } from "../hooks/useCreateUser";
-import { toast } from "sonner";
 import { CreateEditUserSchema } from "../schemas/createEditUserSchema";
 
 type CreateEditUserFormProps = {
@@ -43,16 +42,8 @@ const CreateEditUserForm = ({
     Record<string, string>
   >({});
 
-  const {
-    mutate: createUser,
-    isPending: isCreatePending,
-    data: createUserData,
-  } = useCreateUser();
-  const {
-    mutate: editUser,
-    isPending: isEditPending,
-    data: editUserData,
-  } = useEditUser();
+  const { mutate: createUser, isPending: isCreatePending } = useCreateUser();
+  const { mutate: editUser, isPending: isEditPending } = useEditUser();
 
   const handleClose = () => {
     setIsOpen(false);
@@ -87,15 +78,9 @@ const CreateEditUserForm = ({
         ...(payload as typeof validatedData.data),
         _id: selectedUser?._id,
       } as Omit<UserType, "createdAt" | "updatedAt">);
-      if (editUserData?.status === "success") {
-        toast.success(editUserData.message, { id: "editUser" });
-      }
     } else {
       const payload = { ...validatedData.data } as Record<string, unknown>;
       createUser(payload as Omit<UserType, "_id" | "createdAt" | "updatedAt">);
-      if (createUserData?.status === "success") {
-        toast.success(createUserData.message, { id: "createUser" });
-      }
     }
     (e.target as HTMLFormElement).reset();
     setIsOpen(false);
@@ -145,7 +130,6 @@ const CreateEditUserForm = ({
                 className={`pl-10 ${
                   getFieldError("username") ? "border-destructive" : ""
                 }`}
-                required
               />
             </div>
             {getFieldError("username") ? (
@@ -173,7 +157,6 @@ const CreateEditUserForm = ({
                 className={`pl-10 ${
                   getFieldError("email") ? "border-destructive" : ""
                 }`}
-                required
               />
             </div>
             {getFieldError("email") ? (
@@ -229,11 +212,7 @@ const CreateEditUserForm = ({
           {/* Role */}
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
-            <Select
-              name="role"
-              defaultValue={selectedUser?.role || "viewer"}
-              required
-            >
+            <Select name="role" defaultValue={selectedUser?.role || "viewer"}>
               <SelectTrigger>
                 <SelectValue defaultValue="Select role" />
               </SelectTrigger>
@@ -245,7 +224,7 @@ const CreateEditUserForm = ({
             </Select>
           </div>
 
-          <DialogFooter className="gap-4">
+          <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>

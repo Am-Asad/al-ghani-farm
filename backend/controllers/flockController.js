@@ -119,46 +119,34 @@ export const updateFlockById = asyncHandler(async (req, res, next) => {
 });
 
 export const deleteAllFlocks = asyncHandler(async (req, res, next) => {
-  const { farmId } = req.query;
-
-  if (farmId) {
-    const deletedFlocks = await FlockModel.deleteMany({ farmId });
-    if (!deletedFlocks) {
-      throw new AppError("No flocks deleted", 400, "NO_FLOCKS_DELETED", true);
-    }
-    res.status(200).json({
-      status: "success",
-      message: `All flocks and their associated sheds deleted successfully for farm ${farmId}`,
-      data: [],
-    });
-  } else {
-    const deletedFlocks = await FlockModel.deleteMany({});
-    if (!deletedFlocks) {
-      throw new AppError("No flocks deleted", 400, "NO_FLOCKS_DELETED", true);
-    }
-    res.status(200).json({
-      status: "success",
-      message:
-        "All flocks and their associated sheds deleted successfully for all farms",
-      data: [],
-    });
+  const query = req.query;
+  const flocks = await FlockModel.find(query);
+  const deletedFlocksIds = flocks.map((flock) => flock._id);
+  await ShedModel.deleteMany({
+    flockId: { $in: deletedFlocksIds },
+  });
+  const deletedFlocks = await FlockModel.deleteMany(query);
+  if (!deletedFlocks) {
+    throw new AppError("No flocks deleted", 400, "NO_FLOCKS_DELETED", true);
   }
+  res.status(200).json({
+    status: "success",
+    message: `All flocks and their associated sheds deleted successfully for ${query.farmId}`,
+    data: [],
+  });
 });
 
 export const deleteFlockById = asyncHandler(async (req, res, next) => {
   const { flockId } = req.params;
 
-  const flock = await FlockModel.findByIdAndDelete(flockId);
-  if (!flock) {
-    const error = new AppError("Flock not found", 404, "FLOCK_NOT_FOUND", true);
-    return next(error);
+  if (flockId) {
+    await ShedModel.deleteMany({ flockId });
   }
+  await FlockModel.findByIdAndDelete(flockId);
 
   res.status(200).json({
     status: "success",
     message: `Flock with id ${flockId} and all its associated sheds deleted successfully`,
-    data: {
-      _id: flock._id,
-    },
+    data: undefined,
   });
 });

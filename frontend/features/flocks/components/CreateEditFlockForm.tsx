@@ -19,7 +19,6 @@ import { CreateEditFlockSchema } from "../schemas/createEditFlockSchema";
 import { useCreateFlock } from "../hooks/useCreateFlock";
 import { useEditFlock } from "../hooks/useEditFlock";
 import { createEditFlockSchema } from "../schemas/createEditFlockSchema";
-import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -45,16 +44,8 @@ const CreateEditFlockForm = ({
     Record<string, string>
   >({});
 
-  const {
-    mutate: createFlock,
-    isPending: isCreatePending,
-    data: createFlockData,
-  } = useCreateFlock();
-  const {
-    mutate: editFlock,
-    isPending: isEditPending,
-    data: editFlockData,
-  } = useEditFlock();
+  const { mutate: createFlock, isPending: isCreatePending } = useCreateFlock();
+  const { mutate: editFlock, isPending: isEditPending } = useEditFlock();
 
   const handleClose = () => {
     setIsOpen(false);
@@ -92,20 +83,18 @@ const CreateEditFlockForm = ({
         _id: selectedFlock?._id,
         farmId: selectedFlock?.farmId,
       } as Record<string, unknown>;
-      editFlock(payload as Omit<FlockType, "createdAt" | "updatedAt">);
-
-      if (editFlockData?.status === "success") {
-        toast.success(editFlockData.message, { id: "editFlock" });
-      }
+      editFlock(
+        payload as Omit<
+          FlockType,
+          "totalChicks" | "shedsCount" | "createdAt" | "updatedAt"
+        >
+      );
     } else {
       const payload = { ...validatedData.data, farmId: farmId } as Record<
         string,
         unknown
       >;
       createFlock(payload as Omit<FlockType, "createdAt" | "updatedAt">);
-      if (createFlockData?.status === "success") {
-        toast.success(createFlockData.message, { id: "createFlock" });
-      }
     }
     (e.target as HTMLFormElement).reset();
     setIsOpen(false);
@@ -176,7 +165,6 @@ const CreateEditFlockForm = ({
             <Select
               name="status"
               defaultValue={selectedFlock?.status || "active"}
-              required
             >
               <SelectTrigger>
                 <SelectValue defaultValue="Select status" />
@@ -220,7 +208,7 @@ const CreateEditFlockForm = ({
             />
           </div>
 
-          <DialogFooter className="gap-4">
+          <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>

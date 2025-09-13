@@ -25,11 +25,11 @@ export const queryKeys = {
   sheds: ["sheds"] as const,
 
   ledgers: ["ledgers"] as const,
-  ledger: (id: string) => ["ledger", id] as const,
-  vehicles: ["vehicles"] as const,
-  vehicle: (id: string) => ["vehicle", id] as const,
-  brokers: ["brokers"] as const,
-  broker: (id: string) => ["broker", id] as const,
+  ledger: (ledgerId: string) => ["ledger", ledgerId] as const,
+
+  buyers: ["buyers"] as const,
+  buyerById: (buyerId: string) => ["buyer", buyerId] as const,
+
   users: ["users"] as const,
-  user: (id: string) => ["user", id] as const,
+  user: (userId: string) => ["user", userId] as const,
 };

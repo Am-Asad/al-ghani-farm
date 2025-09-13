@@ -61,24 +61,26 @@ const FarmDetailsPage = () => {
         Back to Farms
       </Button>
 
-      <FarmDetailsCard farm={farm} />
+      <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">
+        <FarmDetailsCard farm={farm} />
 
-      <FlockHeader
-        search={search}
-        setSearch={setSearch}
-        totalFlocks={flocks.length}
-      />
+        <FlockHeader
+          search={search}
+          setSearch={setSearch}
+          totalFlocks={flocks.length}
+        />
 
-      {/* Flocks grid */}
-      {filteredFlocks.length > 0 ? (
-        <div className="flex-1 overflow-y-scroll grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredFlocks.map((flock) => (
-            <FlockCard key={flock._id} flock={flock} />
-          ))}
-        </div>
-      ) : (
-        <DataNotFound title="flocks" icon={<Users className="w-10 h-10" />} />
-      )}
+        {/* Flocks grid */}
+        {filteredFlocks.length > 0 ? (
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredFlocks.map((flock) => (
+              <FlockCard key={flock._id} flock={flock} />
+            ))}
+          </div>
+        ) : (
+          <DataNotFound title="flocks" icon={<Users className="w-10 h-10" />} />
+        )}
+      </div>
     </div>
   );
 };

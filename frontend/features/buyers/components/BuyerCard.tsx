@@ -2,64 +2,62 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2 } from "lucide-react";
-import { Farm } from "@/types";
+import { Buyer } from "@/types";
 import { formatDate } from "@/utils/format-date";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
-import CreateEditFarmForm from "./CreateEditFarmForm";
-import { useDeleteFarm } from "../hooks/useDeleteFarm";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import { useRouter } from "next/navigation";
-import { formatSingleDigit } from "@/utils/format-single-digit";
+import { useDeleteBuyer } from "../hooks/useDeleteBuyer";
+import CreateEditBuyerForm from "./CreateEditBuyerForm";
 
-type FarmCardProps = {
-  farm: Farm;
+type BuyerCardProps = {
+  buyer: Buyer;
 };
 
-const FarmCard = ({ farm }: FarmCardProps) => {
-  const { mutate: deleteFarm } = useDeleteFarm();
+const BuyerCard = ({ buyer }: BuyerCardProps) => {
+  const { mutate: deleteBuyer } = useDeleteBuyer();
   const router = useRouter();
+
   return (
     <Card
       className="hover:shadow-md transition-shadow h-fit cursor-pointer"
-      onClick={() => router.push(`/farms/${farm._id}`)}
+      onClick={() => router.push(`/buyers/${buyer._id}`)}
     >
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Building2 className="w-5 h-5 text-primary" />
-            <CardTitle className="text-lg">{farm.name}</CardTitle>
+            <CardTitle className="text-lg">{buyer.name}</CardTitle>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">Total Flocks</p>
-            <p className="font-medium">
-              {formatSingleDigit(farm?.flocksCount || 0)}
-            </p>
+            <p className="text-muted-foreground">Contact Number</p>
+            <p className="font-medium">{buyer?.contactNumber}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Supervisor</p>
-            <p className="font-medium">{farm?.supervisor}</p>
+            <p className="text-muted-foreground">Address</p>
+            <p className="font-medium">{buyer?.address || "N/A"}</p>
           </div>
         </div>
 
         <div className="pt-2 border-t">
           <p className="text-sm text-muted-foreground mb-1">Created At</p>
-          <p className="text-sm font-medium">{formatDate(farm?.createdAt)}</p>
+          <p className="text-sm font-medium">{formatDate(buyer?.createdAt)}</p>
         </div>
 
         <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
           <RoleGuard requiredRole={["admin", "manager"]}>
-            <CreateEditFarmForm selectedFarm={farm} />
+            <CreateEditBuyerForm selectedBuyer={buyer} />
           </RoleGuard>
           <RoleGuard requiredRole={["admin"]}>
             <ConfirmationDialog
-              title="Delete Farm"
-              description="Are you sure you want to delete this farm?"
-              confirmationText={farm?.name}
-              onConfirm={() => deleteFarm(farm._id)}
+              title="Delete Buyer"
+              description="Are you sure you want to delete this buyer?"
+              confirmationText={buyer?.name}
+              onConfirm={() => deleteBuyer(buyer._id)}
             />
           </RoleGuard>
         </div>
@@ -68,4 +66,4 @@ const FarmCard = ({ farm }: FarmCardProps) => {
   );
 };
 
-export default FarmCard;
+export default BuyerCard;

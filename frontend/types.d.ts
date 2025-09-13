@@ -16,6 +16,15 @@ export type User = {
   updatedAt: string;
 };
 
+export type Buyer = {
+  _id: string;
+  name: string;
+  contactNumber: string;
+  address?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Farm = {
   _id: string;
   name: string;
