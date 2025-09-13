@@ -59,6 +59,7 @@ farmSchema.statics.getFarmByIdWithFlocksCount = function (farmId) {
     },
     { $addFields: { flocksCount: { $size: "$flocks" } } },
     { $sort: { createdAt: -1 } },
+    { $project: { flocks: 0 } },
   ]);
 };
 
