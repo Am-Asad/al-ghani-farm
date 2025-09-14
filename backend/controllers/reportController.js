@@ -817,50 +817,198 @@ export const getShedDailyReport = asyncHandler(async (req, res) => {
   const startOfDay = new Date(startOfDayISO);
   const endOfDay = new Date(endOfDayISO);
 
-  // Get ledgers for the specific shed and date
-  const ledgers = await LedgerModel.find({
-    shedId,
-    date: {
-      $gte: startOfDay,
-      $lte: endOfDay,
+  // Use aggregation to get summary and transactions in one query
+  const result = await LedgerModel.aggregate([
+    // Match ledgers for specific shed and date
+    {
+      $match: {
+        shedId: new mongoose.Types.ObjectId(shedId),
+        date: {
+          $gte: startOfDay,
+          $lte: endOfDay,
+        },
+      },
     },
-  })
-    .populate("farmId", "name supervisor")
-    .populate("flockId", "name status")
-    .populate("shedId", "name capacity")
-    .populate("buyerId", "name contactNumber address")
-    .sort({ date: -1 });
+    // Lookup buyer details
+    {
+      $lookup: {
+        from: "buyers",
+        localField: "buyerId",
+        foreignField: "_id",
+        as: "buyer",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              contactNumber: 1,
+              address: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Lookup farm details
+    {
+      $lookup: {
+        from: "farms",
+        localField: "farmId",
+        foreignField: "_id",
+        as: "farm",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              supervisor: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Lookup flock details
+    {
+      $lookup: {
+        from: "flocks",
+        localField: "flockId",
+        foreignField: "_id",
+        as: "flock",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              status: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Lookup shed details
+    {
+      $lookup: {
+        from: "sheds",
+        localField: "shedId",
+        foreignField: "_id",
+        as: "shed",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              capacity: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Add calculated fields
+    {
+      $addFields: {
+        balance: { $subtract: ["$totalAmount", "$amountPaid"] },
+        buyerId: { $arrayElemAt: ["$buyer", 0] },
+        farmId: { $arrayElemAt: ["$farm", 0] },
+        flockId: { $arrayElemAt: ["$flock", 0] },
+        shedId: { $arrayElemAt: ["$shed", 0] },
+      },
+    },
+    // Group to calculate summary statistics
+    {
+      $group: {
+        _id: null,
+        shed: { $first: "$shedId" },
+        transactions: { $push: "$$ROOT" },
+        totalTransactions: { $sum: 1 },
+        totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
+        totalGrossWeight: { $sum: "$grossWeight" },
+        totalNetWeight: { $sum: "$netWeight" },
+        totalBirds: { $sum: "$numberOfBirds" },
+        totalRate: { $sum: "$rate" },
+        totalAmount: { $sum: "$totalAmount" },
+        totalPaid: { $sum: "$amountPaid" },
+        totalBalance: { $sum: "$balance" },
+      },
+    },
+    // Project final structure
+    {
+      $project: {
+        _id: 0,
+        shed: 1,
+        summary: {
+          totalTransactions: "$totalTransactions",
+          totalEmptyVehicleWeight: "$totalEmptyVehicleWeight",
+          totalGrossWeight: "$totalGrossWeight",
+          totalNetWeight: "$totalNetWeight",
+          totalBirds: "$totalBirds",
+          totalRate: "$totalRate",
+          totalAmount: "$totalAmount",
+          totalPaid: "$totalPaid",
+          totalBalance: "$totalBalance",
+        },
+        transactions: {
+          $map: {
+            input: "$transactions",
+            as: "transaction",
+            in: {
+              _id: "$$transaction._id",
+              date: "$$transaction.date",
+              vehicleNumber: "$$transaction.vehicleNumber",
+              driverName: "$$transaction.driverName",
+              driverContact: "$$transaction.driverContact",
+              accountantName: "$$transaction.accountantName",
+              emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
+              grossWeight: "$$transaction.grossWeight",
+              netWeight: "$$transaction.netWeight",
+              numberOfBirds: "$$transaction.numberOfBirds",
+              rate: "$$transaction.rate",
+              totalAmount: "$$transaction.totalAmount",
+              amountPaid: "$$transaction.amountPaid",
+              balance: "$$transaction.balance",
+              farmId: "$$transaction.farmId",
+              flockId: "$$transaction.flockId",
+              shedId: "$$transaction.shedId",
+              buyerId: "$$transaction.buyerId",
+              createdAt: "$$transaction.createdAt",
+              updatedAt: "$$transaction.updatedAt",
+            },
+          },
+        },
+      },
+    },
+  ]);
 
-  // Calculate summary statistics
-  const summary = {
-    totalTransactions: ledgers.length,
-    totalNetWeight: ledgers.reduce((sum, ledger) => sum + ledger.netWeight, 0),
-    totalBirds: ledgers.reduce((sum, ledger) => sum + ledger.numberOfBirds, 0),
-    totalAmount: ledgers.reduce((sum, ledger) => sum + ledger.totalAmount, 0),
-    totalPaid: ledgers.reduce((sum, ledger) => sum + ledger.amountPaid, 0),
-    totalBalance: ledgers.reduce(
-      (sum, ledger) => sum + (ledger.totalAmount - ledger.amountPaid),
-      0
-    ),
-    averageRate:
-      ledgers.length > 0
-        ? ledgers.reduce((sum, ledger) => sum + ledger.rate, 0) / ledgers.length
-        : 0,
-    averageNetWeight:
-      ledgers.length > 0
-        ? ledgers.reduce((sum, ledger) => sum + ledger.netWeight, 0) /
-          ledgers.length
-        : 0,
-  };
+  // Handle case when no transactions found
+  if (result.length === 0) {
+    const { ShedModel } = await import("../models/sheds.js");
+    const shed = await ShedModel.findById(shedId).select("name capacity");
+    return res.status(200).json({
+      status: "success",
+      message: "Shed daily report fetched successfully",
+      data: {
+        shed: shed ? shed.toObject() : null,
+        date: formattedDate,
+        summary: {
+          totalTransactions: 0,
+          totalEmptyVehicleWeight: 0,
+          totalGrossWeight: 0,
+          totalNetWeight: 0,
+          totalBirds: 0,
+          totalRate: 0,
+          totalAmount: 0,
+          totalPaid: 0,
+          totalBalance: 0,
+        },
+        transactions: [],
+      },
+    });
+  }
+
+  const reportData = result[0];
 
   res.status(200).json({
     status: "success",
     message: "Shed daily report fetched successfully",
     data: {
-      shed: ledgers.length > 0 ? ledgers[0].shedId : null,
+      shed: reportData.shed,
       date: formattedDate,
-      summary,
-      transactions: ledgers.map((ledger) => ledger.toObject()),
+      summary: reportData.summary,
+      transactions: reportData.transactions,
     },
   });
 });
@@ -874,18 +1022,170 @@ export const getShedOverallReport = asyncHandler(async (req, res) => {
     throw new AppError("Invalid shed ID format", 400, "INVALID_SHED_ID", true);
   }
 
-  // Get all ledgers for the specific shed
-  const ledgers = await LedgerModel.find({ shedId })
-    .populate("farmId", "name supervisor")
-    .populate("flockId", "name status")
-    .populate("shedId", "name capacity")
-    .populate("buyerId", "name contactNumber address")
-    .sort({ date: -1 });
+  // Use aggregation to get summary and transactions in one query
+  const result = await LedgerModel.aggregate([
+    // Match ledgers for specific shed
+    {
+      $match: {
+        shedId: new mongoose.Types.ObjectId(shedId),
+      },
+    },
+    // Lookup buyer details
+    {
+      $lookup: {
+        from: "buyers",
+        localField: "buyerId",
+        foreignField: "_id",
+        as: "buyer",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              contactNumber: 1,
+              address: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Lookup farm details
+    {
+      $lookup: {
+        from: "farms",
+        localField: "farmId",
+        foreignField: "_id",
+        as: "farm",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              supervisor: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Lookup flock details
+    {
+      $lookup: {
+        from: "flocks",
+        localField: "flockId",
+        foreignField: "_id",
+        as: "flock",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              status: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Lookup shed details
+    {
+      $lookup: {
+        from: "sheds",
+        localField: "shedId",
+        foreignField: "_id",
+        as: "shed",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              capacity: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Add calculated fields
+    {
+      $addFields: {
+        balance: { $subtract: ["$totalAmount", "$amountPaid"] },
+        buyerId: { $arrayElemAt: ["$buyer", 0] },
+        farmId: { $arrayElemAt: ["$farm", 0] },
+        flockId: { $arrayElemAt: ["$flock", 0] },
+        shedId: { $arrayElemAt: ["$shed", 0] },
+      },
+    },
+    // Group to calculate summary statistics
+    {
+      $group: {
+        _id: null,
+        shed: { $first: "$shedId" },
+        transactions: { $push: "$$ROOT" },
+        totalTransactions: { $sum: 1 },
+        totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
+        totalGrossWeight: { $sum: "$grossWeight" },
+        totalNetWeight: { $sum: "$netWeight" },
+        totalBirds: { $sum: "$numberOfBirds" },
+        totalRate: { $sum: "$rate" },
+        totalAmount: { $sum: "$totalAmount" },
+        totalPaid: { $sum: "$amountPaid" },
+        totalBalance: { $sum: "$balance" },
+        earliestDate: { $min: "$date" },
+        latestDate: { $max: "$date" },
+      },
+    },
+    // Project final structure
+    {
+      $project: {
+        _id: 0,
+        shed: 1,
+        summary: {
+          totalTransactions: "$totalTransactions",
+          totalEmptyVehicleWeight: "$totalEmptyVehicleWeight",
+          totalGrossWeight: "$totalGrossWeight",
+          totalNetWeight: "$totalNetWeight",
+          totalBirds: "$totalBirds",
+          totalRate: "$totalRate",
+          totalAmount: "$totalAmount",
+          totalPaid: "$totalPaid",
+          totalBalance: "$totalBalance",
+          dateRange: {
+            from: {
+              $dateToString: { format: "%Y-%m-%d", date: "$earliestDate" },
+            },
+            to: { $dateToString: { format: "%Y-%m-%d", date: "$latestDate" } },
+          },
+        },
+        transactions: {
+          $map: {
+            input: "$transactions",
+            as: "transaction",
+            in: {
+              _id: "$$transaction._id",
+              date: "$$transaction.date",
+              vehicleNumber: "$$transaction.vehicleNumber",
+              driverName: "$$transaction.driverName",
+              driverContact: "$$transaction.driverContact",
+              accountantName: "$$transaction.accountantName",
+              emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
+              grossWeight: "$$transaction.grossWeight",
+              netWeight: "$$transaction.netWeight",
+              numberOfBirds: "$$transaction.numberOfBirds",
+              rate: "$$transaction.rate",
+              totalAmount: "$$transaction.totalAmount",
+              amountPaid: "$$transaction.amountPaid",
+              balance: "$$transaction.balance",
+              farmId: "$$transaction.farmId",
+              flockId: "$$transaction.flockId",
+              shedId: "$$transaction.shedId",
+              buyerId: "$$transaction.buyerId",
+              createdAt: "$$transaction.createdAt",
+              updatedAt: "$$transaction.updatedAt",
+            },
+          },
+        },
+      },
+    },
+  ]);
 
-  if (ledgers.length === 0) {
-    // Return empty report if no transactions
+  // Handle case when no transactions found
+  if (result.length === 0) {
     const { ShedModel } = await import("../models/sheds.js");
-    const shed = await ShedModel.findById(shedId);
+    const shed = await ShedModel.findById(shedId).select("name capacity");
     return res.status(200).json({
       status: "success",
       message: "Shed overall report fetched successfully",
@@ -893,13 +1193,14 @@ export const getShedOverallReport = asyncHandler(async (req, res) => {
         shed: shed ? shed.toObject() : null,
         summary: {
           totalTransactions: 0,
+          totalEmptyVehicleWeight: 0,
+          totalGrossWeight: 0,
           totalNetWeight: 0,
           totalBirds: 0,
+          totalRate: 0,
           totalAmount: 0,
           totalPaid: 0,
           totalBalance: 0,
-          averageRate: 0,
-          averageNetWeight: 0,
           dateRange: null,
         },
         transactions: [],
@@ -907,51 +1208,15 @@ export const getShedOverallReport = asyncHandler(async (req, res) => {
     });
   }
 
-  // Calculate summary statistics
-  const totalNetWeight = ledgers.reduce(
-    (sum, ledger) => sum + ledger.netWeight,
-    0
-  );
-  const totalBirds = ledgers.reduce(
-    (sum, ledger) => sum + ledger.numberOfBirds,
-    0
-  );
-  const totalAmount = ledgers.reduce(
-    (sum, ledger) => sum + ledger.totalAmount,
-    0
-  );
-  const totalPaid = ledgers.reduce((sum, ledger) => sum + ledger.amountPaid, 0);
-  const totalBalance = totalAmount - totalPaid;
-  const averageRate = totalAmount / totalNetWeight || 0;
-  const averageNetWeight = totalNetWeight / ledgers.length;
-
-  // Get date range
-  const dates = ledgers.map((ledger) => new Date(ledger.date));
-  const earliestDate = new Date(Math.min(...dates));
-  const latestDate = new Date(Math.max(...dates));
-
-  const summary = {
-    totalTransactions: ledgers.length,
-    totalNetWeight,
-    totalBirds,
-    totalAmount,
-    totalPaid,
-    totalBalance,
-    averageRate,
-    averageNetWeight,
-    dateRange: {
-      from: earliestDate.toISOString().split("T")[0],
-      to: latestDate.toISOString().split("T")[0],
-    },
-  };
+  const reportData = result[0];
 
   res.status(200).json({
     status: "success",
     message: "Shed overall report fetched successfully",
     data: {
-      shed: ledgers[0].shedId,
-      summary,
-      transactions: ledgers.map((ledger) => ledger.toObject()),
+      shed: reportData.shed,
+      summary: reportData.summary,
+      transactions: reportData.transactions,
     },
   });
 });

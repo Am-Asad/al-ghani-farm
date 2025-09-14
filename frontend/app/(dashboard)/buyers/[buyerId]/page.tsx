@@ -1,12 +1,12 @@
 "use client";
-import { useGetBuyerById } from "@/features/buyers/hooks/useGetBuyerById";
+import { useGetBuyerById } from "@/features/admin/buyers/hooks/useGetBuyerById";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import { ArrowLeft, Building2, FileText } from "lucide-react";
-import BuyerDetailsCard from "@/features/buyers/components/BuyerDetailsCard";
+import BuyerDetailsCard from "@/features/admin/buyers/components/BuyerDetailsCard";
 import { Button } from "@/components/ui/button";
 import { useGetAllLedgers } from "@/features/ledgers/hooks/useGetAllLedgers";
 import LedgersTable from "@/features/ledgers/components/LedgersTable";

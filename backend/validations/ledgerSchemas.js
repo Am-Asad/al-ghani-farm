@@ -23,12 +23,12 @@ export const createLedgerSchema = z.object({
     buyerId: z.string().min(1, "Buyer ID is required"),
     vehicleNumber: z
       .string()
-      .min(1, "Vehicle number is required")
+      .min(3, "Vehicle number is required")
       .max(20, "Vehicle number must be at most 20 characters")
       .trim(),
     driverName: z
       .string()
-      .min(1, "Driver name is required")
+      .min(3, "Driver name is required")
       .max(100, "Driver name must be at most 100 characters")
       .trim(),
     driverContact: z
@@ -39,7 +39,7 @@ export const createLedgerSchema = z.object({
       ),
     accountantName: z
       .string()
-      .min(1, "Accountant name is required")
+      .min(3, "Accountant name is required")
       .max(100, "Accountant name must be at most 100 characters")
       .trim(),
     emptyVehicleWeight: z
@@ -68,12 +68,12 @@ export const updateLedgerSchema = z.object({
     buyerId: z.string().min(1, "Buyer ID is required").optional(),
     vehicleNumber: z
       .string()
-      .min(1, "Vehicle number is required")
+      .min(3, "Vehicle number is required")
       .max(20, "Vehicle number must be at most 20 characters")
       .trim(),
     driverName: z
       .string()
-      .min(1, "Driver name is required")
+      .min(3, "Driver name is required")
       .max(100, "Driver name must be at most 100 characters")
       .trim(),
     driverContact: z
@@ -84,7 +84,7 @@ export const updateLedgerSchema = z.object({
       ),
     accountantName: z
       .string()
-      .min(1, "Accountant name is required")
+      .min(3, "Accountant name is required")
       .max(100, "Accountant name must be at most 100 characters")
       .trim(),
     emptyVehicleWeight: z
@@ -113,12 +113,12 @@ const ledgerObjectSchema = z.object({
   buyerId: z.string().min(1, "Buyer ID is required"),
   vehicleNumber: z
     .string()
-    .min(1, "Vehicle number is required")
+    .min(3, "Vehicle number is required")
     .max(20, "Vehicle number must be at most 20 characters")
     .trim(),
   driverName: z
     .string()
-    .min(1, "Driver name is required")
+    .min(3, "Driver name is required")
     .max(100, "Driver name must be at most 100 characters")
     .trim(),
   driverContact: z
@@ -129,7 +129,7 @@ const ledgerObjectSchema = z.object({
     ),
   accountantName: z
     .string()
-    .min(1, "Accountant name is required")
+    .min(3, "Accountant name is required")
     .max(100, "Accountant name must be at most 100 characters")
     .trim(),
   emptyVehicleWeight: z

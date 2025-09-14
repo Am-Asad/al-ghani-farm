@@ -376,40 +376,81 @@ export const updateLedgerById = asyncHandler(async (req, res) => {
 });
 
 // Delete ledger
-export const deleteLedgerById = asyncHandler(async (req, res) => {
+export const deleteLedgerById = asyncHandler(async (req, res, next) => {
   const { ledgerId } = req.params;
 
   // Validate ObjectId format
   if (!mongoose.Types.ObjectId.isValid(ledgerId)) {
-    throw new AppError(
+    const error = new AppError(
       "Invalid ledger ID format",
       400,
       "INVALID_LEDGER_ID",
       true
     );
+    return next(error);
   }
 
-  const ledger = await LedgerModel.findByIdAndDelete(ledgerId);
-  if (!ledger) {
-    throw new AppError("Ledger not found", 404, "LEDGER_NOT_FOUND", true);
-  }
+  // Delete the ledger
+  await LedgerModel.findByIdAndDelete(ledgerId);
 
   res.status(200).json({
     status: "success",
-    message: "Ledger deleted successfully",
+    message: `Ledger with id ${ledgerId} deleted successfully`,
     data: ledger.toObject(),
   });
 });
 
 // Delete all ledgers
-export const deleteAllLedgers = asyncHandler(async (req, res) => {
-  const result = await LedgerModel.deleteMany({});
+export const deleteAllLedgers = asyncHandler(async (req, res, next) => {
+  const { farmId, flockId, shedId, buyerId } = req.query;
+
+  // Build query object based on provided parameters
+  const query = {};
+  if (farmId) query.farmId = farmId;
+  if (flockId) query.flockId = flockId;
+  if (shedId) query.shedId = shedId;
+  if (buyerId) query.buyerId = buyerId;
+
+  // Find ledgers that match the query
+  const ledgers = await LedgerModel.find(query);
+
+  if (ledgers.length === 0) {
+    const error = new AppError(
+      "No ledgers found to delete",
+      404,
+      "NO_LEDGERS_FOUND",
+      true
+    );
+    return next(error);
+  }
+
+  // Delete all ledgers matching the query
+  const result = await LedgerModel.deleteMany(query);
+
+  if (result.deletedCount === 0) {
+    throw new AppError("No ledgers deleted", 400, "NO_LEDGERS_DELETED", true);
+  }
+
+  // Generate appropriate message based on query parameters
+  let message = `${result.deletedCount} ledgers deleted successfully`;
+  const queryParams = [];
+  if (farmId) queryParams.push(`farm ${farmId}`);
+  if (flockId) queryParams.push(`flock ${flockId}`);
+  if (shedId) queryParams.push(`shed ${shedId}`);
+  if (buyerId) queryParams.push(`buyer ${buyerId}`);
+
+  if (queryParams.length > 0) {
+    message = `${
+      result.deletedCount
+    } ledgers deleted successfully for ${queryParams.join(", ")}`;
+  }
 
   res.status(200).json({
     status: "success",
-    message: `${result.deletedCount} ledgers deleted successfully`,
+    message: message,
     data: {
       deletedCount: result.deletedCount,
+      queryParams: queryParams.length > 0 ? queryParams : "All ledgers",
     },
   });
 });

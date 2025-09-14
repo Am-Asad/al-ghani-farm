@@ -1,14 +1,14 @@
 "use client";
 
 import { Building2 } from "lucide-react";
-import FarmCard from "@/features/farms/components/FarmCard";
-import { useGetAllFarms } from "@/features/farms/hooks/useGetAllFarms";
+import FarmCard from "@/features/admin/farms/components/FarmCard";
+import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
-import FarmHeader from "@/features/farms/components/FarmHeader";
+import FarmHeader from "@/features/admin/farms/components/FarmHeader";
 import { useState } from "react";
-import CreateEditFarmForm from "@/features/farms/components/CreateEditFarmForm";
+import CreateEditFarmForm from "@/features/admin/farms/components/CreateEditFarmForm";
 
 export default function FarmsPage() {
   const [search, setSearch] = useState("");

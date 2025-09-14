@@ -2,6 +2,7 @@ import { asyncHandler } from "../middleware/asyncHandler.js";
 import { FarmModel } from "../models/farms.js";
 import { FlockModel } from "../models/flocks.js";
 import { ShedModel } from "../models/sheds.js";
+import { LedgerModel } from "../models/ledger.js";
 import { AppError } from "../utils/AppError.js";
 
 export const getAllFlocks = asyncHandler(async (req, res) => {
@@ -120,33 +121,104 @@ export const updateFlockById = asyncHandler(async (req, res, next) => {
 
 export const deleteAllFlocks = asyncHandler(async (req, res, next) => {
   const query = req.query;
+
+  // Find all flocks based on query (if farmId is provided, filter by farmId)
   const flocks = await FlockModel.find(query);
+
+  if (flocks.length === 0) {
+    const error = new AppError(
+      "No flocks found to delete",
+      404,
+      "NO_FLOCKS_FOUND",
+      true
+    );
+    return next(error);
+  }
+
   const deletedFlocksIds = flocks.map((flock) => flock._id);
+
+  // Get all sheds for these flocks
+  const sheds = await ShedModel.find({
+    flockId: { $in: deletedFlocksIds },
+  });
+  const shedIds = sheds.map((shed) => shed._id);
+
+  // Delete all ledgers associated with these flocks and their sheds
+  if (shedIds.length > 0) {
+    await LedgerModel.deleteMany({
+      $or: [
+        { flockId: { $in: deletedFlocksIds } },
+        { shedId: { $in: shedIds } },
+      ],
+    });
+  } else {
+    // Delete ledgers only for the flocks if no sheds exist
+    await LedgerModel.deleteMany({
+      flockId: { $in: deletedFlocksIds },
+    });
+  }
+
+  // Delete all sheds for these flocks
   await ShedModel.deleteMany({
     flockId: { $in: deletedFlocksIds },
   });
+
+  // Finally delete all flocks
   const deletedFlocks = await FlockModel.deleteMany(query);
-  if (!deletedFlocks) {
+
+  if (deletedFlocks.deletedCount === 0) {
     throw new AppError("No flocks deleted", 400, "NO_FLOCKS_DELETED", true);
   }
+
+  const message = query.farmId
+    ? `All flocks and their associated sheds and ledgers deleted successfully for farm ${query.farmId}`
+    : `All flocks and their associated sheds and ledgers deleted successfully`;
+
   res.status(200).json({
     status: "success",
-    message: `All flocks and their associated sheds deleted successfully for ${query.farmId}`,
-    data: [],
+    message: message,
+    data: {
+      deletedFlocks: deletedFlocks.deletedCount,
+      deletedSheds: sheds.length,
+      deletedLedgers:
+        shedIds.length > 0 ? "All related ledgers" : "All related ledgers",
+    },
   });
 });
 
 export const deleteFlockById = asyncHandler(async (req, res, next) => {
   const { flockId } = req.params;
 
-  if (flockId) {
-    await ShedModel.deleteMany({ flockId });
+  // Check if flock exists
+  const flock = await FlockModel.findById(flockId);
+  if (!flock) {
+    const error = new AppError("Flock not found", 404, "FLOCK_NOT_FOUND", true);
+    return next(error);
   }
+
+  // Get all sheds for this flock
+  const sheds = await ShedModel.find({ flockId });
+  const shedIds = sheds.map((shed) => shed._id);
+
+  // Delete all ledgers associated with this flock and its sheds
+  if (shedIds.length > 0) {
+    await LedgerModel.deleteMany({
+      $or: [{ flockId: flockId }, { shedId: { $in: shedIds } }],
+    });
+  } else {
+    // Delete ledgers only for the flock if no sheds exist
+    await LedgerModel.deleteMany({ flockId: flockId });
+  }
+
+  // Delete all sheds for this flock
+  await ShedModel.deleteMany({ flockId });
+
+  // Finally delete the flock
   await FlockModel.findByIdAndDelete(flockId);
 
   res.status(200).json({
     status: "success",
-    message: `Flock with id ${flockId} and all its associated sheds deleted successfully`,
+    message: `Flock with id ${flockId}, all its associated sheds, and all related ledgers deleted successfully`,
     data: undefined,
   });
 });

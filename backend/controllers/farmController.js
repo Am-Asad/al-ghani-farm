@@ -3,6 +3,7 @@ import { FarmModel } from "../models/farms.js";
 import { FlockModel } from "../models/flocks.js";
 import { ShedModel } from "../models/sheds.js";
 import { AppError } from "../utils/AppError.js";
+import { LedgerModel } from "../models/ledger.js";
 
 export const getAllFarms = asyncHandler(async (req, res) => {
   const farms = await FarmModel.getAllFarmsWithFlocksCount().sort({
@@ -86,6 +87,7 @@ export const deleteAllFarms = asyncHandler(async (req, res) => {
   await ShedModel.deleteMany({});
   await FlockModel.deleteMany({});
   await FarmModel.deleteMany({});
+  await LedgerModel.deleteMany({});
 
   res.status(200).json({
     status: "success",
@@ -103,11 +105,12 @@ export const deleteFarmById = asyncHandler(async (req, res) => {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
 
-  // Delete all the flocks and all the sheds associated with the farm
+  // Delete all the flocks and all the sheds and all the ledgers associated with the farm
   const flocks = await FlockModel.find({ farmId });
   const flocksIds = flocks.map((flock) => flock._id);
   await ShedModel.deleteMany({ flockId: { $in: flocksIds } });
   await FlockModel.deleteMany({ farmId });
+  await LedgerModel.deleteMany({ farmId });
   await FarmModel.findByIdAndDelete(farmId);
 
   res.status(200).json({

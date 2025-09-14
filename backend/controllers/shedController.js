@@ -2,6 +2,7 @@ import { ShedModel } from "../models/sheds.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { AppError } from "../utils/AppError.js";
 import { FlockModel } from "../models/flocks.js";
+import { LedgerModel } from "../models/ledger.js";
 
 export const getAllSheds = asyncHandler(async (req, res) => {
   const sheds = await ShedModel.find().sort({ createdAt: -1 });
@@ -107,37 +108,69 @@ export const updateShedById = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const deleteAllSheds = asyncHandler(async (req, res) => {
-  const { flockId } = req.query;
+export const deleteAllSheds = asyncHandler(async (req, res, next) => {
+  const query = req.query;
 
-  if (flockId) {
-    const deletedSheds = await ShedModel.deleteMany({ flockId });
-    if (!deletedSheds) {
-      throw new AppError("No sheds deleted", 400, "NO_SHEDS_DELETED", true);
-    }
-  } else {
-    const deletedSheds = await ShedModel.deleteMany({});
-    if (!deletedSheds) {
-      throw new AppError("No sheds deleted", 400, "NO_SHEDS_DELETED", true);
-    }
+  // Find all sheds based on query (if flockId is provided, filter by flockId)
+  const sheds = await ShedModel.find(query);
+
+  if (sheds.length === 0) {
+    const error = new AppError(
+      "No sheds found to delete",
+      404,
+      "NO_SHEDS_FOUND",
+      true
+    );
+    return next(error);
   }
+
+  const deletedShedsIds = sheds.map((shed) => shed._id);
+
+  // Delete all ledgers associated with these sheds
+  await LedgerModel.deleteMany({
+    shedId: { $in: deletedShedsIds },
+  });
+
+  // Finally delete all sheds
+  const deletedSheds = await ShedModel.deleteMany(query);
+
+  if (deletedSheds.deletedCount === 0) {
+    throw new AppError("No sheds deleted", 400, "NO_SHEDS_DELETED", true);
+  }
+
+  const message = query.flockId
+    ? `All sheds and their associated ledgers deleted successfully for flock ${query.flockId}`
+    : `All sheds and their associated ledgers deleted successfully`;
+
   res.status(200).json({
     status: "success",
-    message: "All sheds deleted successfully",
-    data: [],
+    message: message,
+    data: {
+      deletedSheds: deletedSheds.deletedCount,
+      deletedLedgers: "All related ledgers",
+    },
   });
 });
 
 export const deleteShedById = asyncHandler(async (req, res, next) => {
-  const shed = await ShedModel.findByIdAndDelete(req.params.shedId);
+  const { shedId } = req.params;
+
+  // Check if shed exists
+  const shed = await ShedModel.findById(shedId);
   if (!shed) {
     const error = new AppError("Shed not found", 404, "SHED_NOT_FOUND", true);
     return next(error);
   }
 
+  // Delete all ledgers associated with this shed
+  await LedgerModel.deleteMany({ shedId: shedId });
+
+  // Finally delete the shed
+  await ShedModel.findByIdAndDelete(shedId);
+
   res.status(200).json({
     status: "success",
-    message: "Shed deleted successfully",
+    message: `Shed with id ${shedId} and all its associated ledgers deleted successfully`,
     data: {
       _id: shed._id,
     },

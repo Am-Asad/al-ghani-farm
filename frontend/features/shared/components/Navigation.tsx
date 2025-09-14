@@ -10,6 +10,7 @@ import {
   FileText,
   BarChart3,
   Settings,
+  Shield,
 } from "lucide-react";
 import { useAuthContext } from "@/providers/AuthProvider";
 
@@ -25,6 +26,12 @@ const navigation = [
     name: "Users",
     href: "/users",
     icon: Users,
+    requiredRole: ["admin", "manager"],
+  },
+  {
+    name: "Admin",
+    href: "/admin",
+    icon: Shield,
     requiredRole: ["admin", "manager"],
   },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },

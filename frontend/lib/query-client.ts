@@ -23,6 +23,7 @@ export const queryKeys = {
   flockById: (flockId: string) => ["sheds", "flock", flockId] as const,
 
   sheds: ["sheds"] as const,
+  shedById: (shedId: string) => ["shed", shedId] as const,
 
   ledgers: ["ledgers"] as const,
   ledgerById: (ledgerId: string) => ["ledger", ledgerId] as const,
@@ -34,4 +35,6 @@ export const queryKeys = {
 
   users: ["users"] as const,
   user: (userId: string) => ["user", userId] as const,
+
+  entities: ["entities"] as const,
 };

@@ -1,5 +1,6 @@
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { BuyerModel } from "../models/buyer.js";
+import { LedgerModel } from "../models/ledger.js";
 import { AppError } from "../utils/AppError.js";
 
 export const getAllBuyers = asyncHandler(async (req, res) => {
@@ -81,24 +82,63 @@ export const updateBuyerById = asyncHandler(async (req, res) => {
 });
 
 // Delete
-export const deleteBuyerById = asyncHandler(async (req, res) => {
+export const deleteBuyerById = asyncHandler(async (req, res, next) => {
   const { buyerId } = req.params;
-  const buyer = await BuyerModel.findByIdAndDelete(buyerId);
+
+  // Check if buyer exists
+  const buyer = await BuyerModel.findById(buyerId);
   if (!buyer) {
-    throw new AppError("Buyer not found", 404, "BUYER_NOT_FOUND", true);
+    const error = new AppError("Buyer not found", 404, "BUYER_NOT_FOUND", true);
+    return next(error);
   }
+
+  // Delete all ledgers associated with this buyer
+  await LedgerModel.deleteMany({ buyerId: buyerId });
+
+  // Finally delete the buyer
+  await BuyerModel.findByIdAndDelete(buyerId);
+
   res.status(200).json({
     status: "success",
-    message: "Buyer deleted successfully",
+    message: `Buyer with id ${buyerId} and all its associated ledgers deleted successfully`,
     data: buyer.toObject(),
   });
 });
 
-export const deleteAllBuyers = asyncHandler(async (req, res) => {
-  await BuyerModel.deleteMany({});
+export const deleteAllBuyers = asyncHandler(async (req, res, next) => {
+  // Find all buyers
+  const buyers = await BuyerModel.find({});
+
+  if (buyers.length === 0) {
+    const error = new AppError(
+      "No buyers found to delete",
+      404,
+      "NO_BUYERS_FOUND",
+      true
+    );
+    return next(error);
+  }
+
+  const deletedBuyersIds = buyers.map((buyer) => buyer._id);
+
+  // Delete all ledgers associated with these buyers
+  await LedgerModel.deleteMany({
+    buyerId: { $in: deletedBuyersIds },
+  });
+
+  // Finally delete all buyers
+  const deletedBuyers = await BuyerModel.deleteMany({});
+
+  if (deletedBuyers.deletedCount === 0) {
+    throw new AppError("No buyers deleted", 400, "NO_BUYERS_DELETED", true);
+  }
+
   res.status(200).json({
     status: "success",
-    message: "All buyers deleted successfully",
-    data: [],
+    message: "All buyers and their associated ledgers deleted successfully",
+    data: {
+      deletedBuyers: deletedBuyers.deletedCount,
+      deletedLedgers: "All related ledgers",
+    },
   });
 });

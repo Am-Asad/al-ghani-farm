@@ -116,6 +116,36 @@ export type BuyerOverallReport = {
   transactions: LedgerResponse[];
 };
 
+export type ShedReportSummary = {
+  totalTransactions: number;
+  totalEmptyVehicleWeight: number;
+  totalGrossWeight: number;
+  totalNetWeight: number;
+  totalBirds: number;
+  totalRate: number;
+  totalAmount: number;
+  totalPaid: number;
+  totalBalance: number;
+};
+
+export type ShedDailyReport = {
+  shed: Omit<Shed, "createdAt" | "updatedAt">;
+  date: string;
+  summary: ShedReportSummary;
+  transactions: LedgerResponse[];
+};
+
+export type ShedOverallReport = {
+  shed: Omit<Shed, "createdAt" | "updatedAt">;
+  summary: ShedReportSummary & {
+    dateRange: {
+      from: string;
+      to: string;
+    } | null;
+  };
+  transactions: LedgerResponse[];
+};
+
 export type LedgerResponse = {
   _id: string;
   farmId: {
@@ -153,4 +183,17 @@ export type LedgerResponse = {
   date: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type Entities = {
+  farms: { _id: string; name: string }[];
+  flocks: { _id: string; name: string; farmId: string }[];
+  buyers: { _id: string; name: string }[];
+  sheds: { _id: string; name: string; flockId: string }[];
+  counts: {
+    farms: number;
+    flocks: number;
+    buyers: number;
+    sheds: number;
+  };
 };

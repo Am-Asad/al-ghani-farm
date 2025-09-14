@@ -1,10 +1,10 @@
 "use client";
-import BuyerHeader from "@/features/buyers/components/BuyerHeader";
+import BuyerHeader from "@/features/admin/buyers/components/BuyerHeader";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import React, { useState } from "react";
-import { useGetAllBuyers } from "@/features/buyers/hooks/useGetAllBuyers";
-import BuyerCard from "@/features/buyers/components/BuyerCard";
+import { useGetAllBuyers } from "@/features/admin/buyers/hooks/useGetAllBuyers";
+import BuyerCard from "@/features/admin/buyers/components/BuyerCard";
 import { Building2 } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 
@@ -40,21 +40,24 @@ const BuyersPage = () => {
         search={search}
         setSearch={setSearch}
         totalBuyers={buyers.length}
+        showActions={false}
       />
 
       {/* Users grid */}
-      {filteredBuyers.length > 0 ? (
-        <div className="flex-1 overflow-y-scroll grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBuyers.map((buyer) => (
-            <BuyerCard key={buyer._id} buyer={buyer} />
-          ))}
-        </div>
-      ) : (
-        <DataNotFound
-          title="buyers"
-          icon={<Building2 className="w-10 h-10" />}
-        />
-      )}
+      <div className="flex-1 overflow-y-scroll">
+        {filteredBuyers.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredBuyers.map((buyer) => (
+              <BuyerCard key={buyer._id} buyer={buyer} showActions={false} />
+            ))}
+          </div>
+        ) : (
+          <DataNotFound
+            title="buyers"
+            icon={<Building2 className="w-10 h-10" />}
+          />
+        )}
+      </div>
     </div>
   );
 };

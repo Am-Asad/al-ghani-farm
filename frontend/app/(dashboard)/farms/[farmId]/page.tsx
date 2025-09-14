@@ -2,16 +2,16 @@
 import { useParams } from "next/navigation";
 import React, { useState } from "react";
 import { Building2, Users, ArrowLeft } from "lucide-react";
-import FlockCard from "@/features/flocks/components/FlockCard";
+import FlockCard from "@/features/admin/flocks/components/FlockCard";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import FarmDetailsCard from "@/features/farms/components/FarmDetailsCard";
-import FlockHeader from "@/features/flocks/components/FlockHeader";
-import { useGetFarmById } from "@/features/farms/hooks/useGetFarmById";
-import CreateEditFlockForm from "@/features/flocks/components/CreateEditFlockForm";
+import FarmDetailsCard from "@/features/admin/farms/components/FarmDetailsCard";
+import FlockHeader from "@/features/admin/flocks/components/FlockHeader";
+import { useGetFarmById } from "@/features/admin/farms/hooks/useGetFarmById";
+import CreateEditFlockForm from "@/features/admin/flocks/components/CreateEditFlockForm";
 
 const FarmDetailsPage = () => {
   const { farmId } = useParams();

@@ -19,6 +19,7 @@ import shedRoutes from "./routes/shedRoutes.js";
 import buyerRoutes from "./routes/buyerRoutes.js";
 import ledgerRoutes from "./routes/ledgerRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import entitiesRoutes from "./routes/entitiesRoutes.js";
 
 dotenv.config(); // Load environment variables
 const app = express(); // Create express app
@@ -73,6 +74,7 @@ app.use("/api/v1/sheds", shedRoutes);
 app.use("/api/v1/buyers", buyerRoutes);
 app.use("/api/v1/ledgers", ledgerRoutes);
 app.use("/api/v1/reports", reportRoutes);
+app.use("/api/v1/entities", entitiesRoutes);
 
 // ERROR HANDLING MIDDLEWARES
 app.use(notFound);

@@ -1,12 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import FlockDetailsCard from "@/features/flocks/components/FlockDetailsCard";
-import { useGetFlockById } from "@/features/flocks/hooks/useGetFlockById";
-import ShedCard from "@/features/sheds/components/ShedCard";
+import FlockDetailsCard from "@/features/admin/flocks/components/FlockDetailsCard";
+import { useGetFlockById } from "@/features/admin/flocks/hooks/useGetFlockById";
+import ShedCard from "@/features/admin/sheds/components/ShedCard";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFeatchingData from "@/features/shared/components/ErrorFetchingData";
-import ShedHeader from "@/features/sheds/components/ShedHeader";
+import ShedHeader from "@/features/admin/sheds/components/ShedHeader";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
