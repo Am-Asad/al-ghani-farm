@@ -59,8 +59,15 @@ const validateEntityRelationships = async (
 };
 
 export const getAllLedgers = asyncHandler(async (req, res) => {
+  const { farmId, flockId, shedId, buyerId } = req.query;
+  const query = {};
+  if (farmId) query.farmId = farmId;
+  if (flockId) query.flockId = flockId;
+  if (shedId) query.shedId = shedId;
+  if (buyerId) query.buyerId = buyerId;
+
   // Get ledgers with populated references for better data
-  const ledgers = await LedgerModel.find()
+  const ledgers = await LedgerModel.find(query)
     .populate("farmId", "name supervisor")
     .populate("flockId", "name status")
     .populate("shedId", "name capacity")
@@ -70,7 +77,12 @@ export const getAllLedgers = asyncHandler(async (req, res) => {
   res.status(200).json({
     status: "success",
     message: "Ledgers fetched successfully",
-    data: ledgers.map((ledger) => ledger.toObject()),
+    data: ledgers.map((ledger) => {
+      const ledgerObj = ledger.toObject();
+      // Calculate balance for each ledger
+      ledgerObj.balance = ledgerObj.totalAmount - ledgerObj.amountPaid;
+      return ledgerObj;
+    }),
   });
 });
 
@@ -97,10 +109,14 @@ export const getLedgerById = asyncHandler(async (req, res) => {
     throw new AppError("Ledger not found", 404, "LEDGER_NOT_FOUND", true);
   }
 
+  const ledgerObj = ledger.toObject();
+  // Calculate balance for the ledger
+  ledgerObj.balance = ledgerObj.totalAmount - ledgerObj.amountPaid;
+
   res.status(200).json({
     status: "success",
     message: "Ledger fetched successfully",
-    data: ledger.toObject(),
+    data: ledgerObj,
   });
 });
 

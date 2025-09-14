@@ -25,7 +25,9 @@ export const queryKeys = {
   sheds: ["sheds"] as const,
 
   ledgers: ["ledgers"] as const,
-  ledger: (ledgerId: string) => ["ledger", ledgerId] as const,
+  ledgerById: (ledgerId: string) => ["ledger", ledgerId] as const,
+  ledgerWithFilters: (query: { [key: string]: string }) =>
+    ["ledger", query] as const,
 
   buyers: ["buyers"] as const,
   buyerById: (buyerId: string) => ["buyer", buyerId] as const,

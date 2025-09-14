@@ -1,7 +1,6 @@
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { UserModel } from "../models/users.js";
 import { AppError } from "../utils/AppError.js";
-import { updatePermissions } from "../utils/updatePermissions.js";
 import bcrypt from "bcryptjs";
 
 // Get
@@ -103,7 +102,6 @@ export const updateSingleUser = asyncHandler(async (req, res) => {
 
   // Handle permissions separately - only include if role is provided and not empty
   if (role && role.trim() !== "") {
-    fieldsToUpdate.permissions = updatePermissions(role);
     fieldsToUpdate.role = role;
   }
 
