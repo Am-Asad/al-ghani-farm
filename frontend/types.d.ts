@@ -146,6 +146,66 @@ export type ShedOverallReport = {
   transactions: LedgerResponse[];
 };
 
+export type FlockReportSummary = {
+  totalTransactions: number;
+  totalEmptyVehicleWeight: number;
+  totalGrossWeight: number;
+  totalNetWeight: number;
+  totalBirds: number;
+  totalRate: number;
+  totalAmount: number;
+  totalPaid: number;
+  totalBalance: number;
+};
+
+export type FlockDailyReport = {
+  flock: Pick<Flock, "_id" | "name" | "status">;
+  date: string;
+  summary: FlockReportSummary;
+  transactions: LedgerResponse[];
+};
+
+export type FlockOverallReport = {
+  flock: Pick<Flock, "_id" | "name" | "status">;
+  summary: FlockReportSummary & {
+    dateRange: {
+      from: string;
+      to: string;
+    } | null;
+  };
+  transactions: LedgerResponse[];
+};
+
+export type FarmReportSummary = {
+  totalTransactions: number;
+  totalEmptyVehicleWeight: number;
+  totalGrossWeight: number;
+  totalNetWeight: number;
+  totalBirds: number;
+  totalRate: number;
+  totalAmount: number;
+  totalPaid: number;
+  totalBalance: number;
+};
+
+export type FarmDailyReport = {
+  farm: Pick<Farm, "_id" | "name" | "supervisor"> | null;
+  date: string;
+  summary: FarmReportSummary;
+  transactions: LedgerResponse[];
+};
+
+export type FarmOverallReport = {
+  farm: Pick<Farm, "_id" | "name" | "supervisor"> | null;
+  summary: FarmReportSummary & {
+    dateRange: {
+      from: string;
+      to: string;
+    } | null;
+  };
+  transactions: LedgerResponse[];
+};
+
 export type LedgerResponse = {
   _id: string;
   farmId: {

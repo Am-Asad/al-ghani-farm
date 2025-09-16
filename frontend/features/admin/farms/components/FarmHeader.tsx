@@ -14,9 +14,15 @@ type FarmHeaderProps = {
   search: string;
   setSearch: (search: string) => void;
   totalFarms: number;
+  showActions?: boolean;
 };
 
-const FarmHeader = ({ search, setSearch, totalFarms }: FarmHeaderProps) => {
+const FarmHeader = ({
+  search,
+  setSearch,
+  totalFarms,
+  showActions = true,
+}: FarmHeaderProps) => {
   const { mutate: deleteBulkFarms } = useDeleteBulkFarms();
 
   return (
@@ -36,7 +42,7 @@ const FarmHeader = ({ search, setSearch, totalFarms }: FarmHeaderProps) => {
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">
-        {totalFarms > 0 && (
+        {totalFarms > 0 && showActions && (
           <RoleGuard requiredRole={["admin"]}>
             <ConfirmationDialog
               title={`Delete All Farms (${totalFarms})`}
@@ -53,10 +59,12 @@ const FarmHeader = ({ search, setSearch, totalFarms }: FarmHeaderProps) => {
           </RoleGuard>
         )}
 
-        <RoleGuard requiredRole={["admin", "manager"]}>
-          <CreateEditFarmForm />
-          <CreateBulkFarms />
-        </RoleGuard>
+        {showActions && (
+          <RoleGuard requiredRole={["admin", "manager"]}>
+            <CreateEditFarmForm />
+            <CreateBulkFarms />
+          </RoleGuard>
+        )}
       </div>
     </div>
   );

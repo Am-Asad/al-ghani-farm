@@ -14,9 +14,15 @@ type FlockHeaderProps = {
   search: string;
   setSearch: (search: string) => void;
   totalFlocks: number;
+  showActions?: boolean;
 };
 
-const FlockHeader = ({ search, setSearch, totalFlocks }: FlockHeaderProps) => {
+const FlockHeader = ({
+  search,
+  setSearch,
+  totalFlocks,
+  showActions = true,
+}: FlockHeaderProps) => {
   const { farmId } = useParams() as { farmId: string };
   const { mutate: deleteBulkFlocks } = useDeleteBulkFlocks();
 
@@ -37,7 +43,7 @@ const FlockHeader = ({ search, setSearch, totalFlocks }: FlockHeaderProps) => {
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">
-        {totalFlocks > 0 && (
+        {totalFlocks > 0 && showActions && (
           <RoleGuard requiredRole={["admin"]}>
             <ConfirmationDialog
               title={`Delete All Flocks (${totalFlocks})`}
@@ -54,10 +60,12 @@ const FlockHeader = ({ search, setSearch, totalFlocks }: FlockHeaderProps) => {
           </RoleGuard>
         )}
 
-        <RoleGuard requiredRole={["admin", "manager"]}>
-          <CreateEditFlockForm />
-          <CreateBulkFlocks />
-        </RoleGuard>
+        {showActions && (
+          <RoleGuard requiredRole={["admin", "manager"]}>
+            <CreateEditFlockForm />
+            <CreateBulkFlocks />
+          </RoleGuard>
+        )}
       </div>
     </div>
   );

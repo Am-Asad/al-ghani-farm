@@ -7,9 +7,9 @@ import {
   Building2,
   Users,
   Truck,
-  FileText,
+  // FileText,
   BarChart3,
-  Settings,
+  // Settings,
   Shield,
 } from "lucide-react";
 import { useAuthContext } from "@/providers/AuthProvider";
@@ -19,9 +19,9 @@ const navigation = [
   { name: "Farms", href: "/farms", icon: Building2 },
   { name: "Flocks", href: "/flocks", icon: Users },
   { name: "Sheds", href: "/sheds", icon: Truck },
-  { name: "Ledgers", href: "/ledgers", icon: FileText },
+  // { name: "Ledgers", href: "/ledgers", icon: FileText },
   { name: "Buyers", href: "/buyers", icon: Users },
-  { name: "Reports", href: "/reports", icon: BarChart3 },
+  // { name: "Reports", href: "/reports", icon: BarChart3 },
   {
     name: "Users",
     href: "/users",
@@ -34,7 +34,7 @@ const navigation = [
     icon: Shield,
     requiredRole: ["admin", "manager"],
   },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  // { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export function Navigation() {
@@ -45,7 +45,7 @@ export function Navigation() {
     <nav className="flex-1 px-4 py-6 space-y-2">
       {navigation.map((item) => {
         const Icon = item.icon;
-        const isActive = pathname === item.href;
+        const isActive = pathname.includes(item.href);
         const isNotVisible =
           item.requiredRole && !item.requiredRole.includes(user?.role || "");
         if (isNotVisible) return null;

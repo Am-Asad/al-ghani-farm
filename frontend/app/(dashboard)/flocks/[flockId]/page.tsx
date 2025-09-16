@@ -2,29 +2,35 @@
 import { Button } from "@/components/ui/button";
 import FlockDetailsCard from "@/features/admin/flocks/components/FlockDetailsCard";
 import { useGetFlockById } from "@/features/admin/flocks/hooks/useGetFlockById";
-import ShedCard from "@/features/admin/sheds/components/ShedCard";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFeatchingData from "@/features/shared/components/ErrorFetchingData";
-import ShedHeader from "@/features/admin/sheds/components/ShedHeader";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
+import { useGetAllLedgers } from "@/features/ledgers/hooks/useGetAllLedgers";
+import FlockReportDialog from "@/features/reports/flocks/components/FlockReportDialog";
+import LedgersTable from "@/features/ledgers/components/LedgersTable";
 
 const FlocksDetailsPage = () => {
-  const { flockId } = useParams();
   const router = useRouter();
-  const [search, setSearch] = useState("");
+  const { flockId } = useParams();
+
   const { data, isLoading, isError, error } = useGetFlockById(
     flockId as string
   );
 
-  const flock = data?.data;
-  const sheds = flock?.sheds || [];
+  const {
+    data: ledgersData,
+    isLoading: isLedgersLoading,
+    isError: isLedgersError,
+    error: ledgersError,
+  } = useGetAllLedgers({
+    flockId: flockId as string,
+  });
 
-  const filteredSheds = sheds.filter((shed) =>
-    shed.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const flock = data?.data;
+  const ledgers = ledgersData?.data || [];
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -46,43 +52,37 @@ const FlocksDetailsPage = () => {
   if (!flock) {
     return (
       <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
-        <DataNotFound title="flock" icon={<Building2 className="w-10 h-10" />}>
-          {/* <CreateEditFlockForm /> */}
-        </DataNotFound>
+        <DataNotFound
+          title="flock"
+          icon={<Building2 className="w-10 h-10" />}
+        />
       </div>
     );
   }
 
   return (
     <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
-      {/* Back button */}
-      <Button variant="ghost" onClick={() => router.back()} className="w-fit">
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Flocks
-      </Button>
+      {/* Header with Back button and Report button */}
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" onClick={() => router.back()} className="w-fit">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Flocks
+        </Button>
+        {flock && (
+          <FlockReportDialog flockId={flock._id} flockName={flock.name}>
+            <Button>Generate Reports</Button>
+          </FlockReportDialog>
+        )}
+      </div>
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">
         <FlockDetailsCard flock={flock} />
-
-        <ShedHeader
-          search={search}
-          setSearch={setSearch}
-          totalSheds={sheds.length}
+        <LedgersTable
+          ledgers={ledgers}
+          isLoading={isLedgersLoading}
+          isError={isLedgersError}
+          error={ledgersError?.message || "Failed to load ledgers"}
         />
-
-        {/* Sheds grid */}
-        {filteredSheds.length > 0 ? (
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSheds.map((shed) => (
-              <ShedCard key={shed._id} shed={shed} />
-            ))}
-          </div>
-        ) : (
-          <DataNotFound
-            title="sheds"
-            icon={<Building2 className="w-10 h-10" />}
-          />
-        )}
       </div>
     </div>
   );
