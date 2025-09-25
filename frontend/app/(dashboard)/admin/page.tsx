@@ -13,7 +13,7 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const entitiesTabs = [
   {
@@ -54,7 +54,7 @@ const AdminPage = () => {
 
   useEffect(() => {
     router.push(`/admin?tab=${activeTab}`);
-  }, [router]);
+  }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const {
     data: entitiesData,
