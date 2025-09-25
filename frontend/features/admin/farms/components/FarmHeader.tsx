@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { useDeleteBulkFarms } from "@/features/admin/farms/hooks/useDeleteBulkFarms";
-import Searchbar from "@/features/shared/components/Searchbar";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
@@ -11,34 +10,20 @@ import CreateBulkFarms from "./CreateBulkFarms";
 import CreateEditFarmForm from "./CreateEditFarmForm";
 
 type FarmHeaderProps = {
-  search: string;
-  setSearch: (search: string) => void;
   totalFarms: number;
   showActions?: boolean;
 };
 
-const FarmHeader = ({
-  search,
-  setSearch,
-  totalFarms,
-  showActions = true,
-}: FarmHeaderProps) => {
+const FarmHeader = ({ totalFarms, showActions = true }: FarmHeaderProps) => {
   const { mutate: deleteBulkFarms } = useDeleteBulkFarms();
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Farms</h1>
-          <p className="text-muted-foreground">
-            Manage system farms and their operations
-          </p>
-        </div>
-        <Searchbar
-          search={search}
-          setSearch={setSearch}
-          placeholder="Search farms"
-        />
+      <div className="flex flex-col">
+        <h1 className="text-3xl font-bold text-foreground">Farms</h1>
+        <p className="text-muted-foreground">
+          Manage system farms and their operations
+        </p>
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">

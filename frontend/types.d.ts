@@ -4,6 +4,12 @@ export type APIResponse<T> = {
   status: ApiStatus;
   message: string;
   data: T;
+  pagination?: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    hasMore: boolean;
+  };
 };
 
 export type User = {
@@ -31,7 +37,23 @@ export type Farm = {
   supervisor: string;
   createdAt: string;
   updatedAt: string;
-  flocksCount: number;
+  totalSheds: number;
+  totalFlocks: number;
+};
+
+export type FarmDetails = Farm & {
+  flocks: Flock[];
+  sheds: Shed[];
+};
+
+export type Allocation = {
+  _id: string;
+  chicks: number;
+  shedId: {
+    _id: string;
+    name: string;
+    capacity: number;
+  };
 };
 
 export type Flock = {
@@ -42,7 +64,7 @@ export type Flock = {
   startDate: string;
   endDate?: string;
   totalChicks: number;
-  shedsCount: number;
+  allocations: Allocation[];
   createdAt: string;
   updatedAt: string;
 };
@@ -50,18 +72,14 @@ export type Flock = {
 export type Shed = {
   _id: string;
   name: string;
-  totalChicks: number;
-  flockId: string;
+  capacity: number;
+  farmId: {
+    _id: string;
+    name: string;
+    supervisor: string;
+  };
   createdAt: string;
   updatedAt: string;
-};
-
-export type FarmWithFlocks = Farm & {
-  flocks: Flock[];
-};
-
-export type FlockWithSheds = Flock & {
-  sheds: Shed[];
 };
 
 export type Ledger = {

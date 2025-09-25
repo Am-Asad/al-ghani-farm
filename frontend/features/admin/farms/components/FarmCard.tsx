@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Expand } from "lucide-react";
+import { Building2, Ellipsis, Expand } from "lucide-react";
 import { Farm } from "@/types";
 import { formatDate } from "@/utils/format-date";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
@@ -11,6 +11,13 @@ import RoleGuard from "@/features/shared/components/RoleGuard";
 import { useRouter } from "next/navigation";
 import { formatSingleDigit } from "@/utils/format-single-digit";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 type FarmCardProps = {
   farm: Farm;
@@ -37,6 +44,26 @@ const FarmCard = ({ farm, showActions = true }: FarmCardProps) => {
               <Expand className="w-4 h-4" />
             </Button>
           )}
+          {!showActions && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Ellipsis className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Link href={`/sheds?farmId=${farm._id}`}>See Sheds</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href={`/flocks?farmId=${farm._id}`}>See Flocks</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href={`/ledgers?farmId=${farm._id}`}>See Ledgers</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -44,18 +71,26 @@ const FarmCard = ({ farm, showActions = true }: FarmCardProps) => {
           <div>
             <p className="text-muted-foreground">Total Flocks</p>
             <p className="font-medium">
-              {formatSingleDigit(farm?.flocksCount || 0)}
+              {formatSingleDigit(farm?.totalFlocks || 0)}
             </p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Total Sheds</p>
+            <p className="font-medium">
+              {formatSingleDigit(farm?.totalSheds || 0)}
+            </p>
+          </div>
+        </div>
+
+        <div className="pt-2 border-t grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-muted-foreground mb-1">Created At</p>
+            <p className="text-sm font-medium">{formatDate(farm?.createdAt)}</p>
           </div>
           <div>
             <p className="text-muted-foreground">Supervisor</p>
             <p className="font-medium">{farm?.supervisor}</p>
           </div>
-        </div>
-
-        <div className="pt-2 border-t">
-          <p className="text-sm text-muted-foreground mb-1">Created At</p>
-          <p className="text-sm font-medium">{formatDate(farm?.createdAt)}</p>
         </div>
 
         {showActions && (

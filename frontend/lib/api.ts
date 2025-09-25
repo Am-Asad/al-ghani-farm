@@ -26,7 +26,7 @@ export const api = axios.create({
 api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Don't retry refresh token endpoint itself

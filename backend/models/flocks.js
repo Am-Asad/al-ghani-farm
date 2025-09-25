@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ShedModel } from "./sheds.js";
 
 const flockSchema = new mongoose.Schema(
   {
@@ -7,6 +6,21 @@ const flockSchema = new mongoose.Schema(
     status: { type: String, enum: ["active", "completed"], default: "active" },
     startDate: { type: Date, required: [true, "Start date is required"] },
     endDate: { type: Date },
+    totalChicks: { type: Number, required: [true, "Total chicks is required"] },
+    allocations: [
+      {
+        shedId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Shed",
+          required: [true, "Shed ID is required"],
+        },
+        chicks: {
+          type: Number,
+          required: [true, "Number of chicks is required"],
+          min: [0, "Number of chicks must be at least 0"],
+        },
+      },
+    ],
     farmId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Farm",
@@ -25,13 +39,9 @@ flockSchema.index({ farmId: 1 }); // to fetch all flocks by farm
 flockSchema.index({ status: 1 }); // if we often filter by active/completed
 flockSchema.index({ startDate: 1 }); // useful for chronological sorting
 
-// expose virtuals in JSON/Object output
-flockSchema.set("toObject", { virtuals: true });
-flockSchema.set("toJSON", { virtuals: true });
-
 // Static methods
-// Calculate total chicks and sheds count with flockId
-flockSchema.statics.getFlockByIdWithTotalChicks = function (flockId) {
+// Get flock by ID with farm and shed information
+flockSchema.statics.getFlockByIdWithFarmAndSheds = function (flockId) {
   return this.aggregate([
     {
       $match: {
@@ -43,67 +53,103 @@ flockSchema.statics.getFlockByIdWithTotalChicks = function (flockId) {
     {
       $lookup: {
         from: "sheds",
-        localField: "_id",
-        foreignField: "flockId",
-        as: "sheds",
+        localField: "allocations.shedId",
+        foreignField: "_id",
+        as: "shedDetails",
       },
     },
     {
       $addFields: {
-        totalChicks: { $sum: "$sheds.totalChicks" },
-        shedsCount: { $size: "$sheds" }, // Add shedsCount calculation
+        allocations: {
+          $map: {
+            input: "$allocations",
+            as: "allocation",
+            in: {
+              chicks: "$$allocation.chicks",
+              shed: {
+                $let: {
+                  vars: {
+                    shedDetail: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$shedDetails",
+                            cond: {
+                              $eq: ["$$this._id", "$$allocation.shedId"],
+                            },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                  in: {
+                    _id: "$$shedDetail._id",
+                    name: "$$shedDetail.name",
+                    capacity: "$$shedDetail.capacity",
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
-    { $project: { sheds: 0 } }, // hide sheds if not needed
+    { $project: { shedDetails: 0 } },
+    { $sort: { createdAt: -1 } },
   ]);
 };
 
-// Calculate total chicks and sheds count for all the flocks
-flockSchema.statics.getAllFlocksWithTotalChicks = function () {
+// Get all flocks with farm and shed information
+flockSchema.statics.getAllFlocksWithFarmAndSheds = function () {
   return this.aggregate([
     {
       $lookup: {
         from: "sheds",
-        localField: "_id",
-        foreignField: "flockId",
-        as: "sheds",
+        localField: "allocations.shedId",
+        foreignField: "_id",
+        as: "shedDetails",
       },
     },
     {
       $addFields: {
-        totalChicks: { $sum: "$sheds.totalChicks" },
-        shedsCount: { $size: "$sheds" }, // Add shedsCount calculation
+        allocations: {
+          $map: {
+            input: "$allocations",
+            as: "allocation",
+            in: {
+              chicks: "$$allocation.chicks",
+              shed: {
+                $let: {
+                  vars: {
+                    shedDetail: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$shedDetails",
+                            cond: {
+                              $eq: ["$$this._id", "$$allocation.shedId"],
+                            },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                  in: {
+                    _id: "$$shedDetail._id",
+                    name: "$$shedDetail.name",
+                    capacity: "$$shedDetail.capacity",
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
-    { $project: { sheds: 0 } }, // hide sheds if not needed
-  ]);
-};
-
-// Calculate total chicks and sheds count for all the flocks in a farm
-flockSchema.statics.getAllFlocksWithTotalChicksForFarm = function (farmId) {
-  return this.aggregate([
-    {
-      $match: {
-        farmId: mongoose.Types.ObjectId.isValid(farmId)
-          ? new mongoose.Types.ObjectId(farmId)
-          : farmId,
-      },
-    },
-    {
-      $lookup: {
-        from: "sheds", // Mongo collection name
-        localField: "_id",
-        foreignField: "flockId",
-        as: "sheds",
-      },
-    },
-    {
-      $addFields: {
-        totalChicks: { $sum: "$sheds.totalChicks" },
-        shedsCount: { $size: "$sheds" }, // Add shedsCount calculation
-      },
-    },
-    { $project: { sheds: 0 } }, // hide sheds if not needed
+    { $project: { shedDetails: 0 } },
+    { $sort: { createdAt: -1 } },
   ]);
 };
 

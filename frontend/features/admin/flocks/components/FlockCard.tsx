@@ -76,10 +76,12 @@ const FlockCard = ({ flock, showActions = true }: FlockCardProps) => {
         <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t">
           <div className="">
             <div className="flex items-center space-x-2">
-              <p className="text-sm text-muted-foreground">Total Sheds</p>
+              <p className="text-sm text-muted-foreground">Allocations</p>
             </div>
             <p className="text-lg font-semibold text-primary">
-              {formatSingleDigit(flock.shedsCount?.toLocaleString() || 0)}
+              {formatSingleDigit(
+                flock.allocations?.length?.toLocaleString() || 0
+              )}
             </p>
           </div>
           <div className="">

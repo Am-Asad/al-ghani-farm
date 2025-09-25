@@ -9,10 +9,20 @@ import CreateEditFlockForm from "./CreateEditFlockForm";
 import CreateBulkFlocks from "./CreateBulkFlocks";
 import { useParams } from "next/navigation";
 import { useDeleteBulkFlocks } from "../hooks/useDeleteBulkFlocks";
+import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type FlockHeaderProps = {
   search: string;
   setSearch: (search: string) => void;
+  selectedFarm: string;
+  setSelectedFarm: (farmId: string) => void;
   totalFlocks: number;
   showActions?: boolean;
 };
@@ -20,11 +30,15 @@ type FlockHeaderProps = {
 const FlockHeader = ({
   search,
   setSearch,
+  selectedFarm,
+  setSelectedFarm,
   totalFlocks,
   showActions = true,
 }: FlockHeaderProps) => {
   const { farmId } = useParams() as { farmId: string };
   const { mutate: deleteBulkFlocks } = useDeleteBulkFlocks();
+  const { data: farmsData } = useGetAllFarms();
+  const farms = farmsData?.data || [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -35,11 +49,31 @@ const FlockHeader = ({
             Manage system flocks and their operations
           </p>
         </div>
-        <Searchbar
-          search={search}
-          setSearch={setSearch}
-          placeholder="Search flocks"
-        />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Select
+            value={selectedFarm}
+            onValueChange={(value) =>
+              setSelectedFarm(value === "All Farms" ? "" : value)
+            }
+          >
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Filter by farm" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All Farms">All Farms</SelectItem>
+              {farms.map((farm) => (
+                <SelectItem key={farm._id} value={farm._id}>
+                  {farm.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Searchbar
+            search={search}
+            setSearch={setSearch}
+            placeholder="Search flocks"
+          />
+        </div>
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">

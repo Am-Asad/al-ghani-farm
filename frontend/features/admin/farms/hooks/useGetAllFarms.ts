@@ -7,14 +7,24 @@ import { Farm as FarmType } from "@/types";
 import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllFarms = () => {
+type QueryParams = {
+  page: string;
+  limit: string;
+  search: string;
+  sortBy: string;
+  sortOrder: string;
+};
+
+export const useGetAllFarms = (query?: QueryParams) => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: queryKeys.farms,
+    queryKey: [...queryKeys.farms, query],
     queryFn: async () => {
       try {
-        const response = await api.get<APIResponse<FarmType[]>>(`/farms`);
+        const response = await api.get<APIResponse<FarmType[]>>(`/farms`, {
+          params: query ?? {},
+        });
         return response.data;
       } catch (error) {
         toast.error(
@@ -25,5 +35,6 @@ export const useGetAllFarms = () => {
       }
     },
     enabled: !!user?._id,
+    placeholderData: (previousData) => previousData,
   });
 };

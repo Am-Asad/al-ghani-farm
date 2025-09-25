@@ -21,47 +21,46 @@ export const createEditLedgerSchema = z
     flockId: z.string().min(1, "Flock ID is required"),
     shedId: z.string().min(1, "Shed ID is required"),
     buyerId: z.string().min(1, "Buyer ID is required"),
-    vehicleNumber: z
-      .string()
-      .min(3, "Vehicle number is required")
-      .max(20, "Vehicle number must be at most 20 characters")
-      .trim(),
-    driverName: z
-      .string()
-      .min(3, "Driver name is required")
-      .max(100, "Driver name must be at most 100 characters")
-      .trim(),
+    vehicleNumber: z.string().min(3, "Vehicle number is required").trim(),
+    driverName: z.string().min(3, "Driver name is required").trim(),
     driverContact: z
       .string()
       .regex(
         /^((\+92)|(0092))-{0,1}3[0-9]{2}-{0,1}[0-9]{7}$|^03[0-9]{2}[0-9]{7}$/,
         "Invalid Pakistani contact number format. It should start with +92, 0092, or 03, followed by 10 digits."
-      ),
-    accountantName: z
-      .string()
-      .min(3, "Accountant name is required")
-      .max(100, "Accountant name must be at most 100 characters")
-      .trim(),
+      )
+      .min(10, "Driver contact must be a valid Pakistani contact number"),
+    accountantName: z.string().min(3, "Accountant name is required").trim(),
     emptyVehicleWeight: z
       .number()
-      .positive("Empty vehicle weight must be a positive number"),
+      .int("Empty vehicle weight must be a whole number")
+      .min(0, "Empty vehicle weight must be 0 or greater"),
     grossWeight: z
       .number()
-      .positive("Gross weight must be greater than empty vehicle weight"),
+      .int("Gross weight must be a whole number")
+      .min(0, "Gross weight must be 0 or greater"),
     netWeight: z
       .number()
-      .positive(
-        "Net weight must be equal to gross weight minus empty vehicle weight"
-      ),
+      .int("Net weight must be a whole number")
+      .min(0, "Net weight must be 0 or greater"),
     numberOfBirds: z
       .number()
       .int("Number of birds must be a whole number")
-      .positive("Number of birds must be a positive number"),
-    rate: z.number().positive("Rate must be a positive number"),
+      .min(0, "Number of birds must be 0 or greater"),
+    rate: z
+      .number()
+      .int("Rate must be a whole number")
+      .min(0, "Rate must be 0 or greater"),
+
     totalAmount: z
       .number()
-      .positive("Total amount must be equal to net weight * rate"),
-    amountPaid: z.number().min(0, "Amount paid cann negative").default(0),
+      .int("Total amount must be a whole number")
+      .min(0, "Total amount must be 0 or greater"),
+    amountPaid: z
+      .number()
+      .int("Amount paid must be a whole number")
+      .min(0, "Amount paid must be 0 or greater")
+      .default(0),
     date: flexibleDateSchema,
   })
   .refine((data) => data.grossWeight > data.emptyVehicleWeight, {

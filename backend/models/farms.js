@@ -24,8 +24,28 @@ const farmSchema = new mongoose.Schema(
 farmSchema.index({ createdAt: -1 });
 farmSchema.index({ updatedAt: -1 });
 
-farmSchema.statics.getAllFarmsWithFlocksCount = function () {
-  return this.aggregate([
+farmSchema.statics.getAllFarmsWithShedsAndFlocksCount = function ({
+  search,
+  limit = 10,
+  offset = 0,
+  sortBy = "createdAt",
+  sortOrder = "desc",
+} = {}) {
+  const sortDir = sortOrder === "asc" ? 1 : -1;
+
+  const pipeline = [
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                { name: { $regex: search, $options: "i" } },
+                { supervisor: { $regex: search, $options: "i" } },
+              ],
+            },
+          },
+        ]
+      : []),
     {
       $lookup: {
         from: "flocks",
@@ -34,13 +54,45 @@ farmSchema.statics.getAllFarmsWithFlocksCount = function () {
         as: "flocks",
       },
     },
-    { $addFields: { flocksCount: { $size: "$flocks" } } },
-    { $sort: { createdAt: -1 } },
-    { $project: { flocks: 0 } },
-  ]);
+    {
+      $lookup: {
+        from: "sheds",
+        localField: "_id",
+        foreignField: "farmId",
+        as: "sheds",
+      },
+    },
+    {
+      $addFields: {
+        totalFlocks: { $size: "$flocks" },
+        totalSheds: { $size: "$sheds" },
+      },
+    },
+    { $project: { flocks: 0, sheds: 0 } },
+    { $sort: { [sortBy]: sortDir } },
+    {
+      $facet: {
+        items: [
+          ...(offset > 0 ? [{ $skip: offset }] : []),
+          { $limit: Math.max(limit, 0) },
+        ],
+        total: [{ $count: "count" }],
+      },
+    },
+    {
+      $project: {
+        items: 1,
+        total: { $ifNull: [{ $arrayElemAt: ["$total.count", 0] }, 0] },
+      },
+    },
+  ];
+
+  return this.aggregate(pipeline).then(
+    (res) => res[0] || { items: [], total: 0 }
+  );
 };
 
-farmSchema.statics.getFarmByIdWithFlocksCount = function (farmId) {
+farmSchema.statics.getFarmByIdWithFlocksAndShedsCount = function (farmId) {
   return this.aggregate([
     {
       $match: {
@@ -57,9 +109,22 @@ farmSchema.statics.getFarmByIdWithFlocksCount = function (farmId) {
         as: "flocks",
       },
     },
-    { $addFields: { flocksCount: { $size: "$flocks" } } },
+    {
+      $lookup: {
+        from: "sheds",
+        localField: "_id",
+        foreignField: "farmId",
+        as: "sheds",
+      },
+    },
+    {
+      $addFields: {
+        totalFlocks: { $size: "$flocks" },
+        totalSheds: { $size: "$sheds" },
+      },
+    },
     { $sort: { createdAt: -1 } },
-    { $project: { flocks: 0 } },
+    { $project: { flocks: 0, sheds: 0 } },
   ]);
 };
 

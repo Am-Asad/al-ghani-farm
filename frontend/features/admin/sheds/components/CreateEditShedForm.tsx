@@ -42,11 +42,11 @@ const CreateEditShedForm = ({
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
-  const [selectedFlock, setSelectedFlock] = useState<string>(
-    selectedShed?.flockId || ""
+  const [selectedFarm, setSelectedFarm] = useState<string>(
+    selectedShed?.farmId || ""
   );
   const isEditMode = !!selectedShed;
-  const allFlocksForDropdown = entities?.data?.flocks || [];
+  const allFarmsForDropdown = entities?.data?.farms || [];
 
   const { mutate: createShed, isPending: isCreatePending } = useCreateShed();
   const { mutate: editShed, isPending: isEditPending } = useEditShed();
@@ -64,8 +64,8 @@ const CreateEditShedForm = ({
 
     const errors: Record<string, string> = {};
 
-    if (!selectedFlock) {
-      errors.flockId = "Please select a flock";
+    if (!selectedFarm) {
+      errors.farmId = "Please select a farm";
     }
 
     // Get form data using FormData API
@@ -75,8 +75,8 @@ const CreateEditShedForm = ({
     // Validate with Zod schema
     const validatedData = createEditShedSchema.safeParse({
       name: rawData.name,
-      totalChicks: Number(rawData.totalChicks),
-      flockId: selectedFlock,
+      capacity: rawData.capacity ? Number(rawData.capacity) : undefined,
+      farmId: selectedFarm,
     });
     if (!validatedData.success) {
       const formatted: Record<string, string> = {};
@@ -160,48 +160,50 @@ const CreateEditShedForm = ({
             )}
           </div>
 
-          {/* Shed Total Chicks */}
+          {/* Shed Capacity */}
           <div className="space-y-2">
-            <Label htmlFor="startDate">Total Chicks</Label>
+            <Label htmlFor="capacity">Capacity (Optional)</Label>
             <Input
-              id="totalChicks"
-              name="totalChicks"
+              id="capacity"
+              name="capacity"
               type="number"
-              defaultValue={
-                selectedShed?.totalChicks ? selectedShed.totalChicks : 0
-              }
+              placeholder="Enter shed capacity"
+              defaultValue={selectedShed?.capacity ? selectedShed.capacity : ""}
             />
+            <p className="text-xs text-muted-foreground">
+              Maximum number of chicks this shed can hold
+            </p>
           </div>
 
-          {/* Flock Id */}
+          {/* Farm Id */}
           <div className="space-y-2">
-            <Label htmlFor="flockId">Flock</Label>
+            <Label htmlFor="farmId">Farm</Label>
             <Select
-              value={selectedFlock}
-              onValueChange={(value) => setSelectedFlock(value)}
+              value={selectedFarm}
+              onValueChange={(value) => setSelectedFarm(value)}
             >
               <SelectTrigger
                 className={`${
-                  getFieldError("flockId") ? "border-destructive" : ""
+                  getFieldError("farmId") ? "border-destructive" : ""
                 }`}
               >
-                <SelectValue placeholder="Select flock" />
+                <SelectValue placeholder="Select farm" />
               </SelectTrigger>
               <SelectContent className="max-h-[200px] overflow-y-auto">
-                {allFlocksForDropdown.map((flock) => (
-                  <SelectItem key={flock._id} value={flock._id}>
-                    {flock.name}
+                {allFarmsForDropdown.map((farm) => (
+                  <SelectItem key={farm._id} value={farm._id}>
+                    {farm.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {getFieldError("flockId") ? (
+            {getFieldError("farmId") ? (
               <p className="text-xs text-destructive">
-                {getFieldError("flockId")}
+                {getFieldError("farmId")}
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Please select a flock
+                Please select a farm
               </p>
             )}
           </div>

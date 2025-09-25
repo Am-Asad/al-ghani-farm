@@ -12,6 +12,7 @@ import ShedsHeader from "../sheds/components/ShedHeader";
 
 const ShedsTab = () => {
   const [search, setSearch] = useState("");
+  const [selectedFarm, setSelectedFarm] = useState("");
   const {
     data: shedsData,
     isLoading: shedsLoading,
@@ -20,9 +21,13 @@ const ShedsTab = () => {
   } = useGetAllSheds();
 
   const sheds = shedsData?.data || [];
-  const filteredSheds = sheds.filter((shed) =>
-    shed.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredSheds = sheds.filter((shed) => {
+    const matchesSearch = shed.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesFarm = !selectedFarm || shed.farmId._id === selectedFarm;
+    return matchesSearch && matchesFarm;
+  });
 
   if (shedsLoading) return <CardsSkeleton />;
   if (shedsError) {
@@ -51,6 +56,8 @@ const ShedsTab = () => {
       <ShedsHeader
         search={search}
         setSearch={setSearch}
+        selectedFarm={selectedFarm}
+        setSelectedFarm={setSelectedFarm}
         totalSheds={sheds.length}
       />
 

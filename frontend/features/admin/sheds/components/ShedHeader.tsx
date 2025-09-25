@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import Searchbar from "@/features/shared/components/Searchbar";
 import { Trash } from "lucide-react";
 import { useParams } from "next/navigation";
 import React from "react";
@@ -10,19 +9,12 @@ import CreateBulkSheds from "./CreateBulkSheds";
 import { useDeleteBulkSheds } from "../hooks/useDeleteBulkSheds";
 
 type ShedHeaderProps = {
-  search: string;
-  setSearch: (search: string) => void;
   totalSheds: number;
   showActions?: boolean;
 };
 
-const ShedHeader = ({
-  search,
-  setSearch,
-  totalSheds,
-  showActions = true,
-}: ShedHeaderProps) => {
-  const { flockId } = useParams() as { flockId: string }; // TODO: Remove this
+const ShedHeader = ({ totalSheds, showActions = true }: ShedHeaderProps) => {
+  const { farmId } = useParams() as { farmId: string };
   const { mutate: deleteBulkSheds } = useDeleteBulkSheds();
 
   return (
@@ -34,11 +26,6 @@ const ShedHeader = ({
             Manage system sheds and their operations
           </p>
         </div>
-        <Searchbar
-          search={search}
-          setSearch={setSearch}
-          placeholder="Search sheds"
-        />
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">
@@ -48,7 +35,7 @@ const ShedHeader = ({
               title={`Delete All Sheds (${totalSheds})`}
               description={`Are you sure you want to delete all ${totalSheds} sheds?`}
               confirmationText="Delete_All_Sheds"
-              onConfirm={() => deleteBulkSheds({ flockId })}
+              onConfirm={() => deleteBulkSheds({ farmId })}
               trigger={
                 <Button className="w-fit">
                   <Trash className="w-4 h-4 mr-2" />

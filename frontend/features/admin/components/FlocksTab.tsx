@@ -12,6 +12,7 @@ import FlockCard from "@/features/admin/flocks/components/FlockCard";
 
 const FlocksTab = () => {
   const [search, setSearch] = useState("");
+  const [selectedFarm, setSelectedFarm] = useState("");
   const {
     data: flocksData,
     isLoading: flocksLoading,
@@ -20,9 +21,13 @@ const FlocksTab = () => {
   } = useGetAllFlocks();
 
   const flocks = flocksData?.data || [];
-  const filteredFlocks = flocks.filter((flock) =>
-    flock.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredFlocks = flocks.filter((flock) => {
+    const matchesSearch = flock.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesFarm = !selectedFarm || flock.farmId._id === selectedFarm;
+    return matchesSearch && matchesFarm;
+  });
 
   if (flocksLoading) return <CardsSkeleton />;
   if (flocksError) {
@@ -51,6 +56,8 @@ const FlocksTab = () => {
       <FlockHeader
         search={search}
         setSearch={setSearch}
+        selectedFarm={selectedFarm}
+        setSelectedFarm={setSelectedFarm}
         totalFlocks={flocks.length}
       />
 

@@ -7,17 +7,22 @@ import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import FarmHeader from "@/features/admin/farms/components/FarmHeader";
-import { useState } from "react";
 import CreateEditFarmForm from "@/features/admin/farms/components/CreateEditFarmForm";
+import FarmFilters from "@/features/admin/farms/components/FarmFilters";
+import Pagination from "@/features/shared/components/Pagination";
+import { useFarmQueryParams } from "@/features/admin/farms/hooks/useFarmQueryParams";
 
 export default function FarmsPage() {
-  const [search, setSearch] = useState("");
-  const { data, isLoading, isError, error } = useGetAllFarms();
+  const { query, setPage, setLimit } = useFarmQueryParams();
+  const { data, isLoading, isError, error } = useGetAllFarms(query);
 
   const farms = data?.data || [];
-  const filteredFarms = farms.filter((farm) =>
-    farm.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const pagination = data?.pagination ?? {
+    page: 1,
+    limit: 1,
+    totalCount: 0,
+    hasMore: false,
+  };
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -47,19 +52,16 @@ export default function FarmsPage() {
   }
 
   return (
-    <div className="p-6 overflow-y-scroll flex flex-col flex-1">
-      {/* Page header */}
-      <FarmHeader
-        search={search}
-        setSearch={setSearch}
-        totalFarms={farms.length}
-        showActions={false}
-      />
+    <div className="p-6 flex flex-col flex-1">
+      <FarmHeader totalFarms={farms.length} showActions={false} />
+      {/* Filters */}
+      <FarmFilters />
+      {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
         {/* Farms grid */}
-        {filteredFarms.length > 0 ? (
+        {farms.length > 0 ? (
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredFarms.map((farm) => (
+            {farms.map((farm) => (
               <FarmCard key={farm._id} farm={farm} showActions={false} />
             ))}
           </div>
@@ -70,6 +72,14 @@ export default function FarmsPage() {
           />
         )}
       </div>
+      {/* Pagination */}
+      <Pagination
+        page={pagination.page}
+        limit={pagination.limit}
+        hasMore={pagination.hasMore}
+        onChangePage={(p) => setPage(p)}
+        onChangeLimit={(l) => setLimit(l)}
+      />
     </div>
   );
 }

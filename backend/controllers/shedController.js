@@ -1,11 +1,13 @@
 import { ShedModel } from "../models/sheds.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { AppError } from "../utils/AppError.js";
-import { FlockModel } from "../models/flocks.js";
+import { FarmModel } from "../models/farms.js";
 import { LedgerModel } from "../models/ledger.js";
 
 export const getAllSheds = asyncHandler(async (req, res) => {
-  const sheds = await ShedModel.find().sort({ createdAt: -1 });
+  const sheds = await ShedModel.find()
+    .populate("farmId", "name supervisor")
+    .sort({ createdAt: -1 });
 
   res.status(200).json({
     status: "success",
@@ -15,7 +17,10 @@ export const getAllSheds = asyncHandler(async (req, res) => {
 });
 
 export const getShedById = asyncHandler(async (req, res, next) => {
-  const shed = await ShedModel.findById(req.params.shedId);
+  const shed = await ShedModel.findById(req.params.shedId).populate(
+    "farmId",
+    "name supervisor"
+  );
 
   if (!shed) {
     const error = new AppError("Shed not found", 404, "SHED_NOT_FOUND", true);
@@ -32,19 +37,19 @@ export const getShedById = asyncHandler(async (req, res, next) => {
 export const createBulkSheds = asyncHandler(async (req, res, next) => {
   const shedsData = req.body;
 
-  // Validate that all flockIds exist
-  const shedIds = [...new Set(shedsData.map((shed) => shed.flockId))];
-  const existingFlocks = await FlockModel.find({ _id: { $in: shedIds } });
-  const existingFlockIds = existingFlocks.map((flock) => flock._id.toString());
+  // Validate that all farmIds exist
+  const farmIds = [...new Set(shedsData.map((shed) => shed.farmId))];
+  const existingFarms = await FarmModel.find({ _id: { $in: farmIds } });
+  const existingFarmIds = existingFarms.map((farm) => farm._id.toString());
 
-  const invalidFlockIds = shedIds.filter(
-    (flockId) => !existingFlockIds.includes(flockId)
+  const invalidFarmIds = farmIds.filter(
+    (farmId) => !existingFarmIds.includes(farmId)
   );
-  if (invalidFlockIds.length > 0) {
+  if (invalidFarmIds.length > 0) {
     const error = new AppError(
-      `Invalid flock IDs: ${invalidFlockIds.join(", ")}`,
+      `Invalid farm IDs: ${invalidFarmIds.join(", ")}`,
       400,
-      "INVALID_FLOCK_IDS",
+      "INVALID_FARM_IDS",
       true
     );
     return next(error);
@@ -62,11 +67,11 @@ export const createBulkSheds = asyncHandler(async (req, res, next) => {
 });
 
 export const createShed = asyncHandler(async (req, res, next) => {
-  const { flockId } = req.body;
+  const { farmId } = req.body;
 
-  const flock = await FlockModel.findById(flockId);
-  if (!flock) {
-    const error = new AppError("Flock not found", 404, "FLOCK_NOT_FOUND", true);
+  const farm = await FarmModel.findById(farmId);
+  if (!farm) {
+    const error = new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
     return next(error);
   }
 
@@ -138,8 +143,8 @@ export const deleteAllSheds = asyncHandler(async (req, res, next) => {
     throw new AppError("No sheds deleted", 400, "NO_SHEDS_DELETED", true);
   }
 
-  const message = query.flockId
-    ? `All sheds and their associated ledgers deleted successfully for flock ${query.flockId}`
+  const message = query.farmId
+    ? `All sheds and their associated ledgers deleted successfully for farm ${query.farmId}`
     : `All sheds and their associated ledgers deleted successfully`;
 
   res.status(200).json({

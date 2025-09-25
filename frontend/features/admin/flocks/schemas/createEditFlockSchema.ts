@@ -35,14 +35,25 @@ const flexibleOptionalDateSchema = z
   });
 
 export const createEditFlockSchema = z.object({
-  name: z
-    .string()
-    .min(3, "Flock name must be at least 3 characters")
-    .max(50, "Flock name must be at most 50 characters")
-    .trim(),
+  name: z.string().min(3, "Flock name must be at least 3 characters").trim(),
   status: z.enum(["active", "completed"]).default("active"),
   startDate: flexibleDateSchema,
   endDate: flexibleOptionalDateSchema,
+  totalChicks: z
+    .number({ message: "Total chicks is required" })
+    .int("Total chicks must be an integer")
+    .min(0, "Total chicks must be at least 0"),
+  allocations: z
+    .array(
+      z.object({
+        shedId: z.string().min(1, "Shed ID is required"),
+        chicks: z
+          .number({ message: "Chicks count is required" })
+          .int("Chicks count must be an integer")
+          .min(0, "Chicks count must be at least 0"),
+      })
+    )
+    .min(1, "At least one allocation is required"),
   farmId: z.string().min(1, "Farm id is required"),
 });
 

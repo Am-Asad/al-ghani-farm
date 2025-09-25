@@ -20,12 +20,14 @@ const ShedDetailsCard = ({ shed }: ShedDetailsCardProps) => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <p className="text-sm text-muted-foreground">Total Chicks</p>
-            <p className="text-lg font-medium">{shed.totalChicks}</p>
+            <p className="text-sm text-muted-foreground">Capacity</p>
+            <p className="text-lg font-medium">
+              {shed.capacity || "Not specified"}
+            </p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Flock ID</p>
-            <p className="text-lg font-medium">{shed.flockId}</p>
+            <p className="text-sm text-muted-foreground">Farm</p>
+            <p className="text-lg font-medium">{shed.farmId.name}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Created At</p>

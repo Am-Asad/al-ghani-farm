@@ -1,5 +1,4 @@
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import Searchbar from "@/features/shared/components/Searchbar";
 import React from "react";
 import CreateEditBuyerForm from "./CreateEditBuyerForm";
 import CreateBulkBuyers from "./CreateBulkBuyers";
@@ -9,15 +8,11 @@ import { Button } from "@/components/ui/button";
 import { useDeleteBulkBuyers } from "../hooks/useDeleteBulkBuyers";
 
 type BuyersHeaderProps = {
-  search: string;
-  setSearch: (search: string) => void;
   totalBuyers: number;
   showActions?: boolean;
 };
 
 const BuyersHeader = ({
-  search,
-  setSearch,
   totalBuyers,
   showActions = true,
 }: BuyersHeaderProps) => {
@@ -25,18 +20,11 @@ const BuyersHeader = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Buyers</h1>
-          <p className="text-muted-foreground">
-            Manage system buyers and their operations
-          </p>
-        </div>
-        <Searchbar
-          search={search}
-          setSearch={setSearch}
-          placeholder="Search buyers"
-        />
+      <div className="flex flex-col">
+        <h1 className="text-3xl font-bold text-foreground">Buyers</h1>
+        <p className="text-muted-foreground">
+          Manage system buyers and their operations
+        </p>
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">

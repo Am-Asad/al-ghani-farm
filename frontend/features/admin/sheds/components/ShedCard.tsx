@@ -43,9 +43,17 @@ const ShedCard = ({ shed, showActions = true }: ShedCardProps) => {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">Total Chicks</p>
+            <p className="text-muted-foreground">Capacity</p>
             <p className="font-medium">
-              {formatSingleDigit(formatAmount(shed?.totalChicks))}
+              {shed?.capacity
+                ? formatSingleDigit(formatAmount(shed.capacity))
+                : "N/A"}
+            </p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Farm</p>
+            <p className="font-medium">
+              {shed?.farmId?.name ? shed.farmId.name : "N/A"}
             </p>
           </div>
         </div>

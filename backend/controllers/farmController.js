@@ -6,26 +6,53 @@ import { AppError } from "../utils/AppError.js";
 import { LedgerModel } from "../models/ledger.js";
 
 export const getAllFarms = asyncHandler(async (req, res) => {
-  const farms = await FarmModel.getAllFarmsWithFlocksCount().sort({
-    createdAt: -1,
+  const {
+    search = "",
+    limit = "10",
+    page = "1",
+    sortBy = "createdAt",
+    sortOrder = "desc",
+  } = req.query;
+
+  const limitNum = Math.max(parseInt(limit, 10) || 10, 0);
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const offsetNum = (pageNum - 1) * limitNum;
+  const sortField = ["createdAt", "updatedAt"].includes(sortBy)
+    ? sortBy
+    : "createdAt";
+  const sortDir = sortOrder === "asc" ? "asc" : "desc";
+
+  const { items, total } = await FarmModel.getAllFarmsWithShedsAndFlocksCount({
+    search,
+    limit: limitNum,
+    offset: offsetNum,
+    sortBy: sortField,
+    sortOrder: sortDir,
   });
 
   res.status(200).json({
     status: "success",
     message: "Farms fetched successfully",
-    data: farms,
+    data: items,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      totalCount: total,
+      hasMore: offsetNum + items.length < total,
+    },
   });
 });
 
 export const getFarmById = asyncHandler(async (req, res) => {
   const { farmId } = req.params;
-  const farm = await FarmModel.getFarmByIdWithFlocksCount(farmId).sort({
-    createdAt: -1,
-  });
-  if (!farm) {
+  const farm = await FarmModel.getFarmByIdWithFlocksAndShedsCount(farmId);
+  if (!farm || farm.length === 0) {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
-  const flocks = await FlockModel.getAllFlocksWithTotalChicksForFarm(farmId);
+  const flocks = await FlockModel.find({ farmId }).populate(
+    "allocations.shedId",
+    "name capacity"
+  );
   res.status(200).json({
     status: "success",
     message: "Farm fetched successfully",
@@ -80,20 +107,24 @@ export const updateFarmById = asyncHandler(async (req, res) => {
 
 // Delete
 export const deleteAllFarms = asyncHandler(async (req, res) => {
-  const farms = await FarmModel.deleteMany({});
-  if (!farms) {
-    throw new AppError("No farms deleted", 400, "NO_FARMS_DELETED", true);
-  }
+  // Delete all sheds, flocks, and ledgers first
   await ShedModel.deleteMany({});
   await FlockModel.deleteMany({});
-  await FarmModel.deleteMany({});
   await LedgerModel.deleteMany({});
+
+  // Finally delete all farms
+  const farms = await FarmModel.deleteMany({});
+  if (farms.deletedCount === 0) {
+    throw new AppError("No farms deleted", 400, "NO_FARMS_DELETED", true);
+  }
 
   res.status(200).json({
     status: "success",
     message:
-      "All farms and their associated flocks and sheds deleted successfully",
-    data: [],
+      "All farms and their associated sheds, flocks, and ledgers deleted successfully",
+    data: {
+      deletedFarms: farms.deletedCount,
+    },
   });
 });
 
@@ -105,17 +136,15 @@ export const deleteFarmById = asyncHandler(async (req, res) => {
     throw new AppError("Farm not found", 404, "FARM_NOT_FOUND", true);
   }
 
-  // Delete all the flocks and all the sheds and all the ledgers associated with the farm
-  const flocks = await FlockModel.find({ farmId });
-  const flocksIds = flocks.map((flock) => flock._id);
-  await ShedModel.deleteMany({ flockId: { $in: flocksIds } });
+  // Delete all the sheds, flocks, and ledgers associated with the farm
+  await ShedModel.deleteMany({ farmId });
   await FlockModel.deleteMany({ farmId });
   await LedgerModel.deleteMany({ farmId });
   await FarmModel.findByIdAndDelete(farmId);
 
   res.status(200).json({
     status: "success",
-    message: `Farm with id ${farmId} and all its associated flocks and sheds deleted successfully`,
+    message: `Farm with id ${farmId} and all its associated sheds, flocks, and ledgers deleted successfully`,
     data: {
       farmId: farm._id,
     },

@@ -6,17 +6,12 @@ import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import CreateEditShedForm from "@/features/admin/sheds/components/CreateEditShedForm";
 
 const ShedsPage = () => {
-  const [search, setSearch] = useState("");
   const { data, isLoading, isError, error } = useGetAllSheds();
-
   const sheds = data?.data || [];
-  const filteredSheds = sheds.filter((shed) =>
-    shed.name.toLowerCase().includes(search.toLowerCase())
-  );
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -48,18 +43,13 @@ const ShedsPage = () => {
   return (
     <div className="p-6 overflow-hidden flex flex-col flex-1">
       {/* Page header */}
-      <ShedsHeader
-        search={search}
-        setSearch={setSearch}
-        totalSheds={sheds.length}
-        showActions={false}
-      />
+      <ShedsHeader totalSheds={sheds.length} showActions={false} />
 
       {/* Users grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
-        {filteredSheds.length > 0 ? (
+        {sheds.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSheds.map((shed) => (
+            {sheds.map((shed) => (
               <ShedCard key={shed._id} shed={shed} showActions={false} />
             ))}
           </div>

@@ -7,14 +7,17 @@ import { Shed as ShedType } from "@/types";
 import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllSheds = () => {
+export const useGetAllSheds = (farmId?: string) => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: queryKeys.sheds,
+    queryKey: farmId ? [...queryKeys.sheds, farmId] : queryKeys.sheds,
     queryFn: async () => {
       try {
-        const response = await api.get<APIResponse<ShedType[]>>(`/sheds`);
+        const params = farmId ? { farmId } : {};
+        const response = await api.get<APIResponse<ShedType[]>>(`/sheds`, {
+          params,
+        });
         return response.data;
       } catch (error) {
         toast.error(

@@ -12,18 +12,18 @@ export const useDeleteBulkSheds = () => {
     onMutate: () => {
       toast.loading("Deleting sheds...", { id: "deleteBulkSheds" });
     },
-    mutationFn: async ({ flockId }: { flockId: string }) => {
+    mutationFn: async ({ farmId }: { farmId: string }) => {
       const response = await api.delete<APIResponse<[]>>(
-        `/sheds/all?flockId=${flockId}`
+        `/sheds/all?farmId=${farmId}`
       );
       return response.data;
     },
-    onSuccess: (response, variables) => {
+    onSuccess: (response) => {
       toast.success(response.message, { id: "deleteBulkSheds" });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.flockById(variables.flockId),
+        queryKey: queryKeys.sheds,
       });
-      queryClient.invalidateQueries({ queryKey: queryKeys.flocks });
+      queryClient.invalidateQueries({ queryKey: queryKeys.sheds });
     },
     onError: (error) => {
       toast.error(

@@ -7,14 +7,17 @@ import { Flock as FlockType } from "@/types";
 import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllFlocks = () => {
+export const useGetAllFlocks = (farmId?: string) => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: queryKeys.flocks,
+    queryKey: farmId ? [...queryKeys.flocks, farmId] : queryKeys.flocks,
     queryFn: async () => {
       try {
-        const response = await api.get<APIResponse<FlockType[]>>(`/flocks`);
+        const params = farmId ? { farmId } : {};
+        const response = await api.get<APIResponse<FlockType[]>>(`/flocks`, {
+          params,
+        });
         return response.data;
       } catch (error) {
         toast.error(

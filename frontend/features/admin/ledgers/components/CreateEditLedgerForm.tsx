@@ -67,9 +67,9 @@ const CreateEditLedgerForm = ({
     (flock) => flock?.farmId === selectedFarm
   );
 
-  // Show only those sheds that are associated with the selected flock
+  // Show only those sheds that are associated with the selected farm
   const filteredShedsForDropdown = allShedsForDropdown.filter(
-    (shed) => shed?.flockId === selectedFlock
+    (shed) => shed?.farmId === selectedFarm
   );
 
   const { mutate: createLedger, isPending: isCreatePending } =
@@ -93,12 +93,6 @@ const CreateEditLedgerForm = ({
       setSelectedShed("");
     }
   }, [selectedFarm, isEditMode]);
-
-  useEffect(() => {
-    if (!isEditMode) {
-      setSelectedShed("");
-    }
-  }, [selectedFlock, isEditMode]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -151,6 +145,12 @@ const CreateEditLedgerForm = ({
     // Get form data using FormData API
     const formData = new FormData(e.target as HTMLFormElement);
     const rawData = Object.fromEntries(formData) as Record<string, string>;
+    rawData.netWeight = String(
+      Number(rawData.grossWeight) - Number(rawData.emptyVehicleWeight)
+    );
+    rawData.totalAmount = String(
+      Number(rawData.netWeight) * Number(rawData.rate)
+    );
 
     // Validate with Zod schema
     const validatedData = createEditLedgerSchema.safeParse({
@@ -520,6 +520,7 @@ const CreateEditLedgerForm = ({
                   name="emptyVehicleWeight"
                   type="number"
                   placeholder="Enter empty vehicle weight"
+                  min={0}
                   defaultValue={selectedLedger?.emptyVehicleWeight || 0}
                   autoFocus={false}
                   className={`pl-10 ${
@@ -550,6 +551,7 @@ const CreateEditLedgerForm = ({
                   name="grossWeight"
                   type="number"
                   placeholder="Enter gross weight"
+                  min={0}
                   defaultValue={selectedLedger?.grossWeight || 0}
                   autoFocus={false}
                   className={`pl-10 ${
@@ -568,34 +570,6 @@ const CreateEditLedgerForm = ({
               )}
             </div>
 
-            {/* Net Weight */}
-            <div className="space-y-2">
-              <Label htmlFor="netWeight">Net Weight *</Label>
-              <div className="relative">
-                <Weight className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="netWeight"
-                  name="netWeight"
-                  type="number"
-                  placeholder="Enter net weight"
-                  defaultValue={selectedLedger?.netWeight || 0}
-                  autoFocus={false}
-                  className={`pl-10 ${
-                    getFieldError("netWeight") ? "border-destructive" : ""
-                  }`}
-                />
-              </div>
-              {getFieldError("netWeight") ? (
-                <p className="text-xs text-destructive">
-                  {getFieldError("netWeight")}
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Net Weight = Gross Weight - Empty Vehicle Weight
-                </p>
-              )}
-            </div>
-
             {/* Number of Birds */}
             <div className="space-y-2">
               <Label htmlFor="numberOfBirds">Number of Birds *</Label>
@@ -606,6 +580,7 @@ const CreateEditLedgerForm = ({
                   name="numberOfBirds"
                   type="number"
                   placeholder="Enter number of birds"
+                  min={0}
                   defaultValue={selectedLedger?.numberOfBirds || 0}
                   autoFocus={false}
                   className={`pl-10 ${
@@ -633,6 +608,7 @@ const CreateEditLedgerForm = ({
                   id="rate"
                   name="rate"
                   type="number"
+                  min={0}
                   placeholder="Enter rate"
                   defaultValue={selectedLedger?.rate || 0}
                   autoFocus={false}
@@ -652,34 +628,6 @@ const CreateEditLedgerForm = ({
               )}
             </div>
 
-            {/* Total Amount */}
-            <div className="space-y-2">
-              <Label htmlFor="totalAmount">Total Amount *</Label>
-              <div className="relative">
-                <Calculator className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="totalAmount"
-                  name="totalAmount"
-                  type="number"
-                  placeholder="Enter total amount"
-                  defaultValue={selectedLedger?.totalAmount || 0}
-                  autoFocus={false}
-                  className={`pl-10 ${
-                    getFieldError("totalAmount") ? "border-destructive" : ""
-                  }`}
-                />
-              </div>
-              {getFieldError("totalAmount") ? (
-                <p className="text-xs text-destructive">
-                  {getFieldError("totalAmount")}
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Total amount = Net Weight * Rate
-                </p>
-              )}
-            </div>
-
             {/* Amount Paid */}
             <div className="space-y-2">
               <Label htmlFor="amountPaid">Amount Paid *</Label>
@@ -690,6 +638,7 @@ const CreateEditLedgerForm = ({
                   name="amountPaid"
                   type="number"
                   placeholder="Enter amount paid"
+                  min={0}
                   defaultValue={selectedLedger?.amountPaid || 0}
                   autoFocus={false}
                   className={`pl-10 ${
