@@ -2,7 +2,7 @@
 import { queryKeys } from "@/lib/query-client";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { APIResponse, FlockWithSheds } from "@/types";
+import { APIResponse, Flock } from "@/types";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { useAuthContext } from "@/providers/AuthProvider";
@@ -14,7 +14,7 @@ export const useGetFlockById = (flockId: string) => {
     queryKey: queryKeys.flockById(flockId),
     queryFn: async () => {
       try {
-        const response = await api.get<APIResponse<FlockWithSheds>>(
+        const response = await api.get<APIResponse<Flock>>(
           `/flocks/${flockId}`
         );
         return response.data;

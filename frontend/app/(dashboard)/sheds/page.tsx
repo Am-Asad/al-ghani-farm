@@ -7,7 +7,6 @@ import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
 import React from "react";
-import CreateEditShedForm from "@/features/admin/sheds/components/CreateEditShedForm";
 import { useShedQueryParams } from "@/features/admin/sheds/hooks/useShedQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
 import ShedFilters from "@/features/admin/sheds/components/ShedFilters";
@@ -43,7 +42,7 @@ const ShedsPage = () => {
 
   return (
     <div className="px-6 py-4 flex flex-col flex-1 overflow-y-scroll">
-      {/* Page header */}
+      {/* Sheds header */}
       <ShedsHeader totalSheds={sheds.length} showActions={false} />
       {/* Filters */}
       <ShedFilters />

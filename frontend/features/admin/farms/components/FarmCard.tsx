@@ -1,23 +1,15 @@
 "use client";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Ellipsis, Expand } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { Farm } from "@/types";
 import { formatDate } from "@/utils/format-date";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import CreateEditFarmForm from "./CreateEditFarmForm";
 import { useDeleteFarm } from "../hooks/useDeleteFarm";
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import { useRouter } from "next/navigation";
 import { formatSingleDigit } from "@/utils/format-single-digit";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Link from "next/link";
+
 import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 
 type FarmCardProps = {
@@ -27,7 +19,7 @@ type FarmCardProps = {
 
 const FarmCard = ({ farm, showActions = true }: FarmCardProps) => {
   const { mutate: deleteFarm } = useDeleteFarm();
-  const router = useRouter();
+
   return (
     <Card className="hover:shadow-md transition-shadow h-fit cursor-pointer">
       <CardHeader>
@@ -36,18 +28,11 @@ const FarmCard = ({ farm, showActions = true }: FarmCardProps) => {
             <Building2 className="w-5 h-5 text-primary" />
             <CardTitle className="text-lg">{farm.name}</CardTitle>
           </div>
-          {!showActions && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => router.push(`/farms/${farm._id}`)}
-            >
-              <Expand className="w-4 h-4" />
-            </Button>
-          )}
+
           {!showActions && (
             <ShowOptionsDropdown
               options={[
+                { label: "See Farm Details", href: `/farms/${farm._id}` },
                 { label: "See Sheds", href: `/sheds?farmId=${farm._id}` },
                 { label: "See Flocks", href: `/flocks?farmId=${farm._id}` },
                 { label: "See Ledgers", href: `/ledgers?farmId=${farm._id}` },

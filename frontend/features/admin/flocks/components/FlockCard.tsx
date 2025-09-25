@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Expand } from "lucide-react";
+import { Users } from "lucide-react";
 import { Flock } from "@/types";
 import { formatDate } from "@/utils/format-date";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
@@ -10,8 +10,7 @@ import RoleGuard from "@/features/shared/components/RoleGuard";
 import CreateEditFlockForm from "./CreateEditFlockForm";
 import { useDeleteFlock } from "../hooks/useDeleteFlock";
 import { formatSingleDigit } from "@/utils/format-single-digit";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 
 type FlockCardProps = {
   flock: Flock;
@@ -19,7 +18,6 @@ type FlockCardProps = {
 };
 
 const FlockCard = ({ flock, showActions = true }: FlockCardProps) => {
-  const router = useRouter();
   const { mutate: deleteFlock } = useDeleteFlock();
 
   const getStatusVariant = (status: string) => {
@@ -47,14 +45,20 @@ const FlockCard = ({ flock, showActions = true }: FlockCardProps) => {
             <Badge variant={getStatusVariant(flock.status)}>
               {flock.status}
             </Badge>
+
             {!showActions && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => router.push(`/flocks/${flock._id}`)}
-              >
-                <Expand className="w-4 h-4" />
-              </Button>
+              <ShowOptionsDropdown
+                options={[
+                  {
+                    label: "See Flock Details",
+                    href: `/flocks/${flock._id}`,
+                  },
+                  {
+                    label: "See Ledgers",
+                    href: `/ledgers?flockId=${flock._id}`,
+                  },
+                ]}
+              />
             )}
           </div>
         </div>

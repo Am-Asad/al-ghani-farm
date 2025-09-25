@@ -1,9 +1,8 @@
 "use client";
 import { Shed } from "@/types";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React from "react";
-import { Users, Expand } from "lucide-react";
+import { Users } from "lucide-react";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { formatDate } from "@/utils/format-date";
@@ -11,7 +10,7 @@ import { formatSingleDigit } from "@/utils/format-single-digit";
 import { formatAmount } from "@/utils/format-amount";
 import { useDeleteShed } from "../hooks/useDeleteShed";
 import CreateEditShedForm from "./CreateEditShedForm";
-import { Button } from "@/components/ui/button";
+import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 
 type ShedCardProps = {
   shed: Shed;
@@ -19,7 +18,6 @@ type ShedCardProps = {
 };
 
 const ShedCard = ({ shed, showActions = true }: ShedCardProps) => {
-  const router = useRouter();
   const { mutate: deleteShed } = useDeleteShed();
   return (
     <Card className="hover:shadow-md transition-shadow h-fit">
@@ -30,13 +28,12 @@ const ShedCard = ({ shed, showActions = true }: ShedCardProps) => {
             <CardTitle className="text-lg">{shed.name}</CardTitle>
           </div>
           {!showActions && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => router.push(`/sheds/${shed._id}`)}
-            >
-              <Expand className="w-4 h-4" />
-            </Button>
+            <ShowOptionsDropdown
+              options={[
+                { label: "See Shed Details", href: `/sheds/${shed._id}` },
+                { label: "See Ledgers", href: `/ledgers?shedId=${shed._id}` },
+              ]}
+            />
           )}
         </div>
       </CardHeader>

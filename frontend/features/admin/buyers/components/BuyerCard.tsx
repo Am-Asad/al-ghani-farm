@@ -1,15 +1,13 @@
 "use client";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Expand } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { Buyer } from "@/types";
 import { formatDate } from "@/utils/format-date";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import { useRouter } from "next/navigation";
 import { useDeleteBuyer } from "../hooks/useDeleteBuyer";
 import CreateEditBuyerForm from "./CreateEditBuyerForm";
-import { Button } from "@/components/ui/button";
 import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 
 type BuyerCardProps = {
@@ -19,7 +17,6 @@ type BuyerCardProps = {
 
 const BuyerCard = ({ buyer, showActions = true }: BuyerCardProps) => {
   const { mutate: deleteBuyer } = useDeleteBuyer();
-  const router = useRouter();
 
   return (
     <Card className="hover:shadow-md transition-shadow h-fit">
@@ -29,18 +26,11 @@ const BuyerCard = ({ buyer, showActions = true }: BuyerCardProps) => {
             <Building2 className="w-5 h-5 text-primary" />
             <CardTitle className="text-lg">{buyer.name}</CardTitle>
           </div>
-          {!showActions && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => router.push(`/buyers/${buyer._id}`)}
-            >
-              <Expand className="w-4 h-4" />
-            </Button>
-          )}
+
           {!showActions && (
             <ShowOptionsDropdown
               options={[
+                { label: "See Buyer Details", href: `/buyers/${buyer._id}` },
                 { label: "See Ledgers", href: `/ledgers?buyerId=${buyer._id}` },
               ]}
             />

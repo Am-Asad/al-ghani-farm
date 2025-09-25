@@ -7,15 +7,29 @@ import { Flock as FlockType } from "@/types";
 import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllFlocks = (farmId?: string) => {
+type QueryParams = {
+  page: string;
+  limit: string;
+  search: string;
+  farmId: string;
+  sortBy: string;
+  sortOrder: string;
+  status?: string;
+  capacityMin?: string;
+  capacityMax?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export const useGetAllFlocks = (query?: QueryParams) => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: farmId ? [...queryKeys.flocks, farmId] : queryKeys.flocks,
+    queryKey: [...queryKeys.flocks, query],
     queryFn: async () => {
       try {
         const response = await api.get<APIResponse<FlockType[]>>(`/flocks`, {
-          params: farmId ? { farmId } : {},
+          params: query ?? {},
         });
         return response.data;
       } catch (error) {
@@ -27,5 +41,6 @@ export const useGetAllFlocks = (farmId?: string) => {
       }
     },
     enabled: !!user?._id,
+    placeholderData: (previousData) => previousData,
   });
 };

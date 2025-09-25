@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import FlockDetailsCard from "@/features/admin/flocks/components/FlockDetailsCard";
+import AllocationsTable from "@/features/admin/flocks/components/AllocationsTable";
 import { useGetFlockById } from "@/features/admin/flocks/hooks/useGetFlockById";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
@@ -77,6 +78,10 @@ const FlocksDetailsPage = () => {
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">
         <FlockDetailsCard flock={flock} />
+        <AllocationsTable
+          allocations={flock.allocations || []}
+          totalChicks={flock.totalChicks}
+        />
         <LedgersTable
           ledgers={ledgers}
           isLoading={isLedgersLoading}

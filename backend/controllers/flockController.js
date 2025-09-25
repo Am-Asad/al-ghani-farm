@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { FarmModel } from "../models/farms.js";
 import { FlockModel } from "../models/flocks.js";
@@ -5,22 +6,225 @@ import { LedgerModel } from "../models/ledger.js";
 import { AppError } from "../utils/AppError.js";
 
 export const getAllFlocks = asyncHandler(async (req, res) => {
-  const allFlocks = await FlockModel.find({})
-    .populate("farmId", "name supervisor")
-    .populate("allocations.shedId", "name capacity");
+  const {
+    search = "",
+    limit = "10",
+    page = "1",
+    sortBy = "createdAt",
+    sortOrder = "desc",
+    farmId = "",
+    status = "",
+    capacityMin = "",
+    capacityMax = "",
+    dateFrom = "",
+    dateTo = "",
+  } = req.query;
+
+  const limitNum = Math.max(parseInt(limit, 10) || 10, 0);
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const offsetNum = (pageNum - 1) * limitNum;
+
+  // Allow a safe subset of fields for sorting
+  const allowedSortFields = [
+    "createdAt",
+    "updatedAt",
+    "totalChicks",
+    "name",
+    "startDate",
+    "endDate",
+  ];
+  const sortField = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
+  const sortDir = sortOrder === "asc" ? 1 : -1;
+
+  const hasFarmId = typeof farmId === "string" && farmId.trim().length > 0;
+  const farmObjectId =
+    hasFarmId && mongoose.Types.ObjectId.isValid(farmId)
+      ? new mongoose.Types.ObjectId(farmId)
+      : hasFarmId
+      ? farmId
+      : null;
+
+  const searchConditions = [];
+  if (search && typeof search === "string") {
+    // name partial match
+    searchConditions.push({ name: { $regex: search, $options: "i" } });
+    // totalChicks exact match if numeric
+    const totalChicksNum = parseInt(search, 10);
+    if (!Number.isNaN(totalChicksNum))
+      searchConditions.push({ totalChicks: totalChicksNum });
+  }
+
+  // capacity range filter (using totalChicks)
+  const hasMin = typeof capacityMin === "string" && capacityMin.trim() !== "";
+  const hasMax = typeof capacityMax === "string" && capacityMax.trim() !== "";
+  const capacityRange = {};
+  if (hasMin) {
+    const minNum = parseInt(capacityMin, 10);
+    if (!Number.isNaN(minNum)) capacityRange.$gte = minNum;
+  }
+  if (hasMax) {
+    const maxNum = parseInt(capacityMax, 10);
+    if (!Number.isNaN(maxNum)) capacityRange.$lte = maxNum;
+  }
+
+  const pipeline = [
+    ...(hasFarmId
+      ? [
+          {
+            $match: {
+              farmId: farmObjectId,
+            },
+          },
+        ]
+      : []),
+    ...(status && typeof status === "string" && status.trim() !== ""
+      ? [
+          {
+            $match: {
+              status: status.trim(),
+            },
+          },
+        ]
+      : []),
+    ...(() => {
+      const dateRange = {};
+      const hasFrom = typeof dateFrom === "string" && dateFrom.trim() !== "";
+      const hasTo = typeof dateTo === "string" && dateTo.trim() !== "";
+      if (hasFrom) {
+        const fromDate = new Date(dateFrom);
+        if (!Number.isNaN(fromDate.getTime())) dateRange.$gte = fromDate;
+      }
+      if (hasTo) {
+        const toDate = new Date(dateTo);
+        if (!Number.isNaN(toDate.getTime())) dateRange.$lte = toDate;
+      }
+      return Object.keys(dateRange).length > 0
+        ? [{ $match: { startDate: dateRange } }]
+        : [];
+    })(),
+    ...(Object.keys(capacityRange).length > 0
+      ? [
+          {
+            $match: { totalChicks: capacityRange },
+          },
+        ]
+      : []),
+    ...(searchConditions.length > 0
+      ? [
+          {
+            $match: {
+              $or: searchConditions,
+            },
+          },
+        ]
+      : []),
+    // Populate farmId similar to Mongoose populate with only required fields
+    {
+      $lookup: {
+        from: "farms",
+        let: { fid: "$farmId" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$_id", "$$fid"] } } },
+          { $project: { _id: 1, name: 1, supervisor: 1 } },
+        ],
+        as: "farmId",
+      },
+    },
+    { $unwind: { path: "$farmId", preserveNullAndEmptyArrays: true } },
+    // Populate allocations.shedId
+    {
+      $lookup: {
+        from: "sheds",
+        let: { shedIds: "$allocations.shedId" },
+        pipeline: [
+          { $match: { $expr: { $in: ["$_id", "$$shedIds"] } } },
+          { $project: { _id: 1, name: 1, capacity: 1 } },
+        ],
+        as: "shedDetails",
+      },
+    },
+    {
+      $addFields: {
+        allocations: {
+          $map: {
+            input: "$allocations",
+            as: "allocation",
+            in: {
+              chicks: "$$allocation.chicks",
+              shedId: {
+                $let: {
+                  vars: {
+                    shedDetail: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$shedDetails",
+                            cond: {
+                              $eq: ["$$this._id", "$$allocation.shedId"],
+                            },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                  in: {
+                    _id: "$$shedDetail._id",
+                    name: "$$shedDetail.name",
+                    capacity: "$$shedDetail.capacity",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    { $project: { shedDetails: 0 } },
+    { $sort: { [sortField]: sortDir } },
+    {
+      $facet: {
+        items: [
+          ...(offsetNum > 0 ? [{ $skip: offsetNum }] : []),
+          { $limit: Math.max(limitNum, 0) },
+        ],
+        total: [{ $count: "count" }],
+      },
+    },
+    {
+      $project: {
+        items: 1,
+        total: { $ifNull: [{ $arrayElemAt: ["$total.count", 0] }, 0] },
+      },
+    },
+  ];
+
+  const result = await FlockModel.aggregate(pipeline).then(
+    (resAgg) => resAgg[0] || { items: [], total: 0 }
+  );
+
+  const { items, total } = result;
 
   res.status(200).json({
     status: "success",
     message: "Flocks fetched successfully",
-    data: allFlocks,
+    data: items,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      totalCount: total,
+      hasMore: offsetNum + items.length < total,
+    },
   });
 });
 
 export const getFlockById = asyncHandler(async (req, res, next) => {
   const { flockId } = req.params;
-  const flock = await FlockModel.getFlockByIdWithFarmAndSheds(flockId);
+  const flock = await FlockModel.findById(flockId)
+    .populate("farmId", "name supervisor")
+    .populate("allocations.shedId", "name capacity");
 
-  if (!flock || flock.length === 0) {
+  if (!flock) {
     const error = new AppError("Flock not found", 404, "FLOCK_NOT_FOUND", true);
     return next(error);
   }
@@ -28,7 +232,7 @@ export const getFlockById = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "Flock fetched successfully",
-    data: flock[0],
+    data: flock,
   });
 });
 
