@@ -7,16 +7,28 @@ import { Shed as ShedType } from "@/types";
 import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllSheds = (farmId?: string) => {
+type QueryParams = {
+  page: string;
+  limit: string;
+  search: string;
+  farmId: string;
+  sortBy: string;
+  sortOrder: string;
+  capacityMin?: string;
+  capacityMax?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export const useGetAllSheds = (query?: QueryParams) => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: farmId ? [...queryKeys.sheds, farmId] : queryKeys.sheds,
+    queryKey: [...queryKeys.sheds, query],
     queryFn: async () => {
       try {
-        const params = farmId ? { farmId } : {};
         const response = await api.get<APIResponse<ShedType[]>>(`/sheds`, {
-          params,
+          params: query ?? {},
         });
         return response.data;
       } catch (error) {
@@ -28,5 +40,6 @@ export const useGetAllSheds = (farmId?: string) => {
       }
     },
     enabled: !!user?._id,
+    placeholderData: (previousData) => previousData,
   });
 };

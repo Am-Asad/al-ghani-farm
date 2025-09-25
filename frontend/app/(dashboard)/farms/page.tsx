@@ -52,7 +52,7 @@ export default function FarmsPage() {
   }
 
   return (
-    <div className="p-6 flex flex-col flex-1">
+    <div className="px-6 py-4 flex flex-col flex-1 overflow-y-scroll">
       <FarmHeader totalFarms={farms.length} showActions={false} />
       {/* Filters */}
       <FarmFilters />

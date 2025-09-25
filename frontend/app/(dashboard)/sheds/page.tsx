@@ -8,10 +8,21 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
 import React from "react";
 import CreateEditShedForm from "@/features/admin/sheds/components/CreateEditShedForm";
+import { useShedQueryParams } from "@/features/admin/sheds/hooks/useShedQueryParams";
+import Pagination from "@/features/shared/components/Pagination";
+import ShedFilters from "@/features/admin/sheds/components/ShedFilters";
 
 const ShedsPage = () => {
-  const { data, isLoading, isError, error } = useGetAllSheds();
+  const { query, setPage, setLimit } = useShedQueryParams();
+  const { data, isLoading, isError, error } = useGetAllSheds(query);
+
   const sheds = data?.data || [];
+  const pagination = data?.pagination ?? {
+    page: 1,
+    limit: 1,
+    totalCount: 0,
+    hasMore: false,
+  };
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -30,25 +41,16 @@ const ShedsPage = () => {
     );
   }
 
-  if (sheds.length === 0) {
-    return (
-      <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
-        <DataNotFound title="sheds" icon={<Building2 className="w-10 h-10" />}>
-          <CreateEditShedForm />
-        </DataNotFound>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6 overflow-hidden flex flex-col flex-1">
+    <div className="px-6 py-4 flex flex-col flex-1 overflow-y-scroll">
       {/* Page header */}
       <ShedsHeader totalSheds={sheds.length} showActions={false} />
-
+      {/* Filters */}
+      <ShedFilters />
       {/* Users grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
         {sheds.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sheds.map((shed) => (
               <ShedCard key={shed._id} shed={shed} showActions={false} />
             ))}
@@ -60,6 +62,14 @@ const ShedsPage = () => {
           />
         )}
       </div>
+      {/* Pagination */}
+      <Pagination
+        page={pagination.page}
+        limit={pagination.limit}
+        hasMore={pagination.hasMore}
+        onChangePage={(p) => setPage(p)}
+        onChangeLimit={(l) => setLimit(l)}
+      />
     </div>
   );
 };
