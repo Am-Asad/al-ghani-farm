@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useDeleteBuyer } from "../hooks/useDeleteBuyer";
 import CreateEditBuyerForm from "./CreateEditBuyerForm";
 import { Button } from "@/components/ui/button";
+import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 
 type BuyerCardProps = {
   buyer: Buyer;
@@ -36,6 +37,13 @@ const BuyerCard = ({ buyer, showActions = true }: BuyerCardProps) => {
             >
               <Expand className="w-4 h-4" />
             </Button>
+          )}
+          {!showActions && (
+            <ShowOptionsDropdown
+              options={[
+                { label: "See Ledgers", href: `/ledgers?buyerId=${buyer._id}` },
+              ]}
+            />
           )}
         </div>
       </CardHeader>

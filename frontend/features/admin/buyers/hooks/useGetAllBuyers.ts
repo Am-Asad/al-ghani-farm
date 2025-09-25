@@ -7,14 +7,24 @@ import { Buyer as BuyerType } from "@/types";
 import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllBuyers = () => {
+type QueryParams = {
+  page: string;
+  limit: string;
+  search: string;
+  sortBy: string;
+  sortOrder: string;
+};
+
+export const useGetAllBuyers = (query?: QueryParams) => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: queryKeys.buyers,
+    queryKey: [...queryKeys.buyers, query],
     queryFn: async () => {
       try {
-        const response = await api.get<APIResponse<BuyerType[]>>(`/buyers`);
+        const response = await api.get<APIResponse<BuyerType[]>>(`/buyers`, {
+          params: query ?? {},
+        });
         return response.data;
       } catch (error) {
         toast.error(
@@ -25,5 +35,6 @@ export const useGetAllBuyers = () => {
       }
     },
     enabled: !!user?._id,
+    placeholderData: (previousData) => previousData,
   });
 };

@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 
 type FarmCardProps = {
   farm: Farm;
@@ -45,24 +46,13 @@ const FarmCard = ({ farm, showActions = true }: FarmCardProps) => {
             </Button>
           )}
           {!showActions && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Ellipsis className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Link href={`/sheds?farmId=${farm._id}`}>See Sheds</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href={`/flocks?farmId=${farm._id}`}>See Flocks</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href={`/ledgers?farmId=${farm._id}`}>See Ledgers</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ShowOptionsDropdown
+              options={[
+                { label: "See Sheds", href: `/sheds?farmId=${farm._id}` },
+                { label: "See Flocks", href: `/flocks?farmId=${farm._id}` },
+                { label: "See Ledgers", href: `/ledgers?farmId=${farm._id}` },
+              ]}
+            />
           )}
         </div>
       </CardHeader>

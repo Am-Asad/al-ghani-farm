@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Users, Home, UserCheck, FileText } from "lucide-react";
 import FarmsTab from "@/features/admin/components/FarmsTab";
@@ -12,6 +12,8 @@ import { useGetAllEntities } from "@/features/admin/hooks/useGetAllEntities";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const entitiesTabs = [
   {
@@ -48,6 +50,12 @@ const entitiesTabs = [
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("farms");
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push(`/admin?tab=${activeTab}`);
+  }, [router]);
+
   const {
     data: entitiesData,
     isLoading: entitiesLoading,
@@ -91,9 +99,12 @@ const AdminPage = () => {
               key={tab.value}
               value={tab.value}
               className="flex items-center gap-2"
+              asChild
             >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
+              <Link href={`/admin?tab=${tab.value}`}>
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </Link>
             </TabsTrigger>
           ))}
         </TabsList>

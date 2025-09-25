@@ -7,10 +7,21 @@ import { useGetAllBuyers } from "@/features/admin/buyers/hooks/useGetAllBuyers";
 import BuyerCard from "@/features/admin/buyers/components/BuyerCard";
 import { Building2 } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
+import { useBuyersQueryParams } from "@/features/admin/buyers/hooks/useBuyersQueryParams";
+import BuyersFilters from "@/features/admin/buyers/components/BuyersFilters";
+import Pagination from "@/features/shared/components/Pagination";
 
 const BuyersPage = () => {
-  const { data, isLoading, isError, error } = useGetAllBuyers();
+  const { query, setPage, setLimit } = useBuyersQueryParams();
+  const { data, isLoading, isError, error } = useGetAllBuyers(query);
+
   const buyers = data?.data || [];
+  const pagination = data?.pagination ?? {
+    page: 1,
+    limit: 1,
+    totalCount: 0,
+    hasMore: false,
+  };
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -30,12 +41,13 @@ const BuyersPage = () => {
   }
 
   return (
-    <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
+    <div className="p-6 overflow-hidden flex flex-col flex-1">
       {/* Page header */}
       <BuyerHeader totalBuyers={buyers.length} showActions={false} />
-
-      {/* Users grid */}
-      <div className="flex-1 overflow-y-scroll">
+      {/* Filters */}
+      <BuyersFilters />
+      {/* Grid */}
+      <div className="flex-1 overflow-y-scroll pb-1">
         {buyers.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {buyers.map((buyer) => (
@@ -49,6 +61,14 @@ const BuyersPage = () => {
           />
         )}
       </div>
+      {/* Pagination */}
+      <Pagination
+        page={pagination.page}
+        limit={pagination.limit}
+        hasMore={pagination.hasMore}
+        onChangePage={(p) => setPage(p)}
+        onChangeLimit={(l) => setLimit(l)}
+      />
     </div>
   );
 };

@@ -4,11 +4,40 @@ import { LedgerModel } from "../models/ledger.js";
 import { AppError } from "../utils/AppError.js";
 
 export const getAllBuyers = asyncHandler(async (req, res) => {
-  const buyers = await BuyerModel.find().sort({ createdAt: -1 });
+  const {
+    search = "",
+    limit = "10",
+    page = "1",
+    sortBy = "createdAt",
+    sortOrder = "desc",
+  } = req.query;
+
+  const limitNum = Math.max(parseInt(limit, 10) || 10, 0);
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const offsetNum = (pageNum - 1) * limitNum;
+  const sortField = ["createdAt", "updatedAt"].includes(sortBy)
+    ? sortBy
+    : "createdAt";
+  const sortDir = sortOrder === "asc" ? "asc" : "desc";
+
+  const { items, total } = await BuyerModel.getAllBuyersPaginated({
+    search,
+    limit: limitNum,
+    offset: offsetNum,
+    sortBy: sortField,
+    sortOrder: sortDir,
+  });
+
   res.status(200).json({
     status: "success",
     message: "Buyers fetched successfully",
-    data: buyers.map((buyer) => buyer.toObject()),
+    data: items.map((buyer) => ({ ...buyer })),
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      totalCount: total,
+      hasMore: offsetNum + items.length < total,
+    },
   });
 });
 

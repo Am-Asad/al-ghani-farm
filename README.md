@@ -11,5 +11,8 @@
 [x] Decide how to show data in tables and how to add filters and pagination.
 [x] Decide the frontend of the application thoroughly, as what to show on details page, what to show on simple pages, and what to show in reports and in ledgers.
 [x] Filteration system and pagination implemented for farms.
+[x] Filteration system and pagination implemented for buyers.
+[x] Filteration system and pagination implemented in the admin module as well.
+
 [] Fix the response types for flocks, farms, and sheds.
 [] Maybe remove the details page
