@@ -5,13 +5,14 @@ import { LedgerModel } from "../models/ledger.js";
 import { AppError } from "../utils/AppError.js";
 
 export const getAllFlocks = asyncHandler(async (req, res) => {
-  const flocksWithFarmAndSheds =
-    await FlockModel.getAllFlocksWithFarmAndSheds();
+  const allFlocks = await FlockModel.find({})
+    .populate("farmId", "name supervisor")
+    .populate("allocations.shedId", "name capacity");
 
   res.status(200).json({
     status: "success",
     message: "Flocks fetched successfully",
-    data: flocksWithFarmAndSheds,
+    data: allFlocks,
   });
 });
 

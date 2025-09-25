@@ -1,18 +1,17 @@
 "use client";
-import CreateEditFlockForm from "@/features/admin/flocks/components/CreateEditFlockForm";
+// import CreateEditFlockForm from "@/features/admin/flocks/components/CreateEditFlockForm";
 import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useGetAllFlocks";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import React, { useState } from "react";
+import React from "react";
 import { Building2 } from "lucide-react";
 import FlockHeader from "@/features/admin/flocks/components/FlockHeader";
 import FlockCard from "@/features/admin/flocks/components/FlockCard";
+import CreateEditFlockForm from "@/features/admin/flocks/components/CreateEditFlockForm";
 
 const FlocksTab = () => {
-  const [search, setSearch] = useState("");
-  const [selectedFarm, setSelectedFarm] = useState("");
   const {
     data: flocksData,
     isLoading: flocksLoading,
@@ -21,13 +20,6 @@ const FlocksTab = () => {
   } = useGetAllFlocks();
 
   const flocks = flocksData?.data || [];
-  const filteredFlocks = flocks.filter((flock) => {
-    const matchesSearch = flock.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesFarm = !selectedFarm || flock.farmId._id === selectedFarm;
-    return matchesSearch && matchesFarm;
-  });
 
   if (flocksLoading) return <CardsSkeleton />;
   if (flocksError) {
@@ -53,17 +45,11 @@ const FlocksTab = () => {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <FlockHeader
-        search={search}
-        setSearch={setSearch}
-        selectedFarm={selectedFarm}
-        setSelectedFarm={setSelectedFarm}
-        totalFlocks={flocks.length}
-      />
+      <FlockHeader totalFlocks={flocks.length} />
 
-      {filteredFlocks.length > 0 ? (
+      {flocks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredFlocks.map((flock) => (
+          {flocks.map((flock) => (
             <FlockCard key={flock._id} flock={flock} />
           ))}
         </div>

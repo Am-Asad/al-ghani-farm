@@ -48,12 +48,7 @@ const FlocksPage = () => {
   return (
     <div className="p-6 overflow-hidden flex flex-col flex-1">
       {/* Page header */}
-      <FlockHeader
-        search={search}
-        setSearch={setSearch}
-        totalFlocks={flocks.length}
-        showActions={false}
-      />
+      <FlockHeader totalFlocks={flocks.length} showActions={false} />
 
       {/* Users grid */}
       <div className="flex-1 overflow-y-scroll pb-1">

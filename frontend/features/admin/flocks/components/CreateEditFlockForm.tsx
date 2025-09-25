@@ -25,17 +25,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetAllEntities } from "@/features/admin/hooks/useGetAllEntities";
-import { useGetAllSheds } from "@/features/admin/sheds/hooks/useGetAllSheds";
 import { useCreateFlock } from "../hooks/useCreateFlock";
 import { useEditFlock } from "../hooks/useEditFlock";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useGetAllSheds } from "../../sheds/hooks/useGetAllSheds";
 
 type CreateEditFlockFormProps = {
   selectedFlock?: FlockType;
   triggerButton?: React.ReactNode;
 };
 
-type Allocation = {
+type FormAllocation = {
   shedId: string;
   chicks: number;
 };
@@ -50,20 +50,39 @@ const CreateEditFlockForm = ({
     Record<string, string>
   >({});
   const [selectedFarm, setSelectedFarm] = useState<string>(
-    selectedFlock?.farmId || ""
+    typeof selectedFlock?.farmId === "string"
+      ? selectedFlock.farmId
+      : selectedFlock?.farmId?._id || ""
   );
   const [totalChicks, setTotalChicks] = useState<number>(
     selectedFlock?.totalChicks || 0
   );
-  const [allocations, setAllocations] = useState<Allocation[]>(
-    selectedFlock?.allocations || []
+  const [allocations, setAllocations] = useState<FormAllocation[]>(
+    selectedFlock?.allocations?.map((allocation) => ({
+      shedId:
+        typeof allocation.shedId === "string"
+          ? allocation.shedId
+          : allocation.shedId?._id || "",
+      chicks: allocation.chicks,
+    })) || []
   );
 
   const isEditMode = !!selectedFlock;
   const allFarmsForDropdown = entities?.data?.farms || [];
 
   // Get sheds for the selected farm
-  const { data: shedsData } = useGetAllSheds(selectedFarm);
+  const { data: shedsData } = useGetAllSheds(
+    selectedFarm
+      ? {
+          farmId: selectedFarm,
+          page: "1",
+          limit: "100",
+          search: "",
+          sortBy: "createdAt",
+          sortOrder: "desc",
+        }
+      : undefined
+  );
   const availableSheds = shedsData?.data || [];
 
   const { mutate: createFlock, isPending: isCreatePending } = useCreateFlock();
@@ -80,7 +99,15 @@ const CreateEditFlockForm = ({
   const handleClose = () => {
     setIsOpen(false);
     setValidationErrors({});
-    setAllocations(selectedFlock?.allocations || []);
+    setAllocations(
+      selectedFlock?.allocations?.map((allocation) => ({
+        shedId:
+          typeof allocation.shedId === "string"
+            ? allocation.shedId
+            : allocation.shedId?._id || "",
+        chicks: allocation.chicks,
+      })) || []
+    );
     setTotalChicks(selectedFlock?.totalChicks || 0);
   };
 
@@ -108,7 +135,7 @@ const CreateEditFlockForm = ({
   // Update allocation
   const updateAllocation = (
     index: number,
-    field: keyof Allocation,
+    field: keyof FormAllocation,
     value: string | number
   ) => {
     const newAllocations = [...allocations];
@@ -184,24 +211,29 @@ const CreateEditFlockForm = ({
     const formData = new FormData(e.target as HTMLFormElement);
     const rawData = Object.fromEntries(formData) as Record<string, string>;
 
-    // Validate with Zod schema
-    const validatedData = createEditFlockSchema.safeParse({
+    // Prepare data for validation
+    const formDataForValidation = {
       name: rawData.name,
       status: rawData.status,
       startDate: rawData.startDate,
-      endDate: rawData.endDate,
+      endDate: rawData.endDate || undefined,
       totalChicks: totalChicks,
       allocations: allocations,
       farmId: selectedFarm,
-    });
+    };
+
+    // Validate with Zod schema
+    const validatedData = createEditFlockSchema.safeParse(
+      formDataForValidation
+    );
 
     if (!validatedData.success) {
       const formatted: Record<string, string> = {};
       validatedData.error.issues.forEach((err) => {
         formatted[err.path[0] as string] = err.message;
       });
-      setValidationErrors(formatted);
-      return;
+      // Merge Zod errors with custom validation errors
+      Object.assign(errors, formatted);
     }
 
     // If there are any errors, set them and return
@@ -214,11 +246,19 @@ const CreateEditFlockForm = ({
       const payload = {
         ...validatedData.data,
         _id: selectedFlock?._id,
-      } as Record<string, unknown>;
-      editFlock(payload as Omit<FlockType, "createdAt" | "updatedAt">);
+      };
+      editFlock(
+        payload as unknown as Omit<FlockType, "createdAt" | "updatedAt"> & {
+          farmId: string;
+        }
+      );
     } else {
-      const payload = { ...validatedData.data } as Record<string, unknown>;
-      createFlock(payload as Omit<FlockType, "createdAt" | "updatedAt">);
+      const payload = { ...validatedData.data };
+      createFlock(
+        payload as unknown as Omit<FlockType, "createdAt" | "updatedAt"> & {
+          farmId: string;
+        }
+      );
     }
     (e.target as HTMLFormElement).reset();
     setIsOpen(false);

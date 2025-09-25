@@ -14,9 +14,8 @@ export const useGetAllFlocks = (farmId?: string) => {
     queryKey: farmId ? [...queryKeys.flocks, farmId] : queryKeys.flocks,
     queryFn: async () => {
       try {
-        const params = farmId ? { farmId } : {};
         const response = await api.get<APIResponse<FlockType[]>>(`/flocks`, {
-          params,
+          params: farmId ? { farmId } : {},
         });
         return response.data;
       } catch (error) {

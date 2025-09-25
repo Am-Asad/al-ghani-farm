@@ -13,7 +13,9 @@ export const useCreateFlock = () => {
       toast.loading("Creating flock...", { id: "createFlock" });
     },
     mutationFn: async (
-      payload: Omit<FlockType, "_id" | "createdAt" | "updatedAt">
+      payload: Omit<FlockType, "_id" | "createdAt" | "updatedAt"> & {
+        farmId: string;
+      }
     ) => {
       const response = await api.post<APIResponse<FlockType>>(
         `/flocks`,

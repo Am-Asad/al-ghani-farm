@@ -58,12 +58,16 @@ export type Allocation = {
 
 export type Flock = {
   _id: string;
-  farmId: string;
   name: string;
   status: string;
   startDate: string;
   endDate?: string;
   totalChicks: number;
+  farmId: {
+    _id: string;
+    name: string;
+    supervisor: string;
+  };
   allocations: Allocation[];
   createdAt: string;
   updatedAt: string;
@@ -84,10 +88,26 @@ export type Shed = {
 
 export type Ledger = {
   _id: string;
-  farmId: string;
-  flockId: string;
-  shedId: string;
-  buyerId: string;
+  farmId: {
+    _id: string;
+    name: string;
+    supervisor: string;
+  };
+  flockId: {
+    _id: string;
+    name: string;
+    status: string;
+  };
+  shedId: {
+    _id: string;
+    name: string;
+    capacity: number;
+  };
+  buyerId: {
+    _id: string;
+    name: string;
+    contactNumber: string;
+  };
   vehicleNumber: string;
   driverName: string;
   driverContact: string;
@@ -267,7 +287,7 @@ export type Entities = {
   farms: { _id: string; name: string }[];
   flocks: { _id: string; name: string; farmId: string }[];
   buyers: { _id: string; name: string }[];
-  sheds: { _id: string; name: string; flockId: string }[];
+  sheds: { _id: string; name: string; farmId: string }[];
   counts: {
     farms: number;
     flocks: number;

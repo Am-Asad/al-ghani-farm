@@ -52,57 +52,12 @@ flockSchema.statics.getFlockByIdWithFarmAndSheds = function (flockId) {
     },
     {
       $lookup: {
-        from: "sheds",
-        localField: "allocations.shedId",
+        from: "farms",
+        localField: "farmId",
         foreignField: "_id",
-        as: "shedDetails",
+        as: "farmDetails",
       },
     },
-    {
-      $addFields: {
-        allocations: {
-          $map: {
-            input: "$allocations",
-            as: "allocation",
-            in: {
-              chicks: "$$allocation.chicks",
-              shed: {
-                $let: {
-                  vars: {
-                    shedDetail: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: "$shedDetails",
-                            cond: {
-                              $eq: ["$$this._id", "$$allocation.shedId"],
-                            },
-                          },
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                  in: {
-                    _id: "$$shedDetail._id",
-                    name: "$$shedDetail.name",
-                    capacity: "$$shedDetail.capacity",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    { $project: { shedDetails: 0 } },
-    { $sort: { createdAt: -1 } },
-  ]);
-};
-
-// Get all flocks with farm and shed information
-flockSchema.statics.getAllFlocksWithFarmAndSheds = function () {
-  return this.aggregate([
     {
       $lookup: {
         from: "sheds",
@@ -113,6 +68,18 @@ flockSchema.statics.getAllFlocksWithFarmAndSheds = function () {
     },
     {
       $addFields: {
+        farmId: {
+          $let: {
+            vars: {
+              farmDetail: { $arrayElemAt: ["$farmDetails", 0] },
+            },
+            in: {
+              _id: "$$farmDetail._id",
+              name: "$$farmDetail.name",
+              supervisor: "$$farmDetail.supervisor",
+            },
+          },
+        },
         allocations: {
           $map: {
             input: "$allocations",
@@ -148,7 +115,7 @@ flockSchema.statics.getAllFlocksWithFarmAndSheds = function () {
         },
       },
     },
-    { $project: { shedDetails: 0 } },
+    { $project: { farmDetails: 0, shedDetails: 0 } },
     { $sort: { createdAt: -1 } },
   ]);
 };
