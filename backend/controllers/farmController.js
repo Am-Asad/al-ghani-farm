@@ -43,6 +43,28 @@ export const getAllFarms = asyncHandler(async (req, res) => {
   });
 });
 
+export const getFarmsForDropdown = asyncHandler(async (req, res) => {
+  const { search = "", farmId = "" } = req.query;
+
+  const conditions = [];
+  if (farmId) conditions.push({ _id: farmId });
+  if (search.trim())
+    conditions.push({ name: { $regex: search.trim(), $options: "i" } });
+
+  const query = conditions.length > 0 ? { $or: conditions } : {};
+
+  const farms = await FarmModel.find(query)
+    .select("_id name")
+    .sort({ name: 1 })
+    .limit(10);
+
+  res.status(200).json({
+    status: "success",
+    message: "Farms fetched successfully",
+    data: farms,
+  });
+});
+
 export const getFarmById = asyncHandler(async (req, res) => {
   const { farmId } = req.params;
   const farm = await FarmModel.getFarmByIdWithFlocksAndShedsCount(farmId);

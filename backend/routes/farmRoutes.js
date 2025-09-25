@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createFarm,
   getAllFarms,
+  getFarmsForDropdown,
   getFarmById,
   updateFarmById,
   deleteAllFarms,
@@ -24,6 +25,7 @@ router.use(authHandler);
 
 // Routes
 router.get("/", getAllFarms);
+router.get("/dropdown", getFarmsForDropdown);
 router.get("/:farmId", getFarmById);
 
 router.post(

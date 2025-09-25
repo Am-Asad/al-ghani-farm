@@ -57,7 +57,7 @@ export default function FarmsPage() {
       {/* Filters */}
       <FarmFilters />
       {/* Grid */}
-      <div className="flex-1 overflow-y-scroll pb-1">
+      <div className="flex-1 overflow-y-scroll pb-1 mt-4">
         {/* Farms grid */}
         {farms.length > 0 ? (
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

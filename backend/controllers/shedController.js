@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ShedModel } from "../models/sheds.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { AppError } from "../utils/AppError.js";
@@ -5,14 +6,148 @@ import { FarmModel } from "../models/farms.js";
 import { LedgerModel } from "../models/ledger.js";
 
 export const getAllSheds = asyncHandler(async (req, res) => {
-  const sheds = await ShedModel.find()
-    .populate("farmId", "name supervisor")
-    .sort({ createdAt: -1 });
+  const {
+    search = "",
+    limit = "10",
+    page = "1",
+    sortBy = "createdAt",
+    sortOrder = "desc",
+    farmId = "",
+    capacityMin = "",
+    capacityMax = "",
+    dateFrom = "",
+    dateTo = "",
+  } = req.query;
+
+  const limitNum = Math.max(parseInt(limit, 10) || 10, 0);
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const offsetNum = (pageNum - 1) * limitNum;
+
+  // Allow a safe subset of fields for sorting
+  const allowedSortFields = ["createdAt", "updatedAt", "capacity", "name"];
+  const sortField = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
+  const sortDir = sortOrder === "asc" ? 1 : -1;
+
+  const hasFarmId = typeof farmId === "string" && farmId.trim().length > 0;
+  const farmObjectId =
+    hasFarmId && mongoose.Types.ObjectId.isValid(farmId)
+      ? new mongoose.Types.ObjectId(farmId)
+      : hasFarmId
+      ? farmId
+      : null;
+
+  const searchConditions = [];
+  if (search && typeof search === "string") {
+    // name partial match
+    searchConditions.push({ name: { $regex: search, $options: "i" } });
+    // capacity exact match if numeric
+    const capacityNum = parseInt(search, 10);
+    if (!Number.isNaN(capacityNum))
+      searchConditions.push({ capacity: capacityNum });
+  }
+
+  // capacity range filter
+  const hasMin = typeof capacityMin === "string" && capacityMin.trim() !== "";
+  const hasMax = typeof capacityMax === "string" && capacityMax.trim() !== "";
+  const capacityRange = {};
+  if (hasMin) {
+    const minNum = parseInt(capacityMin, 10);
+    if (!Number.isNaN(minNum)) capacityRange.$gte = minNum;
+  }
+  if (hasMax) {
+    const maxNum = parseInt(capacityMax, 10);
+    if (!Number.isNaN(maxNum)) capacityRange.$lte = maxNum;
+  }
+
+  const pipeline = [
+    ...(hasFarmId
+      ? [
+          {
+            $match: {
+              farmId: farmObjectId,
+            },
+          },
+        ]
+      : []),
+    ...(() => {
+      const dateRange = {};
+      const hasFrom = typeof dateFrom === "string" && dateFrom.trim() !== "";
+      const hasTo = typeof dateTo === "string" && dateTo.trim() !== "";
+      if (hasFrom) {
+        const fromDate = new Date(dateFrom);
+        if (!Number.isNaN(fromDate.getTime())) dateRange.$gte = fromDate;
+      }
+      if (hasTo) {
+        const toDate = new Date(dateTo);
+        if (!Number.isNaN(toDate.getTime())) dateRange.$lte = toDate;
+      }
+      return Object.keys(dateRange).length > 0
+        ? [{ $match: { createdAt: dateRange } }]
+        : [];
+    })(),
+    ...(Object.keys(capacityRange).length > 0
+      ? [
+          {
+            $match: { capacity: capacityRange },
+          },
+        ]
+      : []),
+    ...(searchConditions.length > 0
+      ? [
+          {
+            $match: {
+              $or: searchConditions,
+            },
+          },
+        ]
+      : []),
+    // Populate farmId similar to Mongoose populate with only required fields
+    {
+      $lookup: {
+        from: "farms",
+        let: { fid: "$farmId" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$_id", "$$fid"] } } },
+          { $project: { _id: 1, name: 1, supervisor: 1 } },
+        ],
+        as: "farmId",
+      },
+    },
+    { $unwind: { path: "$farmId", preserveNullAndEmptyArrays: true } },
+    { $sort: { [sortField]: sortDir } },
+    {
+      $facet: {
+        items: [
+          ...(offsetNum > 0 ? [{ $skip: offsetNum }] : []),
+          { $limit: Math.max(limitNum, 0) },
+        ],
+        total: [{ $count: "count" }],
+      },
+    },
+    {
+      $project: {
+        items: 1,
+        total: { $ifNull: [{ $arrayElemAt: ["$total.count", 0] }, 0] },
+      },
+    },
+  ];
+
+  const result = await ShedModel.aggregate(pipeline).then(
+    (resAgg) => resAgg[0] || { items: [], total: 0 }
+  );
+
+  const { items, total } = result;
 
   res.status(200).json({
     status: "success",
     message: "Sheds fetched successfully",
-    data: sheds,
+    data: items,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      totalCount: total,
+      hasMore: offsetNum + items.length < total,
+    },
   });
 });
 

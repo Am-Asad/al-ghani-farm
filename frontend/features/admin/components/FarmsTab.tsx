@@ -19,6 +19,7 @@ const FarmsTab = () => {
     isError: farmsError,
     error: farmsErrorMsg,
   } = useGetAllFarms(query);
+
   const farms = farmsData?.data || [];
   const pagination = farmsData?.pagination || {
     page: 1,
@@ -41,7 +42,7 @@ const FarmsTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
+      {/* Farms header */}
       <FarmHeader totalFarms={farms.length} />
       {/* Filters */}
       <FarmFilters />
