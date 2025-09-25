@@ -45,51 +45,79 @@ const BuyersFilters = () => {
     });
 
   return (
-    <div className="my-2 flex flex-wrap gap-2">
-      <Searchbar
-        search={pendingSearch}
-        setSearch={setPendingSearch}
-        placeholder="Search buyers..."
-      />
+    <div className="space-y-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+      {/* Search Row */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
+          <Searchbar
+            search={pendingSearch}
+            setSearch={setPendingSearch}
+            placeholder="Search buyers..."
+          />
+        </div>
+      </div>
 
-      <Select
-        value={pendingSortBy}
-        onValueChange={(value) => setPendingSortBy(value)}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder={`${sortBy} sort by`} />
-        </SelectTrigger>
-        <SelectContent>
-          {sortByOptions.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Sort and Actions Row */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+            Sort by:
+          </label>
+          <div className="flex items-center gap-2">
+            <Select
+              value={pendingSortBy}
+              onValueChange={(value) => setPendingSortBy(value)}
+            >
+              <SelectTrigger className="w-32 h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sortByOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-      <Select
-        value={pendingSortOrder}
-        onValueChange={(value) => setPendingSortOrder(value)}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder={`${sortOrder} sort order`} />
-        </SelectTrigger>
-        <SelectContent>
-          {sortOrderOptions.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+            <Select
+              value={pendingSortOrder}
+              onValueChange={(value) => setPendingSortOrder(value)}
+            >
+              <SelectTrigger className="w-20 h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOrderOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-      <Button size="sm" variant={"outline"} onClick={handleApplyFilters}>
-        Apply Filters
-      </Button>
-      <Button size="sm" variant={"outline"} onClick={handleResetFilters}>
-        Reset Filters
-      </Button>
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleApplyFilters}
+            className="h-9 px-4"
+          >
+            Apply
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleResetFilters}
+            className="h-9 px-4 text-gray-600 hover:text-gray-900"
+          >
+            Reset
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
