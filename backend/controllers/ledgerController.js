@@ -45,12 +45,25 @@ const validateEntityRelationships = async (
     );
   }
 
-  // Validate that shed belongs to the flock
-  if (shed.flockId.toString() !== flockId) {
+  // Validate that shed belongs to the farm
+  if (shed.farmId.toString() !== farmId) {
     throw new AppError(
-      "Shed does not belong to the specified flock",
+      "Shed does not belong to the specified farm",
       400,
-      "INVALID_SHED_FLOCK_RELATIONSHIP",
+      "INVALID_SHED_FARM_RELATIONSHIP",
+      true
+    );
+  }
+
+  // Validate that flock has an allocation to the shed
+  const hasAllocation = flock.allocations.some(
+    (allocation) => allocation.shedId.toString() === shedId
+  );
+  if (!hasAllocation) {
+    throw new AppError(
+      "Flock does not have an allocation to the specified shed",
+      400,
+      "INVALID_FLOCK_SHED_ALLOCATION",
       true
     );
   }
@@ -59,30 +72,66 @@ const validateEntityRelationships = async (
 };
 
 export const getAllLedgers = asyncHandler(async (req, res) => {
-  const { farmId, flockId, shedId, buyerId } = req.query;
-  const query = {};
-  if (farmId) query.farmId = farmId;
-  if (flockId) query.flockId = flockId;
-  if (shedId) query.shedId = shedId;
-  if (buyerId) query.buyerId = buyerId;
+  const {
+    search = "",
+    limit = "10",
+    page = "1",
+    sortBy = "createdAt",
+    sortOrder = "desc",
+    farmId = "",
+    flockId = "",
+    shedId = "",
+    buyerId = "",
+    dateFrom = "",
+    dateTo = "",
+    paymentStatus = "",
+    totalAmountMin = "",
+    totalAmountMax = "",
+    amountPaidMin = "",
+    amountPaidMax = "",
+    balanceMin = "",
+    balanceMax = "",
+    netWeightMin = "",
+    netWeightMax = "",
+  } = req.query;
 
-  // Get ledgers with populated references for better data
-  const ledgers = await LedgerModel.find(query)
-    .populate("farmId", "name supervisor")
-    .populate("flockId", "name status")
-    .populate("shedId", "name capacity")
-    .populate("buyerId", "name contactNumber")
-    .sort({ createdAt: -1 });
+  const limitNum = Math.max(parseInt(limit, 10) || 10, 0);
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const offsetNum = (pageNum - 1) * limitNum;
+
+  const { items, total } = await LedgerModel.getAllLedgersPaginated({
+    search,
+    limit: limitNum,
+    offset: offsetNum,
+    sortBy,
+    sortOrder,
+    farmId,
+    flockId,
+    shedId,
+    buyerId,
+    dateFrom,
+    dateTo,
+    paymentStatus,
+    totalAmountMin,
+    totalAmountMax,
+    amountPaidMin,
+    amountPaidMax,
+    balanceMin,
+    balanceMax,
+    netWeightMin,
+    netWeightMax,
+  });
 
   res.status(200).json({
     status: "success",
     message: "Ledgers fetched successfully",
-    data: ledgers.map((ledger) => {
-      const ledgerObj = ledger.toObject();
-      // Calculate balance for each ledger
-      ledgerObj.balance = ledgerObj.totalAmount - ledgerObj.amountPaid;
-      return ledgerObj;
-    }),
+    data: items,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      totalCount: total,
+      hasMore: offsetNum + items.length < total,
+    },
   });
 });
 
@@ -391,12 +440,12 @@ export const deleteLedgerById = asyncHandler(async (req, res, next) => {
   }
 
   // Delete the ledger
-  await LedgerModel.findByIdAndDelete(ledgerId);
+  const deletedLedger = await LedgerModel.findByIdAndDelete(ledgerId);
 
   res.status(200).json({
     status: "success",
     message: `Ledger with id ${ledgerId} deleted successfully`,
-    data: ledger.toObject(),
+    data: deletedLedger ? deletedLedger.toObject() : null,
   });
 });
 

@@ -10,13 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
 import { Building2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -26,7 +20,7 @@ import {
   CreateEditShedSchema,
 } from "../schemas/createEditShedSchema";
 import { useEditShed } from "../hooks/useEditShed";
-import { useGetAllEntities } from "@/features/admin/hooks/useGetAllEntities";
+import FarmsSelect from "@/features/shared/components/FarmsSelect";
 
 type CreateEditShedFormProps = {
   selectedShed?: ShedType;
@@ -37,16 +31,15 @@ const CreateEditShedForm = ({
   selectedShed,
   triggerButton,
 }: CreateEditShedFormProps) => {
-  const { data: entities } = useGetAllEntities();
+  const [selectedFarm, setSelectedFarm] = useState<string>(
+    selectedShed?.farmId._id || ""
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
-  const [selectedFarm, setSelectedFarm] = useState<string>(
-    selectedShed?.farmId || ""
-  );
+
   const isEditMode = !!selectedShed;
-  const allFarmsForDropdown = entities?.data?.farms || [];
 
   const { mutate: createShed, isPending: isCreatePending } = useCreateShed();
   const { mutate: editShed, isPending: isEditPending } = useEditShed();
@@ -177,26 +170,18 @@ const CreateEditShedForm = ({
 
           {/* Farm Id */}
           <div className="space-y-2">
-            <Label htmlFor="farmId">Farm</Label>
-            <Select
-              value={selectedFarm}
-              onValueChange={(value) => setSelectedFarm(value)}
-            >
-              <SelectTrigger
-                className={`${
+            <Label htmlFor="name">Farm</Label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <FarmsSelect
+                placeholder="Select farm"
+                value={selectedFarm}
+                onChange={(v) => setSelectedFarm(v)}
+                className={`pl-10 ${
                   getFieldError("farmId") ? "border-destructive" : ""
                 }`}
-              >
-                <SelectValue placeholder="Select farm" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px] overflow-y-auto">
-                {allFarmsForDropdown.map((farm) => (
-                  <SelectItem key={farm._id} value={farm._id}>
-                    {farm.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              />
+            </div>
             {getFieldError("farmId") ? (
               <p className="text-xs text-destructive">
                 {getFieldError("farmId")}

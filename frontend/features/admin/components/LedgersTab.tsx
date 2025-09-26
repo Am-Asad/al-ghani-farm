@@ -3,28 +3,30 @@ import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedger
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import RoleGuard from "@/features/shared/components/RoleGuard";
 import { Building2 } from "lucide-react";
-import React, { useState } from "react";
-import CreateEditLedgerForm from "../ledgers/components/CreateEditLedgerForm";
+import React from "react";
 import LedgerHeader from "../ledgers/components/LedgerHeader";
 import LedgerCard from "../ledgers/components/LedgerCard";
+import { useLedgerQueryParams } from "../ledgers/hooks/useLedgerQueryParams";
+import LedgerFilters from "../flocks/components/LedgerFilters";
+import Pagination from "@/features/shared/components/Pagination";
 
 const LedgersTab = () => {
-  const [search, setSearch] = useState("");
+  const { query, setPage, setLimit } = useLedgerQueryParams();
   const {
     data: ledgersData,
     isLoading: ledgersLoading,
     isError: ledgersError,
     error: ledgersErrorMsg,
-  } = useGetAllLedgers();
-  console.log("🚀 ~ LedgersTab ~ ledgersData:", ledgersData);
+  } = useGetAllLedgers(query);
 
   const ledgers = ledgersData?.data || [];
-
-  const filteredLedgers = ledgers.filter((ledger) =>
-    ledger.vehicleNumber.toLowerCase().includes(search.toLowerCase())
-  );
+  const pagination = ledgersData?.pagination || {
+    page: 1,
+    limit: 1,
+    totalCount: 0,
+    hasMore: false,
+  };
 
   if (ledgersLoading) return <CardsSkeleton />;
   if (ledgersError) {
@@ -37,33 +39,36 @@ const LedgersTab = () => {
       />
     );
   }
-  if (ledgers.length === 0) {
-    return (
-      <DataNotFound title="ledgers" icon={<Building2 className="w-10 h-10" />}>
-        <RoleGuard requiredRole={["admin", "manager"]}>
-          <CreateEditLedgerForm />
-        </RoleGuard>
-      </DataNotFound>
-    );
-  }
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <LedgerHeader search={search} setSearch={setSearch} />
-
-      {filteredLedgers.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredLedgers.map((ledger) => (
-            <LedgerCard key={ledger._id} ledger={ledger} />
-          ))}
-        </div>
-      ) : (
-        <DataNotFound
-          title="ledgers"
-          icon={<Building2 className="w-10 h-10" />}
-        />
-      )}
+      {/* Ledgers header */}
+      <LedgerHeader totalLedgers={ledgers.length} />
+      {/* Filters */}
+      <LedgerFilters />
+      {/* Ledgers grid */}
+      <div className="flex-1 overflow-y-scroll pb-1">
+        {ledgers.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {ledgers.map((ledger) => (
+              <LedgerCard key={ledger._id} ledger={ledger} />
+            ))}
+          </div>
+        ) : (
+          <DataNotFound
+            title="ledgers"
+            icon={<Building2 className="w-10 h-10" />}
+          />
+        )}
+      </div>
+      {/* Pagination */}
+      <Pagination
+        page={pagination.page}
+        limit={pagination.limit}
+        hasMore={pagination.hasMore}
+        onChangePage={(p) => setPage(p)}
+        onChangeLimit={(l) => setLimit(l)}
+      />
     </div>
   );
 };

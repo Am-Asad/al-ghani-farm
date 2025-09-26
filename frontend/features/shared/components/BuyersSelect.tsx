@@ -28,6 +28,7 @@ type BuyersSelectProps = {
   value?: string;
   onChange?: (value: string) => void;
   placeholder?: string;
+  popoverContentClassName?: string;
 };
 
 type BuyerOption = { _id: string; name: string };
@@ -38,6 +39,7 @@ const BuyersSelect = ({
   value,
   onChange,
   placeholder,
+  popoverContentClassName,
 }: BuyersSelectProps) => {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = useState("");
@@ -78,7 +80,9 @@ const BuyersSelect = ({
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent
+          className={cn("w-[200px] p-0", popoverContentClassName)}
+        >
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search buyer..."

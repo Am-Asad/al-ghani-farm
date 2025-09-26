@@ -28,6 +28,7 @@ type FarmsSelectProps = {
   value?: string;
   onChange?: (value: string) => void;
   placeholder?: string;
+  popoverContentClassName?: string;
 };
 
 type FarmOption = { _id: string; name: string };
@@ -38,6 +39,7 @@ const FarmsSelect = ({
   value,
   onChange,
   placeholder,
+  popoverContentClassName,
 }: FarmsSelectProps) => {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = useState("");
@@ -78,7 +80,7 @@ const FarmsSelect = ({
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent className={cn("w-full p-0", popoverContentClassName)}>
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search farm..."

@@ -8,7 +8,6 @@ import FlocksTab from "@/features/admin/components/FlocksTab";
 import ShedsTab from "@/features/admin/components/ShedsTab";
 import LedgersTab from "@/features/admin/components/LedgersTab";
 import BuyersTab from "@/features/admin/components/BuyersTab";
-import { useGetAllEntities } from "@/features/admin/hooks/useGetAllEntities";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
@@ -55,35 +54,6 @@ const AdminPage = () => {
   useEffect(() => {
     router.push(`/admin?tab=${activeTab}`);
   }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const {
-    data: entitiesData,
-    isLoading: entitiesLoading,
-    isError: entitiesError,
-    error: entitiesErrorMsg,
-  } = useGetAllEntities();
-
-  if (entitiesLoading) return <CardsSkeleton />;
-  if (entitiesError) {
-    return (
-      <ErrorFetchingData
-        title="Entities"
-        description="Manage your entities"
-        buttonText="Add Entity"
-        error={
-          (entitiesErrorMsg as Error)?.message || "Failed to load entities"
-        }
-      />
-    );
-  }
-  if (!entitiesData?.data || !entitiesData?.data?.counts) {
-    return (
-      <DataNotFound
-        title="entities"
-        icon={<Building2 className="w-10 h-10" />}
-      />
-    );
-  }
 
   return (
     <div className="p-6 overflow-y-scroll flex flex-col gap-2 flex-1">

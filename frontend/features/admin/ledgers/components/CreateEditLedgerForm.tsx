@@ -1,6 +1,6 @@
-import { LedgerResponse } from "@/types";
+import { Ledger, LedgerPayload } from "@/types";
 import React, { useState, useEffect } from "react";
-import { useGetAllEntities } from "../../hooks/useGetAllEntities";
+// import { useGetAllEntities } from "../../hooks/useGetAllEntities";
 import { useEditLedger } from "../hooks/useEditLedger";
 import { useCreateLedger } from "../hooks/useCreateLedger";
 import {
@@ -16,13 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
 import {
   Building2,
@@ -35,10 +29,13 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import FarmsSelect from "@/features/shared/components/FarmsSelect";
+import FlocksSelect from "@/features/shared/components/FlocksSelect";
+import ShedsSelect from "@/features/shared/components/ShedsSelect";
+import BuyersSelect from "@/features/shared/components/BuyersSelect";
 
 type CreateEditLedgerFormProps = {
-  selectedLedger?: LedgerResponse;
+  selectedLedger?: Ledger;
   triggerButton?: React.ReactNode;
 };
 
@@ -46,7 +43,6 @@ const CreateEditLedgerForm = ({
   selectedLedger,
   triggerButton,
 }: CreateEditLedgerFormProps) => {
-  const { data: entities } = useGetAllEntities();
   const [isOpen, setIsOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -57,21 +53,6 @@ const CreateEditLedgerForm = ({
   const [selectedBuyer, setSelectedBuyer] = useState<string>("");
 
   const isEditMode = !!selectedLedger;
-  const allFarmsForDropdown = entities?.data?.farms || [];
-  const allFlocksForDropdown = entities?.data?.flocks || [];
-  const allShedsForDropdown = entities?.data?.sheds || [];
-  const allBuyersForDropdown = entities?.data?.buyers || [];
-
-  // Show only those flocks that are associated with the selected farm
-  const filteredFlocksForDropdown = allFlocksForDropdown.filter(
-    (flock) => flock?.farmId === selectedFarm
-  );
-
-  // Show only those sheds that are associated with the selected farm
-  const filteredShedsForDropdown = allShedsForDropdown.filter(
-    (shed) => shed?.farmId === selectedFarm
-  );
-
   const { mutate: createLedger, isPending: isCreatePending } =
     useCreateLedger();
   const { mutate: editLedger, isPending: isEditPending } = useEditLedger();
@@ -89,10 +70,18 @@ const CreateEditLedgerForm = ({
   // Reset dependent dropdowns when parent selection changes
   useEffect(() => {
     if (!isEditMode) {
+      // Reset flock and shed when farm changes
       setSelectedFlock("");
       setSelectedShed("");
     }
   }, [selectedFarm, isEditMode]);
+
+  useEffect(() => {
+    if (!isEditMode) {
+      // Reset shed when flock changes (if needed for business logic)
+      setSelectedShed("");
+    }
+  }, [selectedFlock, isEditMode]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -121,18 +110,14 @@ const CreateEditLedgerForm = ({
     if (!selectedFlock) {
       if (!selectedFarm) {
         errors.flockId = "Please select a farm first";
-      } else if (filteredFlocksForDropdown.length === 0) {
-        errors.flockId = "No flocks available for the selected farm";
       } else {
         errors.flockId = "Please select a flock";
       }
     }
 
     if (!selectedShed) {
-      if (!selectedFlock) {
-        errors.shedId = "Please select a flock first";
-      } else if (filteredShedsForDropdown.length === 0) {
-        errors.shedId = "No sheds available for the selected flock";
+      if (!selectedFarm) {
+        errors.shedId = "Please select a farm first";
       } else {
         errors.shedId = "Please select a shed";
       }
@@ -185,15 +170,30 @@ const CreateEditLedgerForm = ({
       const payload = {
         ...validatedData.data,
         _id: selectedLedger._id,
+        farmId: validatedData.data.farmId,
+        flockId: validatedData.data.flockId,
+        shedId: validatedData.data.shedId,
+        buyerId: validatedData.data.buyerId,
         date: validatedData.data.date.toISOString(),
       };
-      editLedger(payload);
+      editLedger(
+        payload as unknown as Omit<LedgerPayload, "createdAt" | "updatedAt">
+      );
     } else {
       const payload = {
         ...validatedData.data,
+        farmId: validatedData.data.farmId,
+        flockId: validatedData.data.flockId,
+        shedId: validatedData.data.shedId,
+        buyerId: validatedData.data.buyerId,
         date: validatedData.data.date.toISOString(),
       };
-      createLedger(payload);
+      createLedger(
+        payload as unknown as Omit<
+          LedgerPayload,
+          "_id" | "createdAt" | "updatedAt"
+        >
+      );
     }
 
     (e.target as HTMLFormElement).reset();
@@ -215,7 +215,7 @@ const CreateEditLedgerForm = ({
         )}
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-center w-10 h-10 mx-auto bg-primary/10 rounded-full mb-2">
             <Calculator className="w-5 h-5 text-primary" />
@@ -235,26 +235,15 @@ const CreateEditLedgerForm = ({
             {/* Farm Id */}
             <div className="space-y-2">
               <Label>Farm *</Label>
-              <Select
+              <FarmsSelect
+                placeholder="Select farm"
                 value={selectedFarm}
-                onValueChange={(value) => setSelectedFarm(value)}
-              >
-                <SelectTrigger
-                  className={cn(
-                    getFieldError("farmId") ? "border-destructive" : "",
-                    "w-full"
-                  )}
-                >
-                  <SelectValue placeholder="Select farm" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[200px] overflow-y-auto w-full">
-                  {allFarmsForDropdown.map((farm) => (
-                    <SelectItem key={farm._id} value={farm._id}>
-                      {farm.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setSelectedFarm(v)}
+                popoverContentClassName="w-full"
+                className={`${
+                  getFieldError("farmId") ? "border-destructive" : ""
+                }`}
+              />
               {getFieldError("farmId") && (
                 <p className="text-xs text-destructive">
                   {getFieldError("farmId")}
@@ -265,49 +254,22 @@ const CreateEditLedgerForm = ({
             {/* Flock Id */}
             <div className="space-y-2">
               <Label>Flock *</Label>
-              <Select
+              <FlocksSelect
+                placeholder="Select flock"
                 value={selectedFlock}
-                onValueChange={(value) => setSelectedFlock(value)}
-                disabled={
-                  !selectedFarm || filteredFlocksForDropdown.length === 0
-                }
-              >
-                <SelectTrigger
-                  className={cn(
-                    getFieldError("flockId") ? "border-destructive" : "",
-                    "w-full"
-                  )}
-                >
-                  <SelectValue
-                    placeholder={
-                      !selectedFarm
-                        ? "Select farm first"
-                        : filteredFlocksForDropdown.length === 0
-                        ? "No flocks available"
-                        : "Select flock"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent className="max-h-[200px] overflow-y-auto w-full">
-                  {filteredFlocksForDropdown.length === 0 ? (
-                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                      No flocks found for this farm
-                    </div>
-                  ) : (
-                    filteredFlocksForDropdown.map((flock) => (
-                      <SelectItem key={flock._id} value={flock._id}>
-                        {flock.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setSelectedFlock(v)}
+                farmId={selectedFarm}
+                popoverContentClassName="w-full"
+                className={`${
+                  getFieldError("flockId") ? "border-destructive" : ""
+                }`}
+              />
               {getFieldError("flockId") && (
                 <p className="text-xs text-destructive">
                   {getFieldError("flockId")}
                 </p>
               )}
-              {selectedFarm && filteredFlocksForDropdown.length === 0 && (
+              {selectedFarm && !selectedFlock && (
                 <p className="text-xs text-destructive">
                   ⚠️ No flocks are available for the selected farm. Please
                   select a different farm or create flocks for this farm first.
@@ -318,52 +280,25 @@ const CreateEditLedgerForm = ({
             {/* Shed Id */}
             <div className="space-y-2">
               <Label>Shed *</Label>
-              <Select
+              <ShedsSelect
+                placeholder="Select shed"
                 value={selectedShed}
-                onValueChange={(value) => setSelectedShed(value)}
-                disabled={
-                  !selectedFlock || filteredShedsForDropdown.length === 0
-                }
-              >
-                <SelectTrigger
-                  className={cn(
-                    getFieldError("shedId") ? "border-destructive" : "",
-                    "w-full"
-                  )}
-                >
-                  <SelectValue
-                    placeholder={
-                      !selectedFlock
-                        ? "Select flock first"
-                        : filteredShedsForDropdown.length === 0
-                        ? "No sheds available"
-                        : "Select shed"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent className="max-h-[200px] overflow-y-auto w-full">
-                  {filteredShedsForDropdown.length === 0 ? (
-                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                      No sheds found for this flock
-                    </div>
-                  ) : (
-                    filteredShedsForDropdown.map((shed) => (
-                      <SelectItem key={shed._id} value={shed._id}>
-                        {shed.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setSelectedShed(v)}
+                farmId={selectedFarm}
+                popoverContentClassName="w-full"
+                className={`${
+                  getFieldError("shedId") ? "border-destructive" : ""
+                }`}
+              />
               {getFieldError("shedId") && (
                 <p className="text-xs text-destructive">
                   {getFieldError("shedId")}
                 </p>
               )}
-              {selectedFlock && filteredShedsForDropdown.length === 0 && (
+              {selectedFarm && !selectedShed && (
                 <p className="text-xs text-destructive">
-                  ⚠️ No sheds are available for the selected flock. Please
-                  select a different flock or create sheds for this flock first.
+                  ⚠️ No sheds are available for the selected farm. Please select
+                  a different farm or create sheds for this farm first.
                 </p>
               )}
             </div>
@@ -371,26 +306,15 @@ const CreateEditLedgerForm = ({
             {/* Buyer Id */}
             <div className="space-y-2">
               <Label>Buyer *</Label>
-              <Select
+              <BuyersSelect
+                placeholder="Select buyer"
                 value={selectedBuyer}
-                onValueChange={(value) => setSelectedBuyer(value)}
-              >
-                <SelectTrigger
-                  className={cn(
-                    getFieldError("buyerId") ? "border-destructive" : "",
-                    "w-full"
-                  )}
-                >
-                  <SelectValue placeholder="Select buyer" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[200px] overflow-y-auto w-full">
-                  {allBuyersForDropdown.map((buyer) => (
-                    <SelectItem key={buyer._id} value={buyer._id}>
-                      {buyer.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setSelectedBuyer(v)}
+                popoverContentClassName="w-full"
+                className={`${
+                  getFieldError("buyerId") ? "border-destructive" : ""
+                }`}
+              />
               {getFieldError("buyerId") && (
                 <p className="text-xs text-destructive">
                   {getFieldError("buyerId")}

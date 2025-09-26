@@ -24,11 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetAllEntities } from "@/features/admin/hooks/useGetAllEntities";
 import { useCreateFlock } from "../hooks/useCreateFlock";
 import { useEditFlock } from "../hooks/useEditFlock";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useGetAllSheds } from "../../sheds/hooks/useGetAllSheds";
+import FarmsSelect from "@/features/shared/components/FarmsSelect";
+import ShedsSelect from "@/features/shared/components/ShedsSelect";
 
 type CreateEditFlockFormProps = {
   selectedFlock?: FlockType;
@@ -44,15 +44,12 @@ const CreateEditFlockForm = ({
   selectedFlock,
   triggerButton,
 }: CreateEditFlockFormProps) => {
-  const { data: entities } = useGetAllEntities();
   const [isOpen, setIsOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
   const [selectedFarm, setSelectedFarm] = useState<string>(
-    typeof selectedFlock?.farmId === "string"
-      ? selectedFlock.farmId
-      : selectedFlock?.farmId?._id || ""
+    selectedFlock?.farmId?._id || ""
   );
   const [totalChicks, setTotalChicks] = useState<number>(
     selectedFlock?.totalChicks || 0
@@ -68,22 +65,8 @@ const CreateEditFlockForm = ({
   );
 
   const isEditMode = !!selectedFlock;
-  const allFarmsForDropdown = entities?.data?.farms || [];
 
-  // Get sheds for the selected farm
-  const { data: shedsData } = useGetAllSheds(
-    selectedFarm
-      ? {
-          farmId: selectedFarm,
-          page: "1",
-          limit: "100",
-          search: "",
-          sortBy: "createdAt",
-          sortOrder: "desc",
-        }
-      : undefined
-  );
-  const availableSheds = shedsData?.data || [];
+  // Note: We no longer fetch all sheds at once - each ShedsSelect will handle its own fetching
 
   const { mutate: createFlock, isPending: isCreatePending } = useCreateFlock();
   const { mutate: editFlock, isPending: isEditPending } = useEditFlock();
@@ -113,18 +96,7 @@ const CreateEditFlockForm = ({
 
   // Add new allocation
   const addAllocation = () => {
-    if (availableSheds.length > 0) {
-      const firstAvailableShed = availableSheds.find(
-        (shed) =>
-          !allocations.some((allocation) => allocation.shedId === shed._id)
-      );
-      if (firstAvailableShed) {
-        setAllocations([
-          ...allocations,
-          { shedId: firstAvailableShed._id, chicks: 0 },
-        ]);
-      }
-    }
+    setAllocations([...allocations, { shedId: "", chicks: 0 }]);
   };
 
   // Remove allocation
@@ -143,14 +115,11 @@ const CreateEditFlockForm = ({
     setAllocations(newAllocations);
   };
 
-  // Get available sheds for dropdown (not already allocated)
-  const getAvailableShedsForAllocation = (currentIndex: number) => {
-    return availableSheds.filter(
-      (shed) =>
-        !allocations.some(
-          (allocation, index) =>
-            allocation.shedId === shed._id && index !== currentIndex
-        )
+  // Check if a shed is already allocated to another allocation
+  const isShedAllocated = (shedId: string, currentIndex: number) => {
+    return allocations.some(
+      (allocation, index) =>
+        allocation.shedId === shedId && index !== currentIndex
     );
   };
 
@@ -160,11 +129,7 @@ const CreateEditFlockForm = ({
     0
   );
 
-  // Get shed capacity
-  const getShedCapacity = (shedId: string) => {
-    const shed = availableSheds.find((s) => s._id === shedId);
-    return shed?.capacity || 0;
-  };
+  // Note: Shed capacity will be handled by the ShedsSelect component
 
   // Validate allocations
   const validateAllocations = () => {
@@ -180,13 +145,12 @@ const CreateEditFlockForm = ({
       errors.allocations = `Total allocated chicks (${totalAllocatedChicks}) must equal total chicks (${totalChicks})`;
     }
 
-    // Check shed capacity limits
+    // Check for duplicate shed allocations
     allocations.forEach((allocation, index) => {
-      const capacity = getShedCapacity(allocation.shedId);
-      if (capacity > 0 && allocation.chicks > capacity) {
+      if (allocation.shedId && isShedAllocated(allocation.shedId, index)) {
         errors[
           `allocation_${index}`
-        ] = `Cannot exceed shed capacity of ${capacity}`;
+        ] = `This shed is already allocated to another allocation`;
       }
     });
 
@@ -405,28 +369,15 @@ const CreateEditFlockForm = ({
             )}
           </div>
 
-          {/* Farm Id */}
+          {/* Farm Selection */}
           <div className="space-y-2">
-            <Label htmlFor="farmId">Farm</Label>
-            <Select
+            <FarmsSelect
+              label="Farm"
               value={selectedFarm}
-              onValueChange={(value) => setSelectedFarm(value)}
-            >
-              <SelectTrigger
-                className={`${
-                  getFieldError("farmId") ? "border-destructive" : ""
-                }`}
-              >
-                <SelectValue placeholder="Select farm" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px] overflow-y-auto">
-                {allFarmsForDropdown.map((farm) => (
-                  <SelectItem key={farm._id} value={farm._id}>
-                    {farm.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              onChange={setSelectedFarm}
+              placeholder="Select farm"
+              className={getFieldError("farmId") ? "border-destructive" : ""}
+            />
             {getFieldError("farmId") ? (
               <p className="text-xs text-destructive">
                 {getFieldError("farmId")}
@@ -476,32 +427,22 @@ const CreateEditFlockForm = ({
                   variant="outline"
                   size="sm"
                   onClick={addAllocation}
-                  disabled={
-                    availableSheds.length === 0 ||
-                    allocations.length >= availableSheds.length
-                  }
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Allocation
                 </Button>
               </div>
 
-              {availableSheds.length === 0 ? (
+              {!selectedFarm ? (
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    No sheds available for the selected farm. Please create
-                    sheds first.
+                    Please select a farm first to add shed allocations.
                   </AlertDescription>
                 </Alert>
               ) : (
                 <>
                   {allocations.map((allocation, index) => {
-                    const availableShedsForThis =
-                      getAvailableShedsForAllocation(index);
-                    availableSheds.find((s) => s._id === allocation.shedId);
-                    const capacity = getShedCapacity(allocation.shedId);
-
                     return (
                       <div
                         key={index}
@@ -523,27 +464,15 @@ const CreateEditFlockForm = ({
 
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-2">
-                            <Label>Shed</Label>
-                            <Select
+                            <ShedsSelect
+                              label="Shed"
                               value={allocation.shedId}
-                              onValueChange={(value) =>
+                              onChange={(value) =>
                                 updateAllocation(index, "shedId", value)
                               }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select shed" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableShedsForThis.map((shed) => (
-                                  <SelectItem key={shed._id} value={shed._id}>
-                                    {shed.name}{" "}
-                                    {shed.capacity
-                                      ? `(Capacity: ${shed.capacity})`
-                                      : ""}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                              placeholder="Select shed"
+                              farmId={selectedFarm}
+                            />
                           </div>
 
                           <div className="space-y-2">
@@ -551,7 +480,6 @@ const CreateEditFlockForm = ({
                             <Input
                               type="number"
                               min="0"
-                              max={capacity > 0 ? capacity : undefined}
                               value={allocation.chicks}
                               onChange={(e) =>
                                 updateAllocation(
@@ -562,11 +490,9 @@ const CreateEditFlockForm = ({
                               }
                               placeholder="Number of chicks"
                             />
-                            {capacity > 0 && (
-                              <p className="text-xs text-muted-foreground">
-                                Max capacity: {capacity}
-                              </p>
-                            )}
+                            <p className="text-xs text-muted-foreground">
+                              Number of chicks for this allocation
+                            </p>
                           </div>
                         </div>
 

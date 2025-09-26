@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-client";
-import { Ledger as LedgerType } from "@/types";
+import { LedgerPayload } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -14,9 +14,9 @@ export const useEditLedger = () => {
       toast.loading("Editing ledger...", { id: "editLedger" });
     },
     mutationFn: async (
-      payload: Omit<LedgerType, "createdAt" | "updatedAt">
+      payload: Omit<LedgerPayload, "createdAt" | "updatedAt">
     ) => {
-      const response = await api.put<APIResponse<LedgerType>>(
+      const response = await api.put<APIResponse<LedgerPayload>>(
         `/ledgers/${payload._id}`,
         payload
       );

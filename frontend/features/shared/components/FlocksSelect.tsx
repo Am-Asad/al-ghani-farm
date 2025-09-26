@@ -30,6 +30,7 @@ type FlocksSelectProps = {
   placeholder?: string;
   farmId?: string;
   shedId?: string;
+  popoverContentClassName?: string;
 };
 
 type FlockOption = { _id: string; name: string };
@@ -42,6 +43,7 @@ const FlocksSelect = ({
   placeholder,
   farmId,
   shedId,
+  popoverContentClassName,
 }: FlocksSelectProps) => {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = useState("");
@@ -84,7 +86,9 @@ const FlocksSelect = ({
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent
+          className={cn("w-[200px] p-0", popoverContentClassName)}
+        >
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search flock..."

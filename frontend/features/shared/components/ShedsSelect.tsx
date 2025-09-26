@@ -29,6 +29,7 @@ type ShedsSelectProps = {
   onChange?: (value: string) => void;
   placeholder?: string;
   farmId?: string; // optional: constrain by farm when provided
+  popoverContentClassName?: string;
 };
 
 type ShedOption = { _id: string; name: string };
@@ -40,6 +41,7 @@ const ShedsSelect = ({
   onChange,
   placeholder,
   farmId,
+  popoverContentClassName,
 }: ShedsSelectProps) => {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = useState("");
@@ -81,7 +83,9 @@ const ShedsSelect = ({
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent
+          className={cn("w-[200px] p-0", popoverContentClassName)}
+        >
           <Command shouldFilter={false}>
             <CommandInput
               placeholder={farmId ? "Search shed..." : "Search shed..."}

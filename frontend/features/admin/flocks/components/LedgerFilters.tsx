@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/select";
 import FarmsSelect from "@/features/shared/components/FarmsSelect";
 import ShedsSelect from "@/features/shared/components/ShedsSelect";
-import FlocksSelect from "@/features/shared/components/FlocksSelect";
 import BuyersSelect from "@/features/shared/components/BuyersSelect";
+import FlocksSelect from "@/features/shared/components/FlocksSelect";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -34,22 +34,12 @@ const LedgerFilters = () => {
     paymentStatus,
     dateFrom,
     dateTo,
-    // createdFrom,
-    // createdTo,
-    // removed: updatedFrom, updatedTo, vehicleNumber, driverName, driverContact, accountantName
     totalAmountMin,
     totalAmountMax,
     amountPaidMin,
     amountPaidMax,
     balanceMin,
     balanceMax,
-    // removed: numberOfBirdsMin, numberOfBirdsMax
-    // rateMin,
-    // rateMax,
-    // emptyVehicleWeightMin,
-    // emptyVehicleWeightMax,
-    // grossWeightMin,
-    // grossWeightMax,
     netWeightMin,
     netWeightMax,
     flockId,
@@ -59,7 +49,6 @@ const LedgerFilters = () => {
     reset,
   } = useLedgerQueryParams();
 
-  // Local, unapplied state. Only push to URL on Apply.
   const [pendingSearch, setPendingSearch] = useState(search);
   const [pendingFarmId, setPendingFarmId] = useState(farmId);
   const [pendingSortBy, setPendingSortBy] = useState(sortBy);
@@ -96,7 +85,6 @@ const LedgerFilters = () => {
     netWeightMax ?? ""
   );
 
-  // Sync local state with URL changes (back/forward or external updates)
   useEffect(() => {
     setPendingSearch(search);
   }, [search]);
@@ -168,16 +156,12 @@ const LedgerFilters = () => {
     setPendingFlockId("");
     setPendingShedId("");
     setPendingBuyerId("");
-    // removed resets for created date
-    // removed resets for fields handled by search
     setPendingTotalAmountMin("");
     setPendingTotalAmountMax("");
     setPendingAmountPaidMin("");
     setPendingAmountPaidMax("");
     setPendingBalanceMin("");
     setPendingBalanceMax("");
-    // removed birds resets
-    // removed resets for rate and empty/gross weights
     setPendingNetWeightMin("");
     setPendingNetWeightMax("");
   };
@@ -190,7 +174,6 @@ const LedgerFilters = () => {
       status: pendingStatus,
       dateFrom: pendingDateFrom,
       dateTo: pendingDateTo,
-      // removed: createdFrom/createdTo
       paymentStatus: pendingPaymentStatus,
       flockId: pendingFlockId,
       shedId: pendingShedId,
@@ -201,7 +184,6 @@ const LedgerFilters = () => {
       amountPaidMax: pendingAmountPaidMax,
       balanceMin: pendingBalanceMin,
       balanceMax: pendingBalanceMax,
-      // removed: rate and empty/gross weights
       netWeightMin: pendingNetWeightMin,
       netWeightMax: pendingNetWeightMax,
     });
@@ -217,14 +199,12 @@ const LedgerFilters = () => {
             placeholder="Search flocks..."
           />
         </div>
-        {/* Entity selectors */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="w-fit">
             <FarmsSelect
               value={pendingFarmId}
               onChange={(v) => {
                 setPendingFarmId(v);
-                // When farm changes, clear dependent selects
                 setPendingFlockId("");
                 setPendingShedId("");
               }}
@@ -236,7 +216,6 @@ const LedgerFilters = () => {
               value={pendingShedId}
               onChange={(v) => {
                 setPendingShedId(v);
-                // When shed changes, clear dependent flock
                 setPendingFlockId("");
               }}
               placeholder="Select shed..."
@@ -262,7 +241,6 @@ const LedgerFilters = () => {
         </div>
       </div>
 
-      {/* Date Range */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -334,7 +312,6 @@ const LedgerFilters = () => {
             </Popover>
           </div>
         </div>
-        {/* Payment Status */}
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
             Payment:
@@ -363,9 +340,6 @@ const LedgerFilters = () => {
         </div>
       </div>
 
-      {/* removed: Created and Updated ranges */}
-
-      {/* Numeric ranges: amounts */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -441,10 +415,7 @@ const LedgerFilters = () => {
         </div>
       </div>
 
-      {/* Numeric ranges: weights */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* removed: Rate and Empty weight */}
-      </div>
+      <div className="flex flex-col sm:flex-row gap-3"></div>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -472,9 +443,6 @@ const LedgerFilters = () => {
         </div>
       </div>
 
-      {/* removed: vehicle/driver/contact/accountant inputs */}
-
-      {/* Sort and Actions Row */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -516,7 +484,6 @@ const LedgerFilters = () => {
             </div>
           </div>
 
-          {/* Status */}
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
               Status:
@@ -541,7 +508,6 @@ const LedgerFilters = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -575,8 +541,6 @@ const sortByOptions = [
   "amountPaid",
   "balance",
   "netWeight",
-  "numberOfBirds",
-  "rate",
 ];
 const sortOrderOptions = ["asc", "desc"];
 const statusOptions = ["active", "completed"];
