@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useShedQueryParams } from "@/features/admin/sheds/hooks/useShedQueryParams";
-import EntitiesSelect from "@/features/shared/components/EntitiesSelect";
+import EntitiesSelect from "@/features/shared/components/FarmsSelect";
 import { Input } from "@/components/ui/input";
 import {
   Popover,

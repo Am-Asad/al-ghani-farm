@@ -9,7 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import EntitiesSelect from "@/features/shared/components/EntitiesSelect";
+import FarmsSelect from "@/features/shared/components/FarmsSelect";
+import ShedsSelect from "@/features/shared/components/ShedsSelect";
+import FlocksSelect from "@/features/shared/components/FlocksSelect";
+import BuyersSelect from "@/features/shared/components/BuyersSelect";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -49,6 +52,9 @@ const LedgerFilters = () => {
     // grossWeightMax,
     netWeightMin,
     netWeightMax,
+    flockId,
+    shedId,
+    buyerId,
     setFilters,
     reset,
   } = useLedgerQueryParams();
@@ -64,8 +70,10 @@ const LedgerFilters = () => {
   >(paymentStatus ?? "");
   const [pendingDateFrom, setPendingDateFrom] = useState(dateFrom ?? "");
   const [pendingDateTo, setPendingDateTo] = useState(dateTo ?? "");
-  // removed: createdFrom/createdTo filters
-  // removed: updatedFrom/updatedTo and vehicle/driver/accountant filters (handled by backend search)
+  const [pendingFlockId, setPendingFlockId] = useState(flockId ?? "");
+  const [pendingShedId, setPendingShedId] = useState(shedId ?? "");
+  const [pendingBuyerId, setPendingBuyerId] = useState(buyerId ?? "");
+
   const [pendingTotalAmountMin, setPendingTotalAmountMin] = useState(
     totalAmountMin ?? ""
   );
@@ -80,8 +88,7 @@ const LedgerFilters = () => {
   );
   const [pendingBalanceMin, setPendingBalanceMin] = useState(balanceMin ?? "");
   const [pendingBalanceMax, setPendingBalanceMax] = useState(balanceMax ?? "");
-  // removed: birds filters (handled by backend search)
-  // removed: rate and empty/gross weight filters
+
   const [pendingNetWeightMin, setPendingNetWeightMin] = useState(
     netWeightMin ?? ""
   );
@@ -109,13 +116,20 @@ const LedgerFilters = () => {
     setPendingPaymentStatus(paymentStatus ?? "");
   }, [paymentStatus]);
   useEffect(() => {
+    setPendingFlockId(flockId ?? "");
+  }, [flockId]);
+  useEffect(() => {
+    setPendingShedId(shedId ?? "");
+  }, [shedId]);
+  useEffect(() => {
+    setPendingBuyerId(buyerId ?? "");
+  }, [buyerId]);
+  useEffect(() => {
     setPendingDateFrom(dateFrom ?? "");
   }, [dateFrom]);
   useEffect(() => {
     setPendingDateTo(dateTo ?? "");
   }, [dateTo]);
-  // removed created date effects
-  // removed effects for fields handled by search
   useEffect(() => {
     setPendingTotalAmountMin(totalAmountMin ?? "");
   }, [totalAmountMin]);
@@ -134,8 +148,6 @@ const LedgerFilters = () => {
   useEffect(() => {
     setPendingBalanceMax(balanceMax ?? "");
   }, [balanceMax]);
-  // removed birds effects
-  // removed rate and empty/gross weight effects
   useEffect(() => {
     setPendingNetWeightMin(netWeightMin ?? "");
   }, [netWeightMin]);
@@ -153,6 +165,9 @@ const LedgerFilters = () => {
     setPendingPaymentStatus("");
     setPendingDateFrom("");
     setPendingDateTo("");
+    setPendingFlockId("");
+    setPendingShedId("");
+    setPendingBuyerId("");
     // removed resets for created date
     // removed resets for fields handled by search
     setPendingTotalAmountMin("");
@@ -177,6 +192,9 @@ const LedgerFilters = () => {
       dateTo: pendingDateTo,
       // removed: createdFrom/createdTo
       paymentStatus: pendingPaymentStatus,
+      flockId: pendingFlockId,
+      shedId: pendingShedId,
+      buyerId: pendingBuyerId,
       totalAmountMin: pendingTotalAmountMin,
       totalAmountMax: pendingTotalAmountMax,
       amountPaidMin: pendingAmountPaidMin,
@@ -191,7 +209,7 @@ const LedgerFilters = () => {
   return (
     <div className="space-y-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
       {/* Search and Farm Selection Row */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between">
         <div className="flex-1">
           <Searchbar
             search={pendingSearch}
@@ -199,12 +217,48 @@ const LedgerFilters = () => {
             placeholder="Search flocks..."
           />
         </div>
-        <div className="w-full sm:w-64">
-          <EntitiesSelect
-            value={pendingFarmId}
-            onChange={setPendingFarmId}
-            placeholder="Select farm..."
-          />
+        {/* Entity selectors */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="w-fit">
+            <FarmsSelect
+              value={pendingFarmId}
+              onChange={(v) => {
+                setPendingFarmId(v);
+                // When farm changes, clear dependent selects
+                setPendingFlockId("");
+                setPendingShedId("");
+              }}
+              placeholder="Select farm..."
+            />
+          </div>
+          <div className="w-fit">
+            <ShedsSelect
+              value={pendingShedId}
+              onChange={(v) => {
+                setPendingShedId(v);
+                // When shed changes, clear dependent flock
+                setPendingFlockId("");
+              }}
+              placeholder="Select shed..."
+              farmId={pendingFarmId || undefined}
+            />
+          </div>
+          <div className="w-fit">
+            <FlocksSelect
+              value={pendingFlockId}
+              onChange={(v) => setPendingFlockId(v)}
+              placeholder="Select flock..."
+              farmId={pendingFarmId || undefined}
+              shedId={pendingShedId || undefined}
+            />
+          </div>
+          <div className="w-fit">
+            <BuyersSelect
+              value={pendingBuyerId}
+              onChange={(v) => setPendingBuyerId(v)}
+              placeholder="Select buyer..."
+            />
+          </div>
         </div>
       </div>
 

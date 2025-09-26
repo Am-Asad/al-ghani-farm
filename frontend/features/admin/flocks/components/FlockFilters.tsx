@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import EntitiesSelect from "@/features/shared/components/EntitiesSelect";
+import EntitiesSelect from "@/features/shared/components/FarmsSelect";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
