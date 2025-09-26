@@ -15,6 +15,7 @@ import {
   updateBuyerById,
   deleteAllBuyers,
   deleteBuyerById,
+  getBuyersForDropdown,
 } from "../controllers/buyerController.js";
 
 const router = Router();
@@ -24,6 +25,7 @@ router.use(authHandler);
 
 // Routes
 router.get("/", getAllBuyers); // Get all buyers
+router.get("/dropdown", getBuyersForDropdown); // Get buyers for dropdown
 router.get("/:buyerId", getBuyerById); // Get a buyer by id
 
 // Create a new buyer

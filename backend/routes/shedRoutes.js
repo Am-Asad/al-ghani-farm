@@ -15,6 +15,7 @@ import {
   updateShedById,
   deleteAllSheds,
   deleteShedById,
+  getShedsForDropdown,
 } from "../controllers/shedController.js";
 
 const router = Router();
@@ -24,6 +25,7 @@ router.use(authHandler);
 
 // Routes
 router.get("/", getAllSheds); // Get all sheds
+router.get("/dropdown", getShedsForDropdown); // Get sheds for dropdown
 router.get("/:shedId", getShedById); // Get a shed by id
 
 // Create a new shed

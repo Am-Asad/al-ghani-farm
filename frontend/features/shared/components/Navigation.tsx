@@ -11,6 +11,7 @@ import {
   BarChart3,
   // Settings,
   Shield,
+  FileText,
 } from "lucide-react";
 import { useAuthContext } from "@/providers/AuthProvider";
 
@@ -19,8 +20,8 @@ const navigation = [
   { name: "Farms", href: "/farms", icon: Building2 },
   { name: "Flocks", href: "/flocks", icon: Users },
   { name: "Sheds", href: "/sheds", icon: Truck },
-  // { name: "Ledgers", href: "/ledgers", icon: FileText },
   { name: "Buyers", href: "/buyers", icon: Users },
+  { name: "Ledgers", href: "/ledgers", icon: FileText },
   // { name: "Reports", href: "/reports", icon: BarChart3 },
   {
     name: "Users",

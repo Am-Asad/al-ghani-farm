@@ -382,3 +382,40 @@ export const deleteFlockById = asyncHandler(async (req, res, next) => {
     data: undefined,
   });
 });
+
+export const getFlocksForDropdown = asyncHandler(async (req, res) => {
+  const { search = "", farmId = "", flockId = "", shedId = "" } = req.query;
+
+  const andConditions = [];
+
+  if (typeof farmId === "string" && farmId.trim()) {
+    andConditions.push({ farmId });
+  }
+
+  if (typeof flockId === "string" && flockId.trim()) {
+    andConditions.push({ _id: flockId });
+  }
+
+  if (typeof shedId === "string" && shedId.trim()) {
+    // Flock allocations contain shedId; ensure at least one allocation with this shed
+    andConditions.push({ "allocations.shedId": shedId });
+  }
+
+  if (typeof search === "string" && search.trim()) {
+    andConditions.push({ name: { $regex: search.trim(), $options: "i" } });
+  }
+
+  const query = andConditions.length > 0 ? { $and: andConditions } : {};
+
+  const flocks = await FlockModel.find(query)
+    .select("_id name")
+    .populate("farmId", "name")
+    .sort({ name: 1 })
+    .limit(10);
+
+  res.status(200).json({
+    status: "success",
+    message: "Flocks fetched successfully",
+    data: flocks,
+  });
+});

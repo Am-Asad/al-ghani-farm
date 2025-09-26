@@ -13,7 +13,11 @@
 [x] Filteration system and pagination implemented for farms.
 [x] Filteration system and pagination implemented for buyers.
 [x] Filteration system and pagination implemented for sheds.
+[x] Filteration system and pagination implemented for flocks.
 [x] Filteration system and pagination implemented in the admin module as well.
-
-[] Fix the response types for flocks, farms, and sheds.
-[] Maybe remove the details page
+[x] filters ui updated.
+[x] flocks detail card update with allocations details.
+[x] Fix the response types for flocks, farms, and sheds.
+[] Check all the modules by creating, updating, and deleting data.  
+[] Check the pagination and filtering for all the modules.
+[] Update the sort by filter with multiple values.

@@ -171,3 +171,28 @@ export const deleteAllBuyers = asyncHandler(async (req, res, next) => {
     },
   });
 });
+
+export const getBuyersForDropdown = asyncHandler(async (req, res) => {
+  const { search = "", buyerId = "" } = req.query;
+
+  const andConditions = [];
+  if (typeof buyerId === "string" && buyerId.trim()) {
+    andConditions.push({ _id: buyerId });
+  }
+  if (typeof search === "string" && search.trim()) {
+    andConditions.push({ name: { $regex: search.trim(), $options: "i" } });
+  }
+
+  const query = andConditions.length > 0 ? { $and: andConditions } : {};
+
+  const buyers = await BuyerModel.find(query)
+    .select("_id name")
+    .sort({ name: 1 })
+    .limit(10);
+
+  res.status(200).json({
+    status: "success",
+    message: "Buyers fetched successfully",
+    data: buyers,
+  });
+});

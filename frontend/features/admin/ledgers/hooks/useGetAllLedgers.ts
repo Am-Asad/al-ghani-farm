@@ -7,15 +7,33 @@ import { LedgerResponse as LedgerResponseType } from "@/types";
 import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllLedgers = () => {
+type QueryParams = {
+  page: string;
+  limit: string;
+  search: string;
+  farmId: string;
+  shedId: string;
+  flockId: string;
+  buyerId: string;
+  sortBy: string;
+  sortOrder: string;
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export const useGetAllLedgers = (query?: QueryParams) => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: queryKeys.ledgers,
+    queryKey: [...queryKeys.ledgers, query],
     queryFn: async () => {
       try {
         const response = await api.get<APIResponse<LedgerResponseType[]>>(
-          `/ledgers`
+          `/ledgers`,
+          {
+            params: query ?? {},
+          }
         );
         return response.data;
       } catch (error) {
@@ -27,5 +45,6 @@ export const useGetAllLedgers = () => {
       }
     },
     enabled: !!user?._id,
+    placeholderData: (previousData) => previousData,
   });
 };

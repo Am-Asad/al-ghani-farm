@@ -20,13 +20,11 @@ const FlockHeader = ({ totalFlocks, showActions = true }: FlockHeaderProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Flocks</h1>
-          <p className="text-muted-foreground">
-            Manage system flocks and their operations
-          </p>
-        </div>
+      <div className="flex flex-col">
+        <h1 className="text-3xl font-bold text-foreground">Flocks</h1>
+        <p className="text-muted-foreground">
+          Manage system flocks and their operations
+        </p>
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">

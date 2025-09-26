@@ -15,6 +15,7 @@ import {
   updateFlockById,
   deleteAllFlocks,
   deleteFlockById,
+  getFlocksForDropdown,
 } from "../controllers/flockController.js";
 
 const router = Router();
@@ -24,6 +25,7 @@ router.use(authHandler);
 
 // Routes
 router.get("/", getAllFlocks); // Get all flocks
+router.get("/dropdown", getFlocksForDropdown); // Get flocks for dropdown
 router.get("/:flockId", getFlockById); // Get a flock by id
 
 // Create a new flock
