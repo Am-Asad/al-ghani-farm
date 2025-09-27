@@ -12,9 +12,9 @@ export const useDeleteFlock = () => {
     onMutate: () => {
       toast.loading("Deleting flock...", { id: "deleteFlock" });
     },
-    mutationFn: async ({ id }: { id: string }) => {
+    mutationFn: async (flockId: string) => {
       const response = await api.delete<APIResponse<{ id: string }>>(
-        `/flocks/${id}`
+        `/flocks/${flockId}`
       );
       return response.data;
     },
@@ -25,7 +25,6 @@ export const useDeleteFlock = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.sheds });
       queryClient.invalidateQueries({ queryKey: queryKeys.ledgers });
       queryClient.invalidateQueries({ queryKey: queryKeys.buyers });
-      queryClient.invalidateQueries({ queryKey: queryKeys.entities });
     },
     onError: (error) => {
       toast.error(

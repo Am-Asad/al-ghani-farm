@@ -131,7 +131,6 @@ const FarmsTable = ({ farms }: FarmsTableProps) => {
 
   const handleSelectionChange = (selected: FarmType[]) => {
     setSelectedFarms(selected);
-    console.log("Selected rows:", selected);
   };
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import DataTable from "@/features/shared/components/DataTable";
+import DataTable, { RowAction } from "@/features/shared/components/DataTable";
 import { Column } from "@/features/shared/components/DataTable";
 import { formatDate } from "@/utils/format-date";
 import { formatSingleDigit } from "@/utils/format-single-digit";
@@ -8,6 +8,9 @@ import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog"
 import { Shed as ShedType } from "@/types";
 import { useDeleteShed } from "../hooks/useDeleteShed";
 import CreateEditShedForm from "./CreateEditShedForm";
+import { useDeleteBulkSheds } from "../hooks/useDeleteBulkSheds";
+import { Button } from "@/components/ui/button";
+import { Edit, Eye, Trash2 } from "lucide-react";
 
 type ShedsTableProps = {
   sheds: ShedType[];
@@ -16,6 +19,7 @@ type ShedsTableProps = {
 const ShedsTable = ({ sheds }: ShedsTableProps) => {
   const [selectedSheds, setSelectedSheds] = useState<ShedType[]>([]);
   const { mutate: deleteShed } = useDeleteShed();
+  const { mutate: deleteBulkSheds } = useDeleteBulkSheds();
 
   const columns: Column<ShedType>[] = [
     {
@@ -59,36 +63,64 @@ const ShedsTable = ({ sheds }: ShedsTableProps) => {
     },
   ];
 
-  const rowActions = [
-    { label: "View Details", value: "view" },
-    { label: "Edit", value: "edit" },
-    { label: "Delete", value: "delete", variant: "destructive" as const },
-  ];
-
-  const handleSelectionChange = (selected: ShedType[]) => {
-    setSelectedSheds(selected);
-    console.log("Selected rows:", selected);
-  };
-
-  const handleRowAction = (action: string, row: ShedType) => {
-    console.log(`Action: ${action}`, row);
-
-    switch (action) {
-      case "view":
-        alert(`Viewing details for ${row.name}`);
-        break;
-      case "edit":
-        <CreateEditShedForm selectedShed={row} />;
-        break;
-      case "delete":
+  const rowActions: RowAction<ShedType>[] = [
+    {
+      label: "View Details",
+      value: "view",
+      component: (row: ShedType) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+          onClick={() => alert(`Viewing details for ${row.name}`)}
+        >
+          <Eye className="mr-2 h-4 w-4" />
+          View Details
+        </Button>
+      ),
+    },
+    {
+      label: "Edit",
+      value: "edit",
+      component: (row: ShedType) => (
+        <CreateEditShedForm
+          selectedShed={row}
+          triggerButton={
+            <Button variant="ghost" size="sm" className="w-full justify-start">
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Shed
+            </Button>
+          }
+        />
+      ),
+    },
+    {
+      label: "Delete",
+      value: "delete",
+      variant: "destructive" as const,
+      component: (row: ShedType) => (
         <ConfirmationDialog
           title="Delete Shed"
           description="Are you sure you want to delete this shed?"
           confirmationText={row.name}
           onConfirm={() => deleteShed(row._id)}
-        />;
-        break;
-    }
+          trigger={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-red-600 hover:text-red-800"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Shed
+            </Button>
+          }
+        />
+      ),
+    },
+  ];
+
+  const handleSelectionChange = (selected: ShedType[]) => {
+    setSelectedSheds(selected);
   };
 
   return (
@@ -98,10 +130,21 @@ const ShedsTable = ({ sheds }: ShedsTableProps) => {
       getRowId={(row) => row._id}
       selectionMode="multiple"
       onSelectionChange={handleSelectionChange}
-      onRowAction={handleRowAction}
       rowActions={rowActions}
       emptyMessage="No sheds found"
       showColumnVisibilityToggle={true}
+      selectedRows={selectedSheds}
+      deleteBulkRecords={
+        <ConfirmationDialog
+          title={`Delete Bulk Sheds (${selectedSheds.length})`}
+          description="Are you sure you want to delete the selected sheds?"
+          onConfirm={() => {
+            setSelectedSheds([]);
+            deleteBulkSheds(selectedSheds.map((shed) => shed._id));
+          }}
+          confirmationText="Delete_Bulk_Sheds"
+        />
+      }
     />
   );
 };

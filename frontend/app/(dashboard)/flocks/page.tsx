@@ -5,11 +5,11 @@ import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
 import React from "react";
-import FlockCard from "@/features/admin/flocks/components/FlockCard";
 import FlockHeader from "@/features/admin/flocks/components/FlockHeader";
 import { useFlockQueryParams } from "@/features/admin/flocks/hooks/useFlockQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
 import FlockFilters from "@/features/admin/flocks/components/FlockFilters";
+import FlocksTable from "@/features/admin/flocks/components/FlocksTable";
 
 const FlocksPage = () => {
   const { query, setPage, setLimit } = useFlockQueryParams();
@@ -49,11 +49,7 @@ const FlocksPage = () => {
       {/* Flocks grid */}
       <div className="flex-1 overflow-y-scroll pb-1 mt-4">
         {flocks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {flocks.map((flock) => (
-              <FlockCard key={flock._id} flock={flock} showActions={false} />
-            ))}
-          </div>
+          <FlocksTable flocks={flocks} />
         ) : (
           <DataNotFound
             title="flocks"

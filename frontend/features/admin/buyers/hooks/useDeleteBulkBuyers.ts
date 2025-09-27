@@ -12,12 +12,18 @@ export const useDeleteBulkBuyers = () => {
     onMutate: () => {
       toast.loading("Deleting buyers...", { id: "deleteBulkBuyers" });
     },
-    mutationFn: async () => {
-      const response = await api.delete<APIResponse<[]>>(`/buyers/all`);
+    mutationFn: async (buyerIds: string[]) => {
+      const response = await api.delete<APIResponse<[]>>(`/buyers/bulk`, {
+        data: buyerIds,
+      });
       return response.data;
     },
     onSuccess: (response) => {
       toast.success(response.message, { id: "deleteBulkBuyers" });
+      queryClient.invalidateQueries({ queryKey: queryKeys.farms });
+      queryClient.invalidateQueries({ queryKey: queryKeys.sheds });
+      queryClient.invalidateQueries({ queryKey: queryKeys.flocks });
+      queryClient.invalidateQueries({ queryKey: queryKeys.ledgers });
       queryClient.invalidateQueries({ queryKey: queryKeys.buyers });
     },
     onError: (error) => {

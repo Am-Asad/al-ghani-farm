@@ -21,6 +21,10 @@ export const useDeleteBulkFarms = () => {
     onSuccess: (response) => {
       toast.success(response.message, { id: "deleteBulkFarms" });
       queryClient.invalidateQueries({ queryKey: queryKeys.farms });
+      queryClient.invalidateQueries({ queryKey: queryKeys.sheds });
+      queryClient.invalidateQueries({ queryKey: queryKeys.flocks });
+      queryClient.invalidateQueries({ queryKey: queryKeys.ledgers });
+      queryClient.invalidateQueries({ queryKey: queryKeys.buyers });
     },
     onError: (error) => {
       toast.error(

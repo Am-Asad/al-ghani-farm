@@ -1,13 +1,16 @@
 "use client";
 import React, { useState } from "react";
-import DataTable from "@/features/shared/components/DataTable";
+import DataTable, { RowAction } from "@/features/shared/components/DataTable";
 import { Buyer as BuyerType } from "@/types";
 import { Column } from "@/features/shared/components/DataTable";
 import { formatDate } from "@/utils/format-date";
 import CreateEditBuyerForm from "../buyers/components/CreateEditBuyerForm";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { useDeleteBuyer } from "../buyers/hooks/useDeleteBuyer";
-import { Phone } from "lucide-react";
+import { Edit, Eye, Phone, Trash2 } from "lucide-react";
+import { useDeleteBulkBuyers } from "../buyers/hooks/useDeleteBulkBuyers";
+import { Button } from "@/components/ui/button";
+import CreateEditFarmForm from "../farms/components/CreateEditFarmForm";
 
 type BuyersTableProps = {
   buyers: BuyerType[];
@@ -16,6 +19,7 @@ type BuyersTableProps = {
 const BuyersTable = ({ buyers }: BuyersTableProps) => {
   const [selectedBuyers, setSelectedBuyers] = useState<BuyerType[]>([]);
   const { mutate: deleteBuyer } = useDeleteBuyer();
+  const { mutate: deleteBulkBuyers } = useDeleteBulkBuyers();
 
   const columns: Column<BuyerType>[] = [
     {
@@ -68,33 +72,64 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
     },
   ];
 
-  const rowActions = [
-    { label: "View Details", value: "view" },
-    { label: "Edit", value: "edit" },
-    { label: "Delete", value: "delete", variant: "destructive" as const },
-  ];
-
-  const handleSelectionChange = (selected: BuyerType[]) => {
-    setSelectedBuyers(selected);
-  };
-
-  const handleRowAction = (action: string, row: BuyerType) => {
-    switch (action) {
-      case "view":
-        alert(`Viewing details for ${row.name}`);
-        break;
-      case "edit":
-        <CreateEditBuyerForm selectedBuyer={row} />;
-        break;
-      case "delete":
+  const rowActions: RowAction<BuyerType>[] = [
+    {
+      label: "View Details",
+      value: "view",
+      component: (row: BuyerType) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+          onClick={() => alert(`Viewing details for ${row.name}`)}
+        >
+          <Eye className="mr-2 h-4 w-4" />
+          View Details
+        </Button>
+      ),
+    },
+    {
+      label: "Edit",
+      value: "edit",
+      component: (row: BuyerType) => (
+        <CreateEditBuyerForm
+          selectedBuyer={row}
+          triggerButton={
+            <Button variant="ghost" size="sm" className="w-full justify-start">
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Buyer
+            </Button>
+          }
+        />
+      ),
+    },
+    {
+      label: "Delete",
+      value: "delete",
+      variant: "destructive",
+      component: (row: BuyerType) => (
         <ConfirmationDialog
           title="Delete Buyer"
           description="Are you sure you want to delete this buyer?"
           confirmationText={row.name}
           onConfirm={() => deleteBuyer(row._id)}
-        />;
-        break;
-    }
+          trigger={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-red-600 hover:text-red-800"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Buyer
+            </Button>
+          }
+        />
+      ),
+    },
+  ];
+
+  const handleSelectionChange = (selected: BuyerType[]) => {
+    setSelectedBuyers(selected);
   };
 
   return (
@@ -104,10 +139,21 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
       getRowId={(row) => row._id}
       selectionMode="multiple"
       onSelectionChange={handleSelectionChange}
-      onRowAction={handleRowAction}
       rowActions={rowActions}
       emptyMessage="No buyers found"
       showColumnVisibilityToggle={true}
+      selectedRows={selectedBuyers}
+      deleteBulkRecords={
+        <ConfirmationDialog
+          title={`Delete Bulk Buyers (${selectedBuyers.length})`}
+          description="Are you sure you want to delete the selected buyers?"
+          onConfirm={() => {
+            setSelectedBuyers([]);
+            deleteBulkBuyers(selectedBuyers.map((buyer) => buyer._id));
+          }}
+          confirmationText="Delete_Bulk_Buyers"
+        />
+      }
     />
   );
 };
