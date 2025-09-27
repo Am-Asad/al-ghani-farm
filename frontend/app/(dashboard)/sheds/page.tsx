@@ -1,5 +1,4 @@
 "use client";
-import ShedCard from "@/features/admin/sheds/components/ShedCard";
 import ShedsHeader from "@/features/admin/sheds/components/ShedHeader";
 import { useGetAllSheds } from "@/features/admin/sheds/hooks/useGetAllSheds";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
@@ -10,6 +9,7 @@ import React from "react";
 import { useShedQueryParams } from "@/features/admin/sheds/hooks/useShedQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
 import ShedFilters from "@/features/admin/sheds/components/ShedFilters";
+import ShedsTable from "@/features/admin/sheds/components/ShedsTable";
 
 const ShedsPage = () => {
   const { query, setPage, setLimit } = useShedQueryParams();
@@ -49,11 +49,7 @@ const ShedsPage = () => {
       {/* Users grid */}
       <div className="flex-1 overflow-y-scroll pb-1 mt-4">
         {sheds.length > 0 ? (
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sheds.map((shed) => (
-              <ShedCard key={shed._id} shed={shed} showActions={false} />
-            ))}
-          </div>
+          <ShedsTable sheds={sheds} />
         ) : (
           <DataNotFound
             title="sheds"

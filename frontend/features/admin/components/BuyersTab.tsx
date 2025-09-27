@@ -1,17 +1,15 @@
 "use client";
 import React from "react";
 import { useGetAllBuyers } from "../buyers/hooks/useGetAllBuyers";
-import CreateEditBuyerForm from "../buyers/components/CreateEditBuyerForm";
-import RoleGuard from "@/features/shared/components/RoleGuard";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { Building2 } from "lucide-react";
-import ErrorFeatchingData from "@/features/shared/components/ErrorFetchingData";
+import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import BuyersHeader from "../buyers/components/BuyerHeader";
-import BuyerCard from "../buyers/components/BuyerCard";
 import { useBuyersQueryParams } from "../buyers/hooks/useBuyersQueryParams";
 import BuyersFilters from "../buyers/components/BuyersFilters";
 import Pagination from "@/features/shared/components/Pagination";
+import BuyersTable from "./BuyersTable";
 
 const BuyersTab = () => {
   const { query, setPage, setLimit } = useBuyersQueryParams();
@@ -34,7 +32,7 @@ const BuyersTab = () => {
   if (buyersLoading) return <CardsSkeleton />;
   if (buyersError) {
     return (
-      <ErrorFeatchingData
+      <ErrorFetchingData
         title="Buyers"
         description="Manage your buyers"
         buttonText="Add Buyer"
@@ -53,11 +51,7 @@ const BuyersTab = () => {
       <div className="flex-1 overflow-y-scroll pb-1">
         {/* Buyers grid */}
         {buyers.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {buyers.map((buyer) => (
-              <BuyerCard key={buyer._id} buyer={buyer} />
-            ))}
-          </div>
+          <BuyersTable buyers={buyers} />
         ) : (
           <DataNotFound
             title="buyers"

@@ -5,11 +5,11 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import { Building2 } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
-import ShedCard from "../sheds/components/ShedCard";
 import ShedsHeader from "../sheds/components/ShedHeader";
 import { useShedQueryParams } from "../sheds/hooks/useShedQueryParams";
 import ShedFilters from "../sheds/components/ShedFilters";
 import Pagination from "@/features/shared/components/Pagination";
+import ShedsTable from "../sheds/components/ShedsTable";
 
 const ShedsTab = () => {
   const { query, setPage, setLimit } = useShedQueryParams();
@@ -49,11 +49,7 @@ const ShedsTab = () => {
       {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
         {sheds.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sheds.map((shed) => (
-              <ShedCard key={shed._id} shed={shed} />
-            ))}
-          </div>
+          <ShedsTable sheds={sheds} />
         ) : (
           <DataNotFound
             title="sheds"

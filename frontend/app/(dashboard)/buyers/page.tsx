@@ -10,6 +10,7 @@ import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useBuyersQueryParams } from "@/features/admin/buyers/hooks/useBuyersQueryParams";
 import BuyersFilters from "@/features/admin/buyers/components/BuyersFilters";
 import Pagination from "@/features/shared/components/Pagination";
+import BuyersTable from "@/features/admin/components/BuyersTable";
 
 const BuyersPage = () => {
   const { query, setPage, setLimit } = useBuyersQueryParams();
@@ -49,11 +50,7 @@ const BuyersPage = () => {
       {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1 mt-4">
         {buyers.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {buyers.map((buyer) => (
-              <BuyerCard key={buyer._id} buyer={buyer} showActions={false} />
-            ))}
-          </div>
+          <BuyersTable buyers={buyers} />
         ) : (
           <DataNotFound
             title="buyers"

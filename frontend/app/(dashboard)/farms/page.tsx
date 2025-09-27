@@ -1,7 +1,6 @@
 "use client";
 
 import { Building2 } from "lucide-react";
-import FarmCard from "@/features/admin/farms/components/FarmCard";
 import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
@@ -11,6 +10,7 @@ import CreateEditFarmForm from "@/features/admin/farms/components/CreateEditFarm
 import FarmFilters from "@/features/admin/farms/components/FarmFilters";
 import Pagination from "@/features/shared/components/Pagination";
 import { useFarmQueryParams } from "@/features/admin/farms/hooks/useFarmQueryParams";
+import FarmsTable from "@/features/admin/farms/components/FarmsTable";
 
 export default function FarmsPage() {
   const { query, setPage, setLimit } = useFarmQueryParams();
@@ -60,11 +60,7 @@ export default function FarmsPage() {
       <div className="flex-1 overflow-y-scroll pb-1 mt-4">
         {/* Farms grid */}
         {farms.length > 0 ? (
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {farms.map((farm) => (
-              <FarmCard key={farm._id} farm={farm} showActions={false} />
-            ))}
-          </div>
+          <FarmsTable farms={farms} />
         ) : (
           <DataNotFound
             title="farms"
@@ -72,6 +68,7 @@ export default function FarmsPage() {
           />
         )}
       </div>
+
       {/* Pagination */}
       <Pagination
         page={pagination.page}

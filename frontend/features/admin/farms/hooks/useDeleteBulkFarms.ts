@@ -12,8 +12,10 @@ export const useDeleteBulkFarms = () => {
     onMutate: () => {
       toast.loading("Deleting farms...", { id: "deleteBulkFarms" });
     },
-    mutationFn: async () => {
-      const response = await api.delete<APIResponse<[]>>(`/farms/all`);
+    mutationFn: async (farmIds: string[]) => {
+      const response = await api.delete<APIResponse<[]>>(`/farms/bulk`, {
+        data: farmIds,
+      });
       return response.data;
     },
     onSuccess: (response) => {

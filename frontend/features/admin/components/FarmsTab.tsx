@@ -1,5 +1,4 @@
 "use client";
-import FarmCard from "@/features/admin/farms/components/FarmCard";
 import FarmFilters from "@/features/admin/farms/components/FarmFilters";
 import FarmHeader from "@/features/admin/farms/components/FarmHeader";
 import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
@@ -10,6 +9,7 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
 import React from "react";
 import Pagination from "@/features/shared/components/Pagination";
+import FarmsTable from "@/features/admin/farms/components/FarmsTable";
 
 const FarmsTab = () => {
   const { query, setPage, setLimit } = useFarmQueryParams();
@@ -50,11 +50,7 @@ const FarmsTab = () => {
       <div className="flex-1 overflow-y-scroll pb-1">
         {/* Farms grid */}
         {farms.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {farms.map((farm) => (
-              <FarmCard key={farm._id} farm={farm} />
-            ))}
-          </div>
+          <FarmsTable farms={farms} />
         ) : (
           <DataNotFound
             title="farms"
