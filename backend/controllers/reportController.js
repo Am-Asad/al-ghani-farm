@@ -2215,9 +2215,7 @@ export const getBuyerUnifiedReport = asyncHandler(async (req, res) => {
           ],
         },
         pagination: {
-          limit: parsedLimit,
-          offset: parsedOffset,
-          total: "$totalTransactions",
+          totalCount: "$totalTransactions",
           hasMore: {
             $gt: ["$totalTransactions", { $add: [parsedOffset, parsedLimit] }],
           },
@@ -2257,9 +2255,7 @@ export const getBuyerUnifiedReport = asyncHandler(async (req, res) => {
         },
         transactions: [],
         pagination: {
-          limit: parsedLimit,
-          offset: parsedOffset,
-          total: 0,
+          totalCount: 0,
           hasMore: false,
         },
       },
@@ -2810,9 +2806,7 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
               }
             : [],
           pagination: {
-            limit: parsedLimit,
-            offset: parsedOffset,
-            total: "$totalTransactions",
+            totalCount: "$totalTransactions",
             hasMore: {
               $gt: [
                 "$totalTransactions",
@@ -2928,8 +2922,8 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
         $group: {
           _id: null,
           reportTitle: { $first: reportTitle },
-          groupedResults: { $push: "$$ROOT" },
-          grandTotal: {
+          ledgers: { $push: "$$ROOT" },
+          summary: {
             $sum: {
               totalTransactions: "$summary.totalTransactions",
               totalEmptyVehicleWeight: "$summary.totalEmptyVehicleWeight",
@@ -2949,8 +2943,8 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
           _id: 0,
           reportTitle: "$reportTitle",
           groupBy: validGroupBy,
-          grandTotal: "$grandTotal",
-          groupedResults: "$groupedResults",
+          summary: "$summary",
+          ledgers: "$ledgers",
         },
       }
     );
@@ -2967,7 +2961,7 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
       data: {
         reportTitle: reportTitle,
         groupBy: validGroupBy,
-        grandTotal: {
+        summary: {
           totalTransactions: 0,
           totalEmptyVehicleWeight: 0,
           totalGrossWeight: 0,
@@ -2981,11 +2975,11 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
           averageNetWeight: 0,
           averageBirdsPerTransaction: 0,
         },
-        groupedResults: [],
+        ledgers: [],
         pagination: {
+          page: Math.floor(parsedOffset / parsedLimit) + 1,
           limit: parsedLimit,
-          offset: parsedOffset,
-          total: 0,
+          totalCount: 0,
           hasMore: false,
         },
       },
@@ -2993,6 +2987,12 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
   }
 
   const reportData = result[0];
+
+  // Add proper pagination values
+  if (reportData.pagination) {
+    reportData.pagination.page = Math.floor(parsedOffset / parsedLimit) + 1;
+    reportData.pagination.limit = parsedLimit;
+  }
 
   res.status(200).json({
     status: "success",
