@@ -5,10 +5,10 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { ArrowLeft, Building2, FileText } from "lucide-react";
+import { ArrowLeft, Building2 } from "lucide-react";
 import BuyerDetailsCard from "@/features/admin/buyers/components/BuyerDetailsCard";
 import { Button } from "@/components/ui/button";
-import BuyerReportDialog from "@/features/reports/buyers/components/BuyerReportDialog";
+// import BuyerReportDialog from "@/features/reports/buyers/components/BuyerReportDialog";
 
 const BuyerDetailsPage = () => {
   const router = useRouter();
@@ -54,15 +54,6 @@ const BuyerDetailsPage = () => {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Buyers
         </Button>
-
-        {buyer && (
-          <BuyerReportDialog buyerId={buyer._id} buyerName={buyer.name}>
-            <Button className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Generate Reports
-            </Button>
-          </BuyerReportDialog>
-        )}
       </div>
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">

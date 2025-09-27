@@ -4,6 +4,20 @@ import { LedgerModel } from "../models/ledger.js";
 import { AppError } from "../utils/AppError.js";
 import { parseDateToISO } from "../utils/dateUtils.js";
 import mongoose from "mongoose";
+import {
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+  subDays,
+  format,
+  parseISO,
+  isValid,
+} from "date-fns";
 
 // ==================== BUYER REPORTS ====================
 
@@ -1762,5 +1776,1227 @@ export const getShedOverallReport = asyncHandler(async (req, res) => {
       summary: reportData.summary,
       transactions: reportData.transactions,
     },
+  });
+});
+
+// ==================== UNIFIED BUYER REPORTS ====================
+
+/**
+ * Get comprehensive buyer report with flexible time duration and filtering
+ * Query Parameters:
+ * - buyerId: Specific buyer ID (required)
+ * - duration: 'daily', 'weekly', 'monthly', 'yearly', 'custom' (default: 'daily')
+ * - date: Specific date for daily reports (YYYY-MM-DD format)
+ * - startDate: Start date for custom range (YYYY-MM-DD format)
+ * - endDate: End date for custom range (YYYY-MM-DD format)
+ * - period: Number of periods to go back (e.g., 7 for last 7 days)
+ * - farmId: Filter by specific farm
+ * - flockId: Filter by specific flock
+ * - shedId: Filter by specific shed
+ * - paymentStatus: 'paid', 'partial', 'unpaid'
+ * - minAmount: Minimum total amount
+ * - maxAmount: Maximum total amount
+ * - minNetWeight: Minimum net weight
+ * - maxNetWeight: Maximum net weight
+ * - sortBy: Field to sort by (date, totalAmount, netWeight, etc.)
+ * - sortOrder: 'asc' or 'desc' (default: 'desc')
+ * - limit: Number of transactions to return (default: 100, max: 1000)
+ * - offset: Number of transactions to skip for pagination
+ */
+export const getBuyerUnifiedReport = asyncHandler(async (req, res) => {
+  const {
+    buyerId,
+    duration = "daily",
+    date,
+    startDate,
+    endDate,
+    period,
+    farmId,
+    flockId,
+    shedId,
+    paymentStatus,
+    minAmount,
+    maxAmount,
+    minNetWeight,
+    maxNetWeight,
+    sortBy = "date",
+    sortOrder = "desc",
+    limit = 100,
+    offset = 0,
+  } = req.query;
+
+  // Validate required parameters
+  if (!buyerId) {
+    throw new AppError("Buyer ID is required", 400, "MISSING_BUYER_ID", true);
+  }
+
+  // Validate ObjectId format
+  if (!mongoose.Types.ObjectId.isValid(buyerId)) {
+    throw new AppError(
+      "Invalid buyer ID format",
+      400,
+      "INVALID_BUYER_ID",
+      true
+    );
+  }
+
+  // Validate limit
+  const parsedLimit = Math.min(parseInt(limit) || 100, 1000);
+  const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+
+  // Build date range based on duration
+  let dateRange = {};
+  let reportTitle = "";
+
+  try {
+    switch (duration) {
+      case "daily":
+        if (!date) {
+          throw new AppError(
+            "Date is required for daily reports",
+            400,
+            "MISSING_DATE",
+            true
+          );
+        }
+        const parsedDate = parseDateToISO(date);
+        dateRange = {
+          $gte: new Date(parsedDate.startOfDay),
+          $lte: new Date(parsedDate.endOfDay),
+        };
+        reportTitle = `Daily Report for ${parsedDate.date}`;
+        break;
+
+      case "weekly":
+        const weekDate = date ? parseISO(date) : new Date();
+        if (!isValid(weekDate)) {
+          throw new AppError("Invalid date format", 400, "INVALID_DATE", true);
+        }
+        const weekStart = startOfWeek(weekDate);
+        const weekEnd = endOfWeek(weekDate);
+        dateRange = {
+          $gte: weekStart,
+          $lte: weekEnd,
+        };
+        reportTitle = `Weekly Report (${format(weekStart, "MMM dd")} - ${format(
+          weekEnd,
+          "MMM dd, yyyy"
+        )})`;
+        break;
+
+      case "monthly":
+        const monthDate = date ? parseISO(date) : new Date();
+        if (!isValid(monthDate)) {
+          throw new AppError("Invalid date format", 400, "INVALID_DATE", true);
+        }
+        const monthStart = startOfMonth(monthDate);
+        const monthEnd = endOfMonth(monthDate);
+        dateRange = {
+          $gte: monthStart,
+          $lte: monthEnd,
+        };
+        reportTitle = `Monthly Report for ${format(monthDate, "MMMM yyyy")}`;
+        break;
+
+      case "yearly":
+        const yearDate = date ? parseISO(date) : new Date();
+        if (!isValid(yearDate)) {
+          throw new AppError("Invalid date format", 400, "INVALID_DATE", true);
+        }
+        const yearStart = startOfYear(yearDate);
+        const yearEnd = endOfYear(yearDate);
+        dateRange = {
+          $gte: yearStart,
+          $lte: yearEnd,
+        };
+        reportTitle = `Yearly Report for ${format(yearDate, "yyyy")}`;
+        break;
+
+      case "custom":
+        if (!startDate || !endDate) {
+          throw new AppError(
+            "Start date and end date are required for custom range",
+            400,
+            "MISSING_DATE_RANGE",
+            true
+          );
+        }
+        const start = parseDateToISO(startDate);
+        const end = parseDateToISO(endDate);
+        dateRange = {
+          $gte: new Date(start.startOfDay),
+          $lte: new Date(end.endOfDay),
+        };
+        reportTitle = `Custom Report (${start.date} - ${end.date})`;
+        break;
+
+      case "period":
+        if (!period || isNaN(parseInt(period))) {
+          throw new AppError(
+            "Valid period number is required",
+            400,
+            "INVALID_PERIOD",
+            true
+          );
+        }
+        const periodNum = parseInt(period);
+        const periodEnd = new Date();
+        const periodStart = subDays(periodEnd, periodNum - 1);
+        dateRange = {
+          $gte: startOfDay(periodStart),
+          $lte: endOfDay(periodEnd),
+        };
+        reportTitle = `Last ${periodNum} Days Report`;
+        break;
+
+      default:
+        throw new AppError(
+          "Invalid duration. Supported: daily, weekly, monthly, yearly, custom, period",
+          400,
+          "INVALID_DURATION",
+          true
+        );
+    }
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(
+      `Date parsing error: ${error.message}`,
+      400,
+      "DATE_PARSING_ERROR",
+      true
+    );
+  }
+
+  // Build match conditions
+  const matchConditions = [
+    { buyerId: new mongoose.Types.ObjectId(buyerId) },
+    { date: dateRange },
+  ];
+
+  // Add entity filters
+  if (farmId && mongoose.Types.ObjectId.isValid(farmId)) {
+    matchConditions.push({ farmId: new mongoose.Types.ObjectId(farmId) });
+  }
+  if (flockId && mongoose.Types.ObjectId.isValid(flockId)) {
+    matchConditions.push({ flockId: new mongoose.Types.ObjectId(flockId) });
+  }
+  if (shedId && mongoose.Types.ObjectId.isValid(shedId)) {
+    matchConditions.push({ shedId: new mongoose.Types.ObjectId(shedId) });
+  }
+
+  // Add payment status filter
+  if (paymentStatus) {
+    switch (paymentStatus) {
+      case "paid":
+        matchConditions.push({
+          $expr: { $eq: ["$amountPaid", "$totalAmount"] },
+        });
+        break;
+      case "partial":
+        matchConditions.push({
+          $expr: {
+            $and: [
+              { $gt: ["$amountPaid", 0] },
+              { $lt: ["$amountPaid", "$totalAmount"] },
+            ],
+          },
+        });
+        break;
+      case "unpaid":
+        matchConditions.push({ $expr: { $eq: ["$amountPaid", 0] } });
+        break;
+    }
+  }
+
+  // Add amount range filters
+  if (minAmount || maxAmount) {
+    const amountRange = {};
+    if (minAmount) amountRange.$gte = parseFloat(minAmount);
+    if (maxAmount) amountRange.$lte = parseFloat(maxAmount);
+    matchConditions.push({ totalAmount: amountRange });
+  }
+
+  // Add net weight range filters
+  if (minNetWeight || maxNetWeight) {
+    const weightRange = {};
+    if (minNetWeight) weightRange.$gte = parseFloat(minNetWeight);
+    if (maxNetWeight) weightRange.$lte = parseFloat(maxNetWeight);
+    matchConditions.push({ netWeight: weightRange });
+  }
+
+  // Validate sort parameters
+  const allowedSortFields = [
+    "date",
+    "totalAmount",
+    "amountPaid",
+    "netWeight",
+    "numberOfBirds",
+    "rate",
+    "vehicleNumber",
+    "driverName",
+    "createdAt",
+    "updatedAt",
+  ];
+  const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : "date";
+  const sortDirection = sortOrder === "asc" ? 1 : -1;
+
+  // Build aggregation pipeline
+  const pipeline = [
+    // Match conditions
+    {
+      $match: {
+        $and: matchConditions,
+      },
+    },
+    // Lookup related entities
+    {
+      $lookup: {
+        from: "buyers",
+        localField: "buyerId",
+        foreignField: "_id",
+        as: "buyer",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              contactNumber: 1,
+              address: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "farms",
+        localField: "farmId",
+        foreignField: "_id",
+        as: "farm",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              supervisor: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "flocks",
+        localField: "flockId",
+        foreignField: "_id",
+        as: "flock",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              status: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "sheds",
+        localField: "shedId",
+        foreignField: "_id",
+        as: "shed",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              capacity: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Add calculated fields
+    {
+      $addFields: {
+        balance: { $subtract: ["$totalAmount", "$amountPaid"] },
+        buyerInfo: { $arrayElemAt: ["$buyer", 0] },
+        farmInfo: { $arrayElemAt: ["$farm", 0] },
+        flockInfo: { $arrayElemAt: ["$flock", 0] },
+        shedInfo: { $arrayElemAt: ["$shed", 0] },
+      },
+    },
+    // Group to calculate summary statistics
+    {
+      $group: {
+        _id: null,
+        buyer: { $first: "$buyerInfo" },
+        transactions: { $push: "$$ROOT" },
+        totalTransactions: { $sum: 1 },
+        totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
+        totalGrossWeight: { $sum: "$grossWeight" },
+        totalNetWeight: { $sum: "$netWeight" },
+        totalBirds: { $sum: "$numberOfBirds" },
+        totalRate: { $sum: "$rate" },
+        totalAmount: { $sum: "$totalAmount" },
+        totalPaid: { $sum: "$amountPaid" },
+        totalBalance: { $sum: "$balance" },
+        averageRate: { $avg: "$rate" },
+        averageNetWeight: { $avg: "$netWeight" },
+        averageBirdsPerTransaction: { $avg: "$numberOfBirds" },
+        earliestDate: { $min: "$date" },
+        latestDate: { $max: "$date" },
+      },
+    },
+    // Project final structure
+    {
+      $project: {
+        _id: 0,
+        buyer: 1,
+        reportTitle: reportTitle,
+        dateRange: {
+          from: {
+            $dateToString: { format: "%Y-%m-%d", date: "$earliestDate" },
+          },
+          to: { $dateToString: { format: "%Y-%m-%d", date: "$latestDate" } },
+        },
+        summary: {
+          totalTransactions: "$totalTransactions",
+          totalEmptyVehicleWeight: { $round: ["$totalEmptyVehicleWeight", 2] },
+          totalGrossWeight: { $round: ["$totalGrossWeight", 2] },
+          totalNetWeight: { $round: ["$totalNetWeight", 2] },
+          totalBirds: "$totalBirds",
+          totalRate: { $round: ["$totalRate", 2] },
+          totalAmount: { $round: ["$totalAmount", 2] },
+          totalPaid: { $round: ["$totalPaid", 2] },
+          totalBalance: { $round: ["$totalBalance", 2] },
+          averageRate: { $round: ["$averageRate", 2] },
+          averageNetWeight: { $round: ["$averageNetWeight", 2] },
+          averageBirdsPerTransaction: {
+            $round: ["$averageBirdsPerTransaction", 2],
+          },
+        },
+        transactions: {
+          $slice: [
+            {
+              $map: {
+                input: {
+                  $sortArray: {
+                    input: "$transactions",
+                    sortBy: { [validSortBy]: sortDirection },
+                  },
+                },
+                as: "transaction",
+                in: {
+                  _id: "$$transaction._id",
+                  date: "$$transaction.date",
+                  vehicleNumber: "$$transaction.vehicleNumber",
+                  driverName: "$$transaction.driverName",
+                  driverContact: "$$transaction.driverContact",
+                  accountantName: "$$transaction.accountantName",
+                  emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
+                  grossWeight: "$$transaction.grossWeight",
+                  netWeight: "$$transaction.netWeight",
+                  numberOfBirds: "$$transaction.numberOfBirds",
+                  rate: "$$transaction.rate",
+                  totalAmount: "$$transaction.totalAmount",
+                  amountPaid: "$$transaction.amountPaid",
+                  balance: "$$transaction.balance",
+                  farmInfo: "$$transaction.farmInfo",
+                  flockInfo: "$$transaction.flockInfo",
+                  shedInfo: "$$transaction.shedInfo",
+                  createdAt: "$$transaction.createdAt",
+                  updatedAt: "$$transaction.updatedAt",
+                },
+              },
+            },
+            parsedOffset,
+            parsedLimit,
+          ],
+        },
+        pagination: {
+          limit: parsedLimit,
+          offset: parsedOffset,
+          total: "$totalTransactions",
+          hasMore: {
+            $gt: ["$totalTransactions", { $add: [parsedOffset, parsedLimit] }],
+          },
+        },
+      },
+    },
+  ];
+
+  // Execute aggregation
+  const result = await LedgerModel.aggregate(pipeline);
+
+  // Handle case when no transactions found
+  if (result.length === 0) {
+    const buyer = await BuyerModel.findById(buyerId).select(
+      "name contactNumber address"
+    );
+    return res.status(200).json({
+      status: "success",
+      message: "Buyer unified report fetched successfully",
+      data: {
+        buyer: buyer ? buyer.toObject() : null,
+        reportTitle: reportTitle,
+        dateRange: null,
+        summary: {
+          totalTransactions: 0,
+          totalEmptyVehicleWeight: 0,
+          totalGrossWeight: 0,
+          totalNetWeight: 0,
+          totalBirds: 0,
+          totalRate: 0,
+          totalAmount: 0,
+          totalPaid: 0,
+          totalBalance: 0,
+          averageRate: 0,
+          averageNetWeight: 0,
+          averageBirdsPerTransaction: 0,
+        },
+        transactions: [],
+        pagination: {
+          limit: parsedLimit,
+          offset: parsedOffset,
+          total: 0,
+          hasMore: false,
+        },
+      },
+    });
+  }
+
+  const reportData = result[0];
+
+  res.status(200).json({
+    status: "success",
+    message: "Buyer unified report fetched successfully",
+    data: reportData,
+  });
+});
+
+// ==================== UNIVERSAL REPORTS ====================
+
+/**
+ * Universal Reports API - The most powerful and flexible reporting endpoint
+ *
+ * This endpoint can generate reports for any combination of:
+ * - Entity levels: buyers, farms, flocks, sheds (or any combination)
+ * - Time durations: daily, weekly, monthly, yearly, custom ranges, periods
+ * - Custom filters: any combination of entities, payment status, amounts, weights, etc.
+ *
+ * Query Parameters:
+ *
+ * TIME DURATION:
+ * - duration: 'daily', 'weekly', 'monthly', 'yearly', 'custom', 'period'
+ * - date: Specific date for daily/weekly/monthly/yearly reports
+ * - startDate: Start date for custom range
+ * - endDate: End date for custom range
+ * - period: Number of days to go back (for period duration)
+ *
+ * ENTITY FILTERS (can use any combination):
+ * - buyerIds: Comma-separated list of buyer IDs
+ * - farmIds: Comma-separated list of farm IDs
+ * - flockIds: Comma-separated list of flock IDs
+ * - shedIds: Comma-separated list of shed IDs
+ *
+ * ADVANCED FILTERS:
+ * - paymentStatus: 'paid', 'partial', 'unpaid'
+ * - minAmount, maxAmount: Amount range filters
+ * - minNetWeight, maxNetWeight: Weight range filters
+ * - minBirds, maxBirds: Bird count range filters
+ * - minRate, maxRate: Rate range filters
+ * - vehicleNumbers: Comma-separated list of vehicle numbers
+ * - driverNames: Comma-separated list of driver names
+ * - accountantNames: Comma-separated list of accountant names
+ *
+ * SORTING & PAGINATION:
+ * - sortBy: Field to sort by
+ * - sortOrder: 'asc' or 'desc'
+ * - limit: Number of transactions to return (max: 1000)
+ * - offset: Number of transactions to skip
+ *
+ * GROUPING & AGGREGATION:
+ * - groupBy: 'buyer', 'farm', 'flock', 'shed', 'date', 'none'
+ * - includeDetails: true/false (include individual transactions)
+ *
+ * Examples:
+ * - All transactions for specific buyers: ?buyerIds=id1,id2&duration=monthly
+ * - All transactions for specific sheds across different farms: ?shedIds=id1,id2,id3&duration=custom&startDate=2024-01-01&endDate=2024-01-31
+ * - All transactions for specific flocks with payment filters: ?flockIds=id1,id2&paymentStatus=unpaid&minAmount=1000
+ * - Farm-level report with custom date range: ?farmIds=id1&duration=custom&startDate=2024-01-01&endDate=2024-01-31&groupBy=farm
+ */
+export const getUniversalReport = asyncHandler(async (req, res) => {
+  const {
+    // Time duration parameters
+    duration = "daily",
+    date,
+    startDate,
+    endDate,
+    period,
+
+    // Entity filters (comma-separated lists)
+    buyerIds,
+    farmIds,
+    flockIds,
+    shedIds,
+
+    // Advanced filters
+    paymentStatus,
+    minAmount,
+    maxAmount,
+    minNetWeight,
+    maxNetWeight,
+    minBirds,
+    maxBirds,
+    minRate,
+    maxRate,
+    vehicleNumbers,
+    driverNames,
+    accountantNames,
+
+    // Sorting and pagination
+    sortBy = "date",
+    sortOrder = "desc",
+    limit = 100,
+    offset = 0,
+
+    // Grouping and aggregation
+    groupBy = "none",
+    includeDetails = true,
+  } = req.query;
+
+  // Validate limit
+  const parsedLimit = Math.min(parseInt(limit) || 100, 1000);
+  const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+
+  // Build date range based on duration
+  let dateRange = {};
+  let reportTitle = "";
+
+  try {
+    switch (duration) {
+      case "daily":
+        if (!date) {
+          throw new AppError(
+            "Date is required for daily reports",
+            400,
+            "MISSING_DATE",
+            true
+          );
+        }
+        const parsedDate = parseDateToISO(date);
+        dateRange = {
+          $gte: new Date(parsedDate.startOfDay),
+          $lte: new Date(parsedDate.endOfDay),
+        };
+        reportTitle = `Daily Report for ${parsedDate.date}`;
+        break;
+
+      case "weekly":
+        const weekDate = date ? parseISO(date) : new Date();
+        if (!isValid(weekDate)) {
+          throw new AppError("Invalid date format", 400, "INVALID_DATE", true);
+        }
+        const weekStart = startOfWeek(weekDate);
+        const weekEnd = endOfWeek(weekDate);
+        dateRange = {
+          $gte: weekStart,
+          $lte: weekEnd,
+        };
+        reportTitle = `Weekly Report (${format(weekStart, "MMM dd")} - ${format(
+          weekEnd,
+          "MMM dd, yyyy"
+        )})`;
+        break;
+
+      case "monthly":
+        const monthDate = date ? parseISO(date) : new Date();
+        if (!isValid(monthDate)) {
+          throw new AppError("Invalid date format", 400, "INVALID_DATE", true);
+        }
+        const monthStart = startOfMonth(monthDate);
+        const monthEnd = endOfMonth(monthDate);
+        dateRange = {
+          $gte: monthStart,
+          $lte: monthEnd,
+        };
+        reportTitle = `Monthly Report for ${format(monthDate, "MMMM yyyy")}`;
+        break;
+
+      case "yearly":
+        const yearDate = date ? parseISO(date) : new Date();
+        if (!isValid(yearDate)) {
+          throw new AppError("Invalid date format", 400, "INVALID_DATE", true);
+        }
+        const yearStart = startOfYear(yearDate);
+        const yearEnd = endOfYear(yearDate);
+        dateRange = {
+          $gte: yearStart,
+          $lte: yearEnd,
+        };
+        reportTitle = `Yearly Report for ${format(yearDate, "yyyy")}`;
+        break;
+
+      case "custom":
+        if (!startDate || !endDate) {
+          throw new AppError(
+            "Start date and end date are required for custom range",
+            400,
+            "MISSING_DATE_RANGE",
+            true
+          );
+        }
+        const start = parseDateToISO(startDate);
+        const end = parseDateToISO(endDate);
+        dateRange = {
+          $gte: new Date(start.startOfDay),
+          $lte: new Date(end.endOfDay),
+        };
+        reportTitle = `Custom Report (${start.date} - ${end.date})`;
+        break;
+
+      case "period":
+        if (!period || isNaN(parseInt(period))) {
+          throw new AppError(
+            "Valid period number is required",
+            400,
+            "INVALID_PERIOD",
+            true
+          );
+        }
+        const periodNum = parseInt(period);
+        const periodEnd = new Date();
+        const periodStart = subDays(periodEnd, periodNum - 1);
+        dateRange = {
+          $gte: startOfDay(periodStart),
+          $lte: endOfDay(periodEnd),
+        };
+        reportTitle = `Last ${periodNum} Days Report`;
+        break;
+
+      default:
+        throw new AppError(
+          "Invalid duration. Supported: daily, weekly, monthly, yearly, custom, period",
+          400,
+          "INVALID_DURATION",
+          true
+        );
+    }
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(
+      `Date parsing error: ${error.message}`,
+      400,
+      "DATE_PARSING_ERROR",
+      true
+    );
+  }
+
+  // Build match conditions
+  const matchConditions = [{ date: dateRange }];
+
+  // Helper function to parse comma-separated IDs
+  const parseIdList = (idString) => {
+    if (!idString) return [];
+    return idString
+      .split(",")
+      .map((id) => id.trim())
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+  };
+
+  // Helper function to parse comma-separated strings
+  const parseStringList = (stringValue) => {
+    if (!stringValue) return [];
+    return stringValue
+      .split(",")
+      .map((str) => str.trim())
+      .filter((str) => str.length > 0);
+  };
+
+  // Add entity filters
+  const buyerIdList = parseIdList(buyerIds);
+  const farmIdList = parseIdList(farmIds);
+  const flockIdList = parseIdList(flockIds);
+  const shedIdList = parseIdList(shedIds);
+
+  if (buyerIdList.length > 0) {
+    matchConditions.push({ buyerId: { $in: buyerIdList } });
+  }
+  if (farmIdList.length > 0) {
+    matchConditions.push({ farmId: { $in: farmIdList } });
+  }
+  if (flockIdList.length > 0) {
+    matchConditions.push({ flockId: { $in: flockIdList } });
+  }
+  if (shedIdList.length > 0) {
+    matchConditions.push({ shedId: { $in: shedIdList } });
+  }
+
+  // Add payment status filter
+  if (paymentStatus) {
+    switch (paymentStatus) {
+      case "paid":
+        matchConditions.push({
+          $expr: { $eq: ["$amountPaid", "$totalAmount"] },
+        });
+        break;
+      case "partial":
+        matchConditions.push({
+          $expr: {
+            $and: [
+              { $gt: ["$amountPaid", 0] },
+              { $lt: ["$amountPaid", "$totalAmount"] },
+            ],
+          },
+        });
+        break;
+      case "unpaid":
+        matchConditions.push({ $expr: { $eq: ["$amountPaid", 0] } });
+        break;
+    }
+  }
+
+  // Add amount range filters
+  if (minAmount || maxAmount) {
+    const amountRange = {};
+    if (minAmount) amountRange.$gte = parseFloat(minAmount);
+    if (maxAmount) amountRange.$lte = parseFloat(maxAmount);
+    matchConditions.push({ totalAmount: amountRange });
+  }
+
+  // Add net weight range filters
+  if (minNetWeight || maxNetWeight) {
+    const weightRange = {};
+    if (minNetWeight) weightRange.$gte = parseFloat(minNetWeight);
+    if (maxNetWeight) weightRange.$lte = parseFloat(maxNetWeight);
+    matchConditions.push({ netWeight: weightRange });
+  }
+
+  // Add bird count range filters
+  if (minBirds || maxBirds) {
+    const birdRange = {};
+    if (minBirds) birdRange.$gte = parseInt(minBirds);
+    if (maxBirds) birdRange.$lte = parseInt(maxBirds);
+    matchConditions.push({ numberOfBirds: birdRange });
+  }
+
+  // Add rate range filters
+  if (minRate || maxRate) {
+    const rateRange = {};
+    if (minRate) rateRange.$gte = parseFloat(minRate);
+    if (maxRate) rateRange.$lte = parseFloat(maxRate);
+    matchConditions.push({ rate: rateRange });
+  }
+
+  // Add vehicle number filters
+  const vehicleNumberList = parseStringList(vehicleNumbers);
+  if (vehicleNumberList.length > 0) {
+    matchConditions.push({ vehicleNumber: { $in: vehicleNumberList } });
+  }
+
+  // Add driver name filters
+  const driverNameList = parseStringList(driverNames);
+  if (driverNameList.length > 0) {
+    matchConditions.push({ driverName: { $in: driverNameList } });
+  }
+
+  // Add accountant name filters
+  const accountantNameList = parseStringList(accountantNames);
+  if (accountantNameList.length > 0) {
+    matchConditions.push({ accountantName: { $in: accountantNameList } });
+  }
+
+  // Validate sort parameters
+  const allowedSortFields = [
+    "date",
+    "totalAmount",
+    "amountPaid",
+    "netWeight",
+    "numberOfBirds",
+    "rate",
+    "vehicleNumber",
+    "driverName",
+    "createdAt",
+    "updatedAt",
+  ];
+  const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : "date";
+  const sortDirection = sortOrder === "asc" ? 1 : -1;
+
+  // Validate groupBy parameter
+  const allowedGroupBy = ["buyer", "farm", "flock", "shed", "date", "none"];
+  const validGroupBy = allowedGroupBy.includes(groupBy) ? groupBy : "none";
+
+  // Build aggregation pipeline
+  const pipeline = [
+    // Match conditions
+    {
+      $match: {
+        $and: matchConditions,
+      },
+    },
+    // Lookup related entities
+    {
+      $lookup: {
+        from: "buyers",
+        localField: "buyerId",
+        foreignField: "_id",
+        as: "buyer",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              contactNumber: 1,
+              address: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "farms",
+        localField: "farmId",
+        foreignField: "_id",
+        as: "farm",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              supervisor: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "flocks",
+        localField: "flockId",
+        foreignField: "_id",
+        as: "flock",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              status: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "sheds",
+        localField: "shedId",
+        foreignField: "_id",
+        as: "shed",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              capacity: 1,
+            },
+          },
+        ],
+      },
+    },
+    // Add calculated fields
+    {
+      $addFields: {
+        balance: { $subtract: ["$totalAmount", "$amountPaid"] },
+        buyerInfo: { $arrayElemAt: ["$buyer", 0] },
+        farmInfo: { $arrayElemAt: ["$farm", 0] },
+        flockInfo: { $arrayElemAt: ["$flock", 0] },
+        shedInfo: { $arrayElemAt: ["$shed", 0] },
+      },
+    },
+  ];
+
+  // Add grouping based on groupBy parameter
+  if (validGroupBy === "none") {
+    // No grouping - single summary
+    pipeline.push(
+      {
+        $group: {
+          _id: null,
+          transactions: { $push: "$$ROOT" },
+          totalTransactions: { $sum: 1 },
+          totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
+          totalGrossWeight: { $sum: "$grossWeight" },
+          totalNetWeight: { $sum: "$netWeight" },
+          totalBirds: { $sum: "$numberOfBirds" },
+          totalRate: { $sum: "$rate" },
+          totalAmount: { $sum: "$totalAmount" },
+          totalPaid: { $sum: "$amountPaid" },
+          totalBalance: { $sum: "$balance" },
+          averageRate: { $avg: "$rate" },
+          averageNetWeight: { $avg: "$netWeight" },
+          averageBirdsPerTransaction: { $avg: "$numberOfBirds" },
+          earliestDate: { $min: "$date" },
+          latestDate: { $max: "$date" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          reportTitle: reportTitle,
+          dateRange: {
+            from: {
+              $dateToString: { format: "%Y-%m-%d", date: "$earliestDate" },
+            },
+            to: { $dateToString: { format: "%Y-%m-%d", date: "$latestDate" } },
+          },
+          summary: {
+            totalTransactions: "$totalTransactions",
+            totalEmptyVehicleWeight: {
+              $round: ["$totalEmptyVehicleWeight", 2],
+            },
+            totalGrossWeight: { $round: ["$totalGrossWeight", 2] },
+            totalNetWeight: { $round: ["$totalNetWeight", 2] },
+            totalBirds: "$totalBirds",
+            totalRate: { $round: ["$totalRate", 2] },
+            totalAmount: { $round: ["$totalAmount", 2] },
+            totalPaid: { $round: ["$totalPaid", 2] },
+            totalBalance: { $round: ["$totalBalance", 2] },
+            averageRate: { $round: ["$averageRate", 2] },
+            averageNetWeight: { $round: ["$averageNetWeight", 2] },
+            averageBirdsPerTransaction: {
+              $round: ["$averageBirdsPerTransaction", 2],
+            },
+          },
+          transactions: includeDetails
+            ? {
+                $slice: [
+                  {
+                    $map: {
+                      input: {
+                        $sortArray: {
+                          input: "$transactions",
+                          sortBy: { [validSortBy]: sortDirection },
+                        },
+                      },
+                      as: "transaction",
+                      in: {
+                        _id: "$$transaction._id",
+                        date: "$$transaction.date",
+                        vehicleNumber: "$$transaction.vehicleNumber",
+                        driverName: "$$transaction.driverName",
+                        driverContact: "$$transaction.driverContact",
+                        accountantName: "$$transaction.accountantName",
+                        emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
+                        grossWeight: "$$transaction.grossWeight",
+                        netWeight: "$$transaction.netWeight",
+                        numberOfBirds: "$$transaction.numberOfBirds",
+                        rate: "$$transaction.rate",
+                        totalAmount: "$$transaction.totalAmount",
+                        amountPaid: "$$transaction.amountPaid",
+                        balance: "$$transaction.balance",
+                        buyerInfo: "$$transaction.buyerInfo",
+                        farmInfo: "$$transaction.farmInfo",
+                        flockInfo: "$$transaction.flockInfo",
+                        shedInfo: "$$transaction.shedInfo",
+                        createdAt: "$$transaction.createdAt",
+                        updatedAt: "$$transaction.updatedAt",
+                      },
+                    },
+                  },
+                  parsedOffset,
+                  parsedLimit,
+                ],
+              }
+            : [],
+          pagination: {
+            limit: parsedLimit,
+            offset: parsedOffset,
+            total: "$totalTransactions",
+            hasMore: {
+              $gt: [
+                "$totalTransactions",
+                { $add: [parsedOffset, parsedLimit] },
+              ],
+            },
+          },
+        },
+      }
+    );
+  } else {
+    // Group by specified field
+    const groupField = `${validGroupBy}Id`;
+    const groupInfo = `${validGroupBy}Info`;
+
+    pipeline.push(
+      {
+        $group: {
+          _id: `$${groupField}`,
+          groupInfo: { $first: `$${groupInfo}` },
+          transactions: { $push: "$$ROOT" },
+          totalTransactions: { $sum: 1 },
+          totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
+          totalGrossWeight: { $sum: "$grossWeight" },
+          totalNetWeight: { $sum: "$netWeight" },
+          totalBirds: { $sum: "$numberOfBirds" },
+          totalRate: { $sum: "$rate" },
+          totalAmount: { $sum: "$totalAmount" },
+          totalPaid: { $sum: "$amountPaid" },
+          totalBalance: { $sum: "$balance" },
+          averageRate: { $avg: "$rate" },
+          averageNetWeight: { $avg: "$netWeight" },
+          averageBirdsPerTransaction: { $avg: "$numberOfBirds" },
+          earliestDate: { $min: "$date" },
+          latestDate: { $max: "$date" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          groupId: "$_id",
+          groupInfo: "$groupInfo",
+          summary: {
+            totalTransactions: "$totalTransactions",
+            totalEmptyVehicleWeight: {
+              $round: ["$totalEmptyVehicleWeight", 2],
+            },
+            totalGrossWeight: { $round: ["$totalGrossWeight", 2] },
+            totalNetWeight: { $round: ["$totalNetWeight", 2] },
+            totalBirds: "$totalBirds",
+            totalRate: { $round: ["$totalRate", 2] },
+            totalAmount: { $round: ["$totalAmount", 2] },
+            totalPaid: { $round: ["$totalPaid", 2] },
+            totalBalance: { $round: ["$totalBalance", 2] },
+            averageRate: { $round: ["$averageRate", 2] },
+            averageNetWeight: { $round: ["$averageNetWeight", 2] },
+            averageBirdsPerTransaction: {
+              $round: ["$averageBirdsPerTransaction", 2],
+            },
+            dateRange: {
+              from: {
+                $dateToString: { format: "%Y-%m-%d", date: "$earliestDate" },
+              },
+              to: {
+                $dateToString: { format: "%Y-%m-%d", date: "$latestDate" },
+              },
+            },
+          },
+          transactions: includeDetails
+            ? {
+                $slice: [
+                  {
+                    $map: {
+                      input: {
+                        $sortArray: {
+                          input: "$transactions",
+                          sortBy: { [validSortBy]: sortDirection },
+                        },
+                      },
+                      as: "transaction",
+                      in: {
+                        _id: "$$transaction._id",
+                        date: "$$transaction.date",
+                        vehicleNumber: "$$transaction.vehicleNumber",
+                        driverName: "$$transaction.driverName",
+                        driverContact: "$$transaction.driverContact",
+                        accountantName: "$$transaction.accountantName",
+                        emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
+                        grossWeight: "$$transaction.grossWeight",
+                        netWeight: "$$transaction.netWeight",
+                        numberOfBirds: "$$transaction.numberOfBirds",
+                        rate: "$$transaction.rate",
+                        totalAmount: "$$transaction.totalAmount",
+                        amountPaid: "$$transaction.amountPaid",
+                        balance: "$$transaction.balance",
+                        buyerInfo: "$$transaction.buyerInfo",
+                        farmInfo: "$$transaction.farmInfo",
+                        flockInfo: "$$transaction.flockInfo",
+                        shedInfo: "$$transaction.shedInfo",
+                        createdAt: "$$transaction.createdAt",
+                        updatedAt: "$$transaction.updatedAt",
+                      },
+                    },
+                  },
+                  parsedOffset,
+                  parsedLimit,
+                ],
+              }
+            : [],
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          reportTitle: { $first: reportTitle },
+          groupedResults: { $push: "$$ROOT" },
+          grandTotal: {
+            $sum: {
+              totalTransactions: "$summary.totalTransactions",
+              totalEmptyVehicleWeight: "$summary.totalEmptyVehicleWeight",
+              totalGrossWeight: "$summary.totalGrossWeight",
+              totalNetWeight: "$summary.totalNetWeight",
+              totalBirds: "$summary.totalBirds",
+              totalRate: "$summary.totalRate",
+              totalAmount: "$summary.totalAmount",
+              totalPaid: "$summary.totalPaid",
+              totalBalance: "$summary.totalBalance",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          reportTitle: "$reportTitle",
+          groupBy: validGroupBy,
+          grandTotal: "$grandTotal",
+          groupedResults: "$groupedResults",
+        },
+      }
+    );
+  }
+
+  // Execute aggregation
+  const result = await LedgerModel.aggregate(pipeline);
+
+  // Handle case when no transactions found
+  if (result.length === 0) {
+    return res.status(200).json({
+      status: "success",
+      message: "Universal report fetched successfully",
+      data: {
+        reportTitle: reportTitle,
+        groupBy: validGroupBy,
+        grandTotal: {
+          totalTransactions: 0,
+          totalEmptyVehicleWeight: 0,
+          totalGrossWeight: 0,
+          totalNetWeight: 0,
+          totalBirds: 0,
+          totalRate: 0,
+          totalAmount: 0,
+          totalPaid: 0,
+          totalBalance: 0,
+          averageRate: 0,
+          averageNetWeight: 0,
+          averageBirdsPerTransaction: 0,
+        },
+        groupedResults: [],
+        pagination: {
+          limit: parsedLimit,
+          offset: parsedOffset,
+          total: 0,
+          hasMore: false,
+        },
+      },
+    });
+  }
+
+  const reportData = result[0];
+
+  res.status(200).json({
+    status: "success",
+    message: "Universal report fetched successfully",
+    data: reportData,
   });
 });

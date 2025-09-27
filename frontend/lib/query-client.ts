@@ -37,4 +37,8 @@ export const queryKeys = {
   user: (userId: string) => ["user", userId] as const,
 
   entities: ["entities"] as const,
+
+  reports: ["reports"] as const,
+  universalReports: (query: { [key: string]: string }) =>
+    ["reports", "universal", query] as const,
 };

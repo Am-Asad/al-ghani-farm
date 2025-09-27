@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import FarmDetailsCard from "@/features/admin/farms/components/FarmDetailsCard";
 import { useGetFarmById } from "@/features/admin/farms/hooks/useGetFarmById";
-import FarmReportDialog from "@/features/reports/farms/components/FarmReportDialog";
+// import FarmReportDialog from "@/features/reports/farms/components/FarmReportDialog";
 
 const FarmDetailsPage = () => {
   const router = useRouter();
@@ -50,11 +50,6 @@ const FarmDetailsPage = () => {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Farms
         </Button>
-        {farm && (
-          <FarmReportDialog farmId={farm._id} farmName={farm.name}>
-            <Button>Generate Reports</Button>
-          </FarmReportDialog>
-        )}
       </div>
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">

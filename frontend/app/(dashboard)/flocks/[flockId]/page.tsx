@@ -7,8 +7,8 @@ import { ArrowLeft, Building2, FileText } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import { useGetFlockById } from "@/features/admin/flocks/hooks/useGetFlockById";
-import FlockReportDialog from "@/features/reports/flocks/components/FlockReportDialog";
 import FlockDetailsCard from "@/features/admin/flocks/components/FlockDetailsCard";
+// import FlockReportDialog from "@/features/reports/flocks/components/FlockReportDialog";
 
 const FlocksDetailsPage = () => {
   const router = useRouter();
@@ -55,14 +55,14 @@ const FlocksDetailsPage = () => {
           Back to Flocks
         </Button>
 
-        {flock && (
+        {/* {flock && (
           <FlockReportDialog flockId={flock._id} flockName={flock.name}>
             <Button className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Generate Reports
             </Button>
           </FlockReportDialog>
-        )}
+        )} */}
       </div>
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">

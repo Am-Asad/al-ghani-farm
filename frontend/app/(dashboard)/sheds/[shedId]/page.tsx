@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useGetShedById } from "@/features/admin/sheds/hooks/useGetShedById";
-import ShedReportDialog from "@/features/reports/sheds/components/ShedReportDialog";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
@@ -9,6 +8,7 @@ import { ArrowLeft, Building2, FileText } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import ShedDetailsCard from "@/features/admin/sheds/components/ShedDetailsCard";
+// import ShedReportDialog from "@/features/reports/sheds/components/ShedReportDialog";
 
 const ShedDetailsPage = () => {
   const router = useRouter();
@@ -50,14 +50,14 @@ const ShedDetailsPage = () => {
           Back to Sheds
         </Button>
 
-        {shed && (
+        {/* {shed && (
           <ShedReportDialog shedId={shed._id} shedName={shed.name}>
             <Button className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Generate Reports
             </Button>
           </ShedReportDialog>
-        )}
+        )} */}
       </div>
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">
