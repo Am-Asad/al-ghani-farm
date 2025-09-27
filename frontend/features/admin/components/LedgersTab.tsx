@@ -1,6 +1,5 @@
 "use client";
 import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedgers";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
@@ -10,6 +9,7 @@ import { useLedgerQueryParams } from "../ledgers/hooks/useLedgerQueryParams";
 import LedgerFilters from "../flocks/components/LedgerFilters";
 import Pagination from "@/features/shared/components/Pagination";
 import LedgersTable from "../ledgers/components/LedgersTable";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 const LedgersTab = () => {
   const { query, setPage, setLimit } = useLedgerQueryParams();
@@ -28,7 +28,7 @@ const LedgersTab = () => {
     hasMore: false,
   };
 
-  if (ledgersLoading) return <CardsSkeleton />;
+  if (ledgersLoading) return <TableSkeleton />;
   if (ledgersError) {
     return (
       <ErrorFetchingData
@@ -43,7 +43,7 @@ const LedgersTab = () => {
   return (
     <div className="space-y-6">
       {/* Ledgers header */}
-      <LedgerHeader totalLedgers={ledgers.length} showActions={true} />
+      <LedgerHeader showActions={true} />
       {/* Filters */}
       <LedgerFilters />
       {/* Ledgers grid */}

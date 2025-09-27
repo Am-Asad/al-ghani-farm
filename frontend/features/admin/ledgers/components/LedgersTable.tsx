@@ -11,6 +11,8 @@ import { useDeleteBulkLedgers } from "../hooks/useDeleteBulkLedgers";
 import CreateEditLedgerForm from "./CreateEditLedgerForm";
 import { formatAmount, formatCurrency } from "@/utils/format-amount";
 import { formatDate } from "@/utils/format-date";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type LedgersTableProps = {
   ledgers: LedgerType[];
@@ -158,6 +160,47 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
       width: "140px",
       cell: ({ row }) => {
         return `${formatCurrency(row.original.amountPaid)}`;
+      },
+    },
+    {
+      id: "balance",
+      header: "Balance",
+      visible: true,
+      width: "140px",
+      cell: ({ row }) => {
+        const balance = row.original.totalAmount - row.original.amountPaid;
+        const isOverdue = balance > 0;
+        return (
+          <span
+            className={
+              isOverdue ? "text-red-600 font-medium" : "text-green-600"
+            }
+          >
+            {formatCurrency(balance)}
+          </span>
+        );
+      },
+    },
+    {
+      id: "paymentStatus",
+      header: "Payment Status",
+      visible: true,
+      width: "140px",
+      cell: ({ row }) => {
+        const balance = row.original.totalAmount - row.original.amountPaid;
+        const isOverdue = balance > 0;
+        return (
+          <Badge
+            variant={isOverdue ? "destructive" : "default"}
+            className={cn(
+              isOverdue
+                ? "bg-red-100 text-red-800"
+                : "bg-green-100 text-green-800"
+            )}
+          >
+            {isOverdue ? "Overdue" : "Paid"}
+          </Badge>
+        );
       },
     },
     {

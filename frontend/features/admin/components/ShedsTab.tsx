@@ -2,7 +2,7 @@
 import React from "react";
 import { useGetAllSheds } from "../sheds/hooks/useGetAllSheds";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import { Building2 } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ShedsHeader from "../sheds/components/ShedHeader";
@@ -28,7 +28,7 @@ const ShedsTab = () => {
     hasMore: false,
   };
 
-  if (shedsLoading) return <CardsSkeleton />;
+  if (shedsLoading) return <TableSkeleton />;
   if (shedsError) {
     return (
       <ErrorFetchingData

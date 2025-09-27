@@ -10,26 +10,12 @@ import { useRouter } from "next/navigation";
 import FarmDetailsCard from "@/features/admin/farms/components/FarmDetailsCard";
 import { useGetFarmById } from "@/features/admin/farms/hooks/useGetFarmById";
 import FarmReportDialog from "@/features/reports/farms/components/FarmReportDialog";
-import { useGetAllLedgers } from "@/features/ledgers/hooks/useGetAllLedgers";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 
 const FarmDetailsPage = () => {
   const router = useRouter();
   const { farmId } = useParams();
-
   const { data, isLoading, isError, error } = useGetFarmById(farmId as string);
-
-  const {
-    data: ledgersData,
-    isLoading: isLedgersLoading,
-    isError: isLedgersError,
-    error: ledgersError,
-  } = useGetAllLedgers({
-    farmId: farmId as string,
-  });
-
   const farm = data?.data;
-  const ledgers = ledgersData?.data || [];
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -73,12 +59,6 @@ const FarmDetailsPage = () => {
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">
         <FarmDetailsCard farm={farm} />
-        <LedgersTable
-          ledgers={ledgers}
-          isLoading={isLedgersLoading}
-          isError={isLedgersError}
-          error={ledgersError?.message || "Failed to load ledgers"}
-        />
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 import React from "react";
 import { BuyerDailyReport as BuyerDailyReportType } from "@/types";
 import BuyerReportSummary from "./BuyerReportSummary";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, User, Phone, MapPin } from "lucide-react";
 import { formatDate } from "@/utils/format-date";
@@ -92,12 +91,12 @@ const BuyerDailyReport = ({
       <BuyerReportSummary summary={report.summary} title="Daily Summary" />
 
       {/* Transactions */}
-      <LedgersTable
+      {/* <LedgersTable
         ledgers={report.transactions}
         isLoading={false}
         isError={false}
         error=""
-      />
+      /> */}
     </div>
   );
 };

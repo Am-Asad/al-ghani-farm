@@ -1,7 +1,6 @@
 import React from "react";
 import { FlockOverallReport as FlockOverallReportType } from "@/types";
 import FlockReportSummary from "./FlockReportSummary";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Layers } from "lucide-react";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
@@ -65,12 +64,12 @@ const FlockOverallReport = ({ report, isLoading, isError, error }: Props) => {
         dateRange={report.summary.dateRange || undefined}
       />
 
-      <LedgersTable
+      {/* <LedgersTable
         ledgers={report.transactions}
         isLoading={false}
         isError={false}
         error=""
-      />
+      /> */}
     </div>
   );
 };

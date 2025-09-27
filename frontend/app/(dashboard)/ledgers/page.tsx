@@ -1,5 +1,4 @@
 "use client";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
@@ -10,6 +9,7 @@ import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedger
 import LedgerHeader from "@/features/admin/ledgers/components/LedgerHeader";
 import LedgerFilters from "@/features/admin/flocks/components/LedgerFilters";
 import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 const LedgersPage = () => {
   const { query, setPage, setLimit } = useLedgerQueryParams();
@@ -24,7 +24,7 @@ const LedgersPage = () => {
   };
 
   if (isLoading) {
-    return <CardsSkeleton />;
+    return <TableSkeleton />;
   }
 
   if (isError) {

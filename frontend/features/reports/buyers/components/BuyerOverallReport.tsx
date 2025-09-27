@@ -1,7 +1,6 @@
 import React from "react";
 import { BuyerOverallReport as BuyerOverallReportType } from "@/types";
 import BuyerReportSummary from "./BuyerReportSummary";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, User, Phone, MapPin } from "lucide-react";
 
@@ -87,12 +86,12 @@ const BuyerOverallReport = ({
       />
 
       {/* Transactions */}
-      <LedgersTable
+      {/* <LedgersTable
         ledgers={report.transactions}
         isLoading={false}
         isError={false}
         error=""
-      />
+      /> */}
     </div>
   );
 };

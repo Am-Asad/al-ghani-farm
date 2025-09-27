@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useGetShedById } from "@/features/admin/sheds/hooks/useGetShedById";
-import { useGetAllLedgers } from "@/features/ledgers/hooks/useGetAllLedgers";
 import ShedReportDialog from "@/features/reports/sheds/components/ShedReportDialog";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
@@ -10,24 +9,12 @@ import { ArrowLeft, Building2, FileText } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import ShedDetailsCard from "@/features/admin/sheds/components/ShedDetailsCard";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 
 const ShedDetailsPage = () => {
   const router = useRouter();
   const { shedId } = useParams();
   const { data, isLoading, isError, error } = useGetShedById(shedId as string);
-
-  const {
-    data: ledgersData,
-    isLoading: isLedgersLoading,
-    isError: isLedgersError,
-    error: ledgersError,
-  } = useGetAllLedgers({
-    shedId: shedId as string,
-  });
-
   const shed = data?.data;
-  const ledgers = ledgersData?.data || [];
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -75,12 +62,6 @@ const ShedDetailsPage = () => {
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">
         <ShedDetailsCard shed={shed} />
-        <LedgersTable
-          ledgers={ledgers}
-          isLoading={isLedgersLoading}
-          isError={isLedgersError}
-          error={ledgersError?.message || "Failed to load ledgers"}
-        />
       </div>
     </div>
   );

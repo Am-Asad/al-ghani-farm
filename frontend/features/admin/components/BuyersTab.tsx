@@ -4,7 +4,7 @@ import { useGetAllBuyers } from "../buyers/hooks/useGetAllBuyers";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { Building2 } from "lucide-react";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import BuyersHeader from "../buyers/components/BuyerHeader";
 import { useBuyersQueryParams } from "../buyers/hooks/useBuyersQueryParams";
 import BuyersFilters from "../buyers/components/BuyersFilters";
@@ -29,7 +29,7 @@ const BuyersTab = () => {
 
   const buyers = buyersData?.data || [];
 
-  if (buyersLoading) return <CardsSkeleton />;
+  if (buyersLoading) return <TableSkeleton />;
   if (buyersError) {
     return (
       <ErrorFetchingData
@@ -44,7 +44,7 @@ const BuyersTab = () => {
   return (
     <div className="space-y-6">
       {/* Buyers header */}
-      <BuyersHeader totalBuyers={buyers.length} />
+      <BuyersHeader showActions={true} />
       {/* Filters */}
       <BuyersFilters />
       {/* Grid */}

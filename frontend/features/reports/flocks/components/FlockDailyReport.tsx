@@ -1,7 +1,6 @@
 import React from "react";
 import { FlockDailyReport as FlockDailyReportType } from "@/types";
 import FlockReportSummary from "./FlockReportSummary";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Layers } from "lucide-react";
 import { formatDate } from "@/utils/format-date";
@@ -62,12 +61,12 @@ const FlockDailyReport = ({ report, isLoading, isError, error }: Props) => {
 
       <FlockReportSummary summary={report.summary} title="Daily Summary" />
 
-      <LedgersTable
+      {/* <LedgersTable
         ledgers={report.transactions}
         isLoading={false}
         isError={false}
         error=""
-      />
+      /> */}
     </div>
   );
 };

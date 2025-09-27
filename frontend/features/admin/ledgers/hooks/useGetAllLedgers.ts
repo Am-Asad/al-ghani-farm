@@ -3,7 +3,7 @@ import { queryKeys } from "@/lib/query-client";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { LedgerResponse as LedgerResponseType } from "@/types";
+import { Ledger as LedgerType } from "@/types";
 import { APIResponse } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
@@ -29,12 +29,9 @@ export const useGetAllLedgers = (query?: QueryParams) => {
     queryKey: [...queryKeys.ledgers, query],
     queryFn: async () => {
       try {
-        const response = await api.get<APIResponse<LedgerResponseType[]>>(
-          `/ledgers`,
-          {
-            params: query ?? {},
-          }
-        );
+        const response = await api.get<APIResponse<LedgerType[]>>(`/ledgers`, {
+          params: query ?? {},
+        });
         return response.data;
       } catch (error) {
         toast.error(

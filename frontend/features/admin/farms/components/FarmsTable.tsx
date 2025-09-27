@@ -11,12 +11,14 @@ import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { useDeleteFarm } from "../hooks/useDeleteFarm";
 import { useDeleteBulkFarms } from "../hooks/useDeleteBulkFarms";
+import { useRouter } from "next/navigation";
 
 type FarmsTableProps = {
   farms: FarmType[];
 };
 
 const FarmsTable = ({ farms }: FarmsTableProps) => {
+  const router = useRouter();
   const [selectedFarms, setSelectedFarms] = useState<FarmType[]>([]);
   const { mutate: deleteFarm } = useDeleteFarm();
   const { mutate: deleteBulkFarms } = useDeleteBulkFarms();
@@ -73,7 +75,7 @@ const FarmsTable = ({ farms }: FarmsTableProps) => {
           variant="ghost"
           size="sm"
           className="w-full justify-start"
-          onClick={() => alert(`Viewing details for ${row.name}`)}
+          onClick={() => router.push(`/farms/${row._id}`)}
         >
           <Eye className="mr-2 h-4 w-4" />
           View Details

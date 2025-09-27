@@ -1,7 +1,7 @@
 "use client";
 // import CreateEditFlockForm from "@/features/admin/flocks/components/CreateEditFlockForm";
 import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useGetAllFlocks";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import React from "react";
@@ -10,7 +10,7 @@ import FlockHeader from "@/features/admin/flocks/components/FlockHeader";
 import { useFlockQueryParams } from "@/features/admin/flocks/hooks/useFlockQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
 import FlockFilters from "@/features/admin/flocks/components/FlockFilters";
-import FlocksTable from "../flocks/components/FlocksTable";
+import FlocksTable from "@/features/admin/flocks/components/FlocksTable";
 
 const FlocksTab = () => {
   const { query, setPage, setLimit } = useFlockQueryParams();
@@ -29,7 +29,7 @@ const FlocksTab = () => {
     hasMore: false,
   };
 
-  if (flocksLoading) return <CardsSkeleton />;
+  if (flocksLoading) return <TableSkeleton />;
   if (flocksError) {
     return (
       <ErrorFetchingData
@@ -44,7 +44,7 @@ const FlocksTab = () => {
   return (
     <div className="space-y-6">
       {/* Flocks header */}
-      <FlockHeader totalFlocks={flocks.length} />
+      <FlockHeader showActions={true} />
       {/* Filters */}
       <FlockFilters />
       {/* Flocks grid */}

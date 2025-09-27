@@ -114,7 +114,7 @@ const FlockCard = ({ flock, showActions = true }: FlockCardProps) => {
                 description="Are you sure you want to delete this flock?"
                 confirmationText={flock.name}
                 onConfirm={() => {
-                  deleteFlock({ id: flock._id });
+                  deleteFlock(flock._id);
                 }}
               />
             </RoleGuard>

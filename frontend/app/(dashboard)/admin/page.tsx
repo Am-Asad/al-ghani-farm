@@ -8,9 +8,6 @@ import FlocksTab from "@/features/admin/components/FlocksTab";
 import ShedsTab from "@/features/admin/components/ShedsTab";
 import LedgersTab from "@/features/admin/components/LedgersTab";
 import BuyersTab from "@/features/admin/components/BuyersTab";
-import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import DataNotFound from "@/features/shared/components/DataNotFound";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 

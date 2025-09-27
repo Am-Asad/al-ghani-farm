@@ -1,7 +1,6 @@
 "use client";
 import ShedsHeader from "@/features/admin/sheds/components/ShedHeader";
 import { useGetAllSheds } from "@/features/admin/sheds/hooks/useGetAllSheds";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
@@ -10,6 +9,7 @@ import { useShedQueryParams } from "@/features/admin/sheds/hooks/useShedQueryPar
 import Pagination from "@/features/shared/components/Pagination";
 import ShedFilters from "@/features/admin/sheds/components/ShedFilters";
 import ShedsTable from "@/features/admin/sheds/components/ShedsTable";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 const ShedsPage = () => {
   const { query, setPage, setLimit } = useShedQueryParams();
@@ -24,7 +24,7 @@ const ShedsPage = () => {
   };
 
   if (isLoading) {
-    return <CardsSkeleton />;
+    return <TableSkeleton />;
   }
 
   if (isError) {

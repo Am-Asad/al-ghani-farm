@@ -8,8 +8,6 @@ import React from "react";
 import { ArrowLeft, Building2, FileText } from "lucide-react";
 import BuyerDetailsCard from "@/features/admin/buyers/components/BuyerDetailsCard";
 import { Button } from "@/components/ui/button";
-import { useGetAllLedgers } from "@/features/ledgers/hooks/useGetAllLedgers";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 import BuyerReportDialog from "@/features/reports/buyers/components/BuyerReportDialog";
 
 const BuyerDetailsPage = () => {
@@ -18,17 +16,7 @@ const BuyerDetailsPage = () => {
   const { data, isLoading, isError, error } = useGetBuyerById(
     buyerId as string
   );
-  const {
-    data: ledgersData,
-    isLoading: isLedgersLoading,
-    isError: isLedgersError,
-    error: ledgersError,
-  } = useGetAllLedgers({
-    buyerId: buyerId as string,
-  });
-
   const buyer = data?.data;
-  const ledgers = ledgersData?.data || [];
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -79,12 +67,6 @@ const BuyerDetailsPage = () => {
 
       <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">
         <BuyerDetailsCard buyer={buyer} />
-        <LedgersTable
-          ledgers={ledgers}
-          isLoading={isLedgersLoading}
-          isError={isLedgersError}
-          error={ledgersError?.message || "Failed to load ledgers"}
-        />
       </div>
     </div>
   );

@@ -9,9 +9,7 @@ import ErrorFeatchingData from "@/features/shared/components/ErrorFetchingData";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { useGetAllLedgers } from "@/features/ledgers/hooks/useGetAllLedgers";
 import FlockReportDialog from "@/features/reports/flocks/components/FlockReportDialog";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 
 const FlocksDetailsPage = () => {
   const router = useRouter();
@@ -20,18 +18,7 @@ const FlocksDetailsPage = () => {
   const { data, isLoading, isError, error } = useGetFlockById(
     flockId as string
   );
-
-  const {
-    data: ledgersData,
-    isLoading: isLedgersLoading,
-    isError: isLedgersError,
-    error: ledgersError,
-  } = useGetAllLedgers({
-    flockId: flockId as string,
-  });
-
   const flock = data?.data;
-  const ledgers = ledgersData?.data || [];
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -81,12 +68,6 @@ const FlocksDetailsPage = () => {
         <AllocationsTable
           allocations={flock.allocations || []}
           totalChicks={flock.totalChicks}
-        />
-        <LedgersTable
-          ledgers={ledgers}
-          isLoading={isLedgersLoading}
-          isError={isLedgersError}
-          error={ledgersError?.message || "Failed to load ledgers"}
         />
       </div>
     </div>

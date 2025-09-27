@@ -1,6 +1,5 @@
 "use client";
 import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useGetAllFlocks";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
@@ -10,6 +9,7 @@ import { useFlockQueryParams } from "@/features/admin/flocks/hooks/useFlockQuery
 import Pagination from "@/features/shared/components/Pagination";
 import FlockFilters from "@/features/admin/flocks/components/FlockFilters";
 import FlocksTable from "@/features/admin/flocks/components/FlocksTable";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 const FlocksPage = () => {
   const { query, setPage, setLimit } = useFlockQueryParams();
@@ -24,7 +24,7 @@ const FlocksPage = () => {
   };
 
   if (isLoading) {
-    return <CardsSkeleton />;
+    return <TableSkeleton />;
   }
 
   if (isError) {

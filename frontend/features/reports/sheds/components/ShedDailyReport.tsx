@@ -1,7 +1,6 @@
 import React from "react";
 import { ShedDailyReport as ShedDailyReportType } from "@/types";
 import ShedReportSummary from "./ShedReportSummary";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Building2, Users } from "lucide-react";
 import { formatDate } from "@/utils/format-date";
@@ -70,7 +69,7 @@ const ShedDailyReport = ({
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="font-medium">{report.shed.totalChicks}</p>
+                  <p className="font-medium">{report.shed.capacity}</p>
                   <p className="text-sm text-muted-foreground">Total Chicks</p>
                 </div>
               </div>
@@ -83,12 +82,12 @@ const ShedDailyReport = ({
       <ShedReportSummary summary={report.summary} title="Daily Summary" />
 
       {/* Transactions */}
-      <LedgersTable
+      {/* <LedgersTable
         ledgers={report.transactions}
         isLoading={false}
         isError={false}
         error=""
-      />
+      /> */}
     </div>
   );
 };

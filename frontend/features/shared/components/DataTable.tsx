@@ -245,7 +245,10 @@ const DataTable = <T,>({
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent
+              align="end"
+              className="w-48 max-h-48 overflow-y-auto"
+            >
               {columns.map((column) => (
                 <DropdownMenuCheckboxItem
                   key={column.id}

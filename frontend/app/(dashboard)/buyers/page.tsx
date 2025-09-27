@@ -1,6 +1,5 @@
 "use client";
 import BuyerHeader from "@/features/admin/buyers/components/BuyerHeader";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import React from "react";
 import { useGetAllBuyers } from "@/features/admin/buyers/hooks/useGetAllBuyers";
@@ -10,6 +9,7 @@ import { useBuyersQueryParams } from "@/features/admin/buyers/hooks/useBuyersQue
 import BuyersFilters from "@/features/admin/buyers/components/BuyersFilters";
 import Pagination from "@/features/shared/components/Pagination";
 import BuyersTable from "@/features/admin/buyers/components/BuyersTable";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 const BuyersPage = () => {
   const { query, setPage, setLimit } = useBuyersQueryParams();
@@ -24,7 +24,7 @@ const BuyersPage = () => {
   };
 
   if (isLoading) {
-    return <CardsSkeleton />;
+    return <TableSkeleton />;
   }
 
   if (isError) {

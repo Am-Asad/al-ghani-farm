@@ -3,7 +3,7 @@ import FarmFilters from "@/features/admin/farms/components/FarmFilters";
 import FarmHeader from "@/features/admin/farms/components/FarmHeader";
 import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
 import { useFarmQueryParams } from "@/features/admin/farms/hooks/useFarmQueryParams";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
@@ -28,7 +28,7 @@ const FarmsTab = () => {
     hasMore: false,
   };
 
-  if (farmsLoading) return <CardsSkeleton />;
+  if (farmsLoading) return <TableSkeleton />;
   if (farmsError) {
     return (
       <ErrorFetchingData
@@ -43,7 +43,7 @@ const FarmsTab = () => {
   return (
     <div className="space-y-6">
       {/* Farms header */}
-      <FarmHeader />
+      <FarmHeader showActions={true} />
       {/* Filters */}
       <FarmFilters />
       {/* Grid */}

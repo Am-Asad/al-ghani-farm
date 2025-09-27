@@ -243,10 +243,26 @@ export function transformLedgerRecordsToAPI(
   date: string;
 })[] {
   return ledgerRecords.map((record) => ({
-    farmId: record.farmId,
-    flockId: record.flockId,
-    shedId: record.shedId,
-    buyerId: record.buyerId,
+    farmId: {
+      _id: record.farmId,
+      name: "",
+      supervisor: "",
+    },
+    flockId: {
+      _id: record.flockId,
+      name: "",
+      status: "",
+    },
+    shedId: {
+      _id: record.shedId,
+      name: "",
+      capacity: 0,
+    },
+    buyerId: {
+      _id: record.buyerId,
+      name: "",
+      contactNumber: "",
+    },
     vehicleNumber: record.vehicleNumber,
     driverName: record.driverName,
     driverContact: record.driverContact,

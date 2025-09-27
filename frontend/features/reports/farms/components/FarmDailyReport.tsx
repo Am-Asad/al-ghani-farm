@@ -1,7 +1,6 @@
 import React from "react";
 import { FarmDailyReport as FarmDailyReportType } from "@/types";
 import FarmReportSummary from "./FarmReportSummary";
-import LedgersTable from "@/features/ledgers/components/LedgersTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Building2 } from "lucide-react";
 import { formatDate } from "@/utils/format-date";
@@ -62,12 +61,12 @@ const FarmDailyReport = ({ report, isLoading, isError, error }: Props) => {
 
       <FarmReportSummary summary={report.summary} title="Daily Summary" />
 
-      <LedgersTable
+      {/* <LedgersTable
         ledgers={report.transactions}
         isLoading={false}
         isError={false}
         error=""
-      />
+      /> */}
     </div>
   );
 };

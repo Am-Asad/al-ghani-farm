@@ -2,15 +2,14 @@
 
 import { Building2 } from "lucide-react";
 import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import FarmHeader from "@/features/admin/farms/components/FarmHeader";
-import CreateEditFarmForm from "@/features/admin/farms/components/CreateEditFarmForm";
 import FarmFilters from "@/features/admin/farms/components/FarmFilters";
 import Pagination from "@/features/shared/components/Pagination";
 import { useFarmQueryParams } from "@/features/admin/farms/hooks/useFarmQueryParams";
 import FarmsTable from "@/features/admin/farms/components/FarmsTable";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 export default function FarmsPage() {
   const { query, setPage, setLimit } = useFarmQueryParams();
@@ -25,7 +24,7 @@ export default function FarmsPage() {
   };
 
   if (isLoading) {
-    return <CardsSkeleton />;
+    return <TableSkeleton />;
   }
 
   if (isError) {
@@ -37,16 +36,6 @@ export default function FarmsPage() {
           buttonText="Add Farm"
           error={error?.message || "Failed to load farms"}
         />
-      </div>
-    );
-  }
-
-  if (farms.length === 0) {
-    return (
-      <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
-        <DataNotFound title="farms" icon={<Building2 className="w-10 h-10" />}>
-          <CreateEditFarmForm />
-        </DataNotFound>
       </div>
     );
   }
