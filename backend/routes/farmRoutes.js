@@ -9,6 +9,7 @@ import {
   deleteBulkFarms,
   deleteFarmById,
   createBulkFarms,
+  createDummyFarms,
 } from "../controllers/farmController.js";
 import { authHandler } from "../middleware/authHandler.js";
 import { authorizeRoles } from "../middleware/authorizeRoles.js";
@@ -36,6 +37,7 @@ router.post(
   zodValidate(createBulkFarmsSchema),
   createBulkFarms
 );
+router.post("/dummy", authorizeRoles(["admin", "manager"]), createDummyFarms);
 router.post(
   "/",
   authorizeRoles(["admin", "manager"]),

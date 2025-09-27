@@ -313,6 +313,205 @@ export const createBulkLedgers = asyncHandler(async (req, res) => {
   });
 });
 
+export const createDummyLedgers = asyncHandler(async (req, res) => {
+  const { count = 10 } = req.query;
+  const countNum = Math.min(Math.max(parseInt(count, 10) || 10, 1), 50); // Limit between 1-50
+
+  // Get existing entities
+  const farms = await FarmModel.find({}).select("_id name");
+  const flocks = await FlockModel.find({}).select("_id name farmId");
+  const sheds = await ShedModel.find({}).select("_id name farmId");
+  const buyers = await BuyerModel.find({}).select("_id name");
+
+  if (
+    farms.length === 0 ||
+    flocks.length === 0 ||
+    sheds.length === 0 ||
+    buyers.length === 0
+  ) {
+    throw new AppError(
+      "Missing required entities. Please ensure farms, flocks, sheds, and buyers exist.",
+      400,
+      "MISSING_ENTITIES",
+      true
+    );
+  }
+
+  const dummyLedgers = [];
+  const vehicleNumbers = [
+    "ABC-123",
+    "XYZ-456",
+    "DEF-789",
+    "GHI-012",
+    "JKL-345",
+    "MNO-678",
+    "PQR-901",
+    "STU-234",
+    "VWX-567",
+    "YZA-890",
+    "BCD-123",
+    "EFG-456",
+    "HIJ-789",
+    "KLM-012",
+    "NOP-345",
+    "QRS-678",
+  ];
+
+  const driverNames = [
+    "Muhammad Ali",
+    "Ahmed Hassan",
+    "Fatima Khan",
+    "Aisha Malik",
+    "Omar Sheikh",
+    "Zainab Ahmed",
+    "Hassan Rizvi",
+    "Maryam Khan",
+    "Usman Ali",
+    "Khadija Sheikh",
+    "Ibrahim Malik",
+    "Amina Hassan",
+    "Yusuf Khan",
+    "Hafsa Ali",
+    "Tariq Raza",
+    "Nadia Sheikh",
+    "Saad Malik",
+    "Layla Khan",
+    "Hamza Ali",
+  ];
+
+  const accountantNames = [
+    "Accountant Ali",
+    "Accountant Khan",
+    "Accountant Malik",
+    "Accountant Sheikh",
+    "Accountant Ahmed",
+    "Accountant Hassan",
+    "Accountant Rizvi",
+    "Accountant Fatima",
+    "Accountant Aisha",
+    "Accountant Omar",
+  ];
+
+  const rateOptions = [150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250];
+
+  // Generate Pakistani phone numbers for drivers
+  const generatePhoneNumber = (index) => {
+    const prefixes = [
+      "0300",
+      "0301",
+      "0302",
+      "0303",
+      "0304",
+      "0305",
+      "0306",
+      "0307",
+      "0308",
+      "0309",
+    ];
+    const prefix = prefixes[index % prefixes.length];
+    const suffix = String(Math.floor(Math.random() * 10000000)).padStart(
+      7,
+      "0"
+    );
+    return `${prefix}${suffix}`;
+  };
+
+  for (let i = 0; i < countNum; i++) {
+    const farm = farms[i % farms.length];
+    const buyer = buyers[i % buyers.length];
+
+    // Find flocks and sheds for this farm
+    const farmFlocks = flocks.filter(
+      (flock) => flock.farmId.toString() === farm._id.toString()
+    );
+    const farmSheds = sheds.filter(
+      (shed) => shed.farmId.toString() === farm._id.toString()
+    );
+
+    if (farmFlocks.length === 0 || farmSheds.length === 0) {
+      continue; // Skip if no flocks or sheds for this farm
+    }
+
+    const flock = farmFlocks[Math.floor(Math.random() * farmFlocks.length)];
+    const shed = farmSheds[Math.floor(Math.random() * farmSheds.length)];
+
+    const vehicleNumber = vehicleNumbers[i % vehicleNumbers.length];
+    const driverName = driverNames[i % driverNames.length];
+    const driverContact = generatePhoneNumber(i);
+    const accountantName = accountantNames[i % accountantNames.length];
+
+    // Generate weights
+    const emptyVehicleWeight = Math.floor(Math.random() * 2000) + 1000; // 1000-3000 kg
+    const netWeight = Math.floor(Math.random() * 5000) + 1000; // 1000-6000 kg
+    const grossWeight = emptyVehicleWeight + netWeight;
+
+    // Generate number of birds (roughly 1 bird per 2-3 kg)
+    const numberOfBirds = Math.floor(netWeight / (2 + Math.random()));
+
+    const rate = rateOptions[Math.floor(Math.random() * rateOptions.length)];
+    const totalAmount = netWeight * rate;
+
+    // Generate amount paid (0 to total amount)
+    const amountPaid = Math.floor(Math.random() * (totalAmount + 1));
+
+    // Generate random date between 2020 and 2025
+    const startYear = 2020;
+    const endYear = 2025;
+    const randomYear =
+      startYear + Math.floor(Math.random() * (endYear - startYear + 1));
+    const randomMonth = Math.floor(Math.random() * 12);
+    const randomDay = Math.floor(Math.random() * 28) + 1; // 1-28 to avoid month-end issues
+    const date = new Date(randomYear, randomMonth, randomDay);
+
+    dummyLedgers.push({
+      farmId: farm._id,
+      flockId: flock._id,
+      shedId: shed._id,
+      buyerId: buyer._id,
+      vehicleNumber: vehicleNumber,
+      driverName: driverName,
+      driverContact: driverContact,
+      accountantName: accountantName,
+      emptyVehicleWeight: emptyVehicleWeight,
+      grossWeight: grossWeight,
+      netWeight: netWeight,
+      numberOfBirds: numberOfBirds,
+      rate: rate,
+      totalAmount: totalAmount,
+      amountPaid: amountPaid,
+      date: date,
+      createdAt: date,
+      updatedAt: date,
+    });
+  }
+
+  if (dummyLedgers.length === 0) {
+    throw new AppError(
+      "No valid ledgers could be created. Ensure farms have associated flocks and sheds.",
+      400,
+      "NO_VALID_LEDGERS",
+      true
+    );
+  }
+
+  const ledgers = await LedgerModel.insertMany(dummyLedgers);
+
+  // Populate the created ledgers for response
+  const populatedLedgers = await LedgerModel.find({
+    _id: { $in: ledgers.map((ledger) => ledger._id) },
+  })
+    .populate("farmId", "name supervisor")
+    .populate("flockId", "name status")
+    .populate("shedId", "name capacity")
+    .populate("buyerId", "name contactNumber");
+
+  res.status(201).json({
+    status: "success",
+    message: `${ledgers.length} dummy ledgers created successfully`,
+    data: populatedLedgers.map((ledger) => ledger.toObject()),
+  });
+});
+
 // Update ledger
 export const updateLedgerById = asyncHandler(async (req, res) => {
   const { ledgerId } = req.params;

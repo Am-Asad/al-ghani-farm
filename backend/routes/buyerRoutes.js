@@ -12,6 +12,7 @@ import {
   getAllBuyers,
   getBuyerById,
   createBulkBuyers,
+  createDummyBuyers,
   createBuyer,
   updateBuyerById,
   deleteAllBuyers,
@@ -37,6 +38,8 @@ router.post(
   zodValidate(createBulkBuyersSchema),
   createBulkBuyers
 );
+
+router.post("/dummy", authorizeRoles(["admin", "manager"]), createDummyBuyers);
 
 router.post(
   "/",

@@ -12,6 +12,7 @@ import {
   getAllSheds,
   getShedById,
   createBulkSheds,
+  createDummySheds,
   createShed,
   updateShedById,
   deleteAllSheds,
@@ -37,6 +38,8 @@ router.post(
   zodValidate(createBulkShedsSchema),
   createBulkSheds
 );
+
+router.post("/dummy", authorizeRoles(["admin", "manager"]), createDummySheds);
 
 router.post(
   "/",

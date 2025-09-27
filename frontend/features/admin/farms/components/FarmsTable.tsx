@@ -61,15 +61,6 @@ const FarmsTable = ({ farms }: FarmsTableProps) => {
         return formatDate(row.original.createdAt);
       },
     },
-    {
-      id: "updatedAt",
-      header: "Updated At",
-      accessorKey: "updatedAt",
-      visible: true,
-      cell: ({ row }) => {
-        return formatDate(row.original.updatedAt);
-      },
-    },
   ];
 
   // Enhanced row actions with custom components

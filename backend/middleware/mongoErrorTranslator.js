@@ -2,15 +2,20 @@ import { AppError } from "../utils/AppError.js";
 
 export const mongoErrorTranslator = (err, req, res, next) => {
   // 1) Duplicate key (single write or bulk write)
+
+  // Check for duplicate key error in multiple possible locations
   const isDupKey =
     err?.code === 11000 ||
+    err?.cause?.code === 11000 ||
     (err?.name === "MongoServerError" && err?.code === 11000) ||
-    (err?.name === "MongoBulkWriteError" && err?.code === 11000);
+    (err?.name === "MongoBulkWriteError" && err?.code === 11000) ||
+    (err?.name === "MongooseError" && err?.cause?.code === 11000);
 
   if (isDupKey) {
     // Try to get field/value from the most reliable place available
     const keyValue =
       err?.keyValue ||
+      err?.cause?.keyValue ||
       err?.writeErrors?.[0]?.err?.keyValue ||
       err?.writeErrors?.[0]?.keyValue ||
       null;
@@ -22,8 +27,9 @@ export const mongoErrorTranslator = (err, req, res, next) => {
     const appErr = new AppError(message, 409, "DUPLICATE_KEY", true);
     appErr.meta = {
       keyValue: keyValue || undefined,
-      index: err?.index,
-      nInserted: err?.result?.nInserted ?? undefined,
+      index: err?.index || err?.cause?.index,
+      nInserted:
+        err?.result?.nInserted ?? err?.cause?.result?.nInserted ?? undefined,
     };
     return next(appErr);
   }

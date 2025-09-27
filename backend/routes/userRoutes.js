@@ -9,6 +9,7 @@ import {
   deleteSingleUser,
   getMeUser,
   createUserBulk,
+  createDummyUsers,
 } from "../controllers/userController.js";
 import { authHandler } from "../middleware/authHandler.js";
 import { authorizeRoles } from "../middleware/authorizeRoles.js";
@@ -43,6 +44,7 @@ router.post(
   zodValidate(createUserBulkSchema),
   createUserBulk
 );
+router.post("/dummy", authorizeRoles(["admin", "manager"]), createDummyUsers);
 
 router.put(
   "/:id",

@@ -87,6 +87,115 @@ export const createBulkBuyers = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const createDummyBuyers = asyncHandler(async (req, res) => {
+  const { count = 10 } = req.query;
+  const countNum = Math.min(Math.max(parseInt(count, 10) || 10, 1), 100); // Limit between 1-100
+
+  const dummyBuyers = [];
+  const buyerNames = [
+    "Muhammad Asif",
+    "Fatima Khan",
+    "Ahmed Hassan",
+    "Aisha Malik",
+    "Ali Raza",
+    "Zainab Sheikh",
+    "Omar Khan",
+    "Maryam Ali",
+    "Hassan Rizvi",
+    "Khadija Ahmed",
+    "Usman Malik",
+    "Amina Khan",
+    "Ibrahim Sheikh",
+    "Hafsa Ali",
+    "Tariq Raza",
+    "Nadia Khan",
+    "Saad Malik",
+    "Layla Sheikh",
+    "Hamza Ali",
+    "Yusuf Khan",
+  ];
+
+  const addresses = [
+    "123 Main Street, Karachi",
+    "456 Park Avenue, Lahore",
+    "789 Garden Road, Islamabad",
+    "321 Market Street, Faisalabad",
+    "654 University Road, Rawalpindi",
+    "987 Mall Road, Multan",
+    "147 Business District, Peshawar",
+    "258 Industrial Area, Quetta",
+    "369 Residential Block, Sialkot",
+    "741 Commercial Zone, Gujranwala",
+    "852 Downtown Area, Hyderabad",
+    "963 Suburban Street, Sukkur",
+    "159 Old City, Bahawalpur",
+    "357 New Town, Sargodha",
+    "468 City Center, Jhang",
+    "579 Town Square, Sahiwal",
+    "680 Village Road, Okara",
+    "791 Farm Area, Kasur",
+    "802 Border Town, Attock",
+    "913 Hill Station, Abbottabad",
+  ];
+
+  // Generate Pakistani phone numbers
+  const generatePhoneNumber = (index) => {
+    const prefixes = [
+      "0300",
+      "0301",
+      "0302",
+      "0303",
+      "0304",
+      "0305",
+      "0306",
+      "0307",
+      "0308",
+      "0309",
+    ];
+    const prefix = prefixes[index % prefixes.length];
+    const suffix = String(Math.floor(Math.random() * 10000000)).padStart(
+      7,
+      "0"
+    );
+    return `${prefix}${suffix}`;
+  };
+
+  for (let i = 0; i < countNum; i++) {
+    const buyerName = buyerNames[i % buyerNames.length];
+    const address = addresses[i % addresses.length];
+    const phoneNumber = generatePhoneNumber(i);
+
+    // Add unique suffix if we need more buyers than available names
+    const uniqueSuffix =
+      i >= buyerNames.length ? ` ${Math.floor(i / buyerNames.length) + 1}` : "";
+
+    // Generate random date between 2020 and 2025
+    const startYear = 2020;
+    const endYear = 2025;
+    const randomYear =
+      startYear + Math.floor(Math.random() * (endYear - startYear + 1));
+    const randomMonth = Math.floor(Math.random() * 12);
+    const randomDay = Math.floor(Math.random() * 28) + 1; // 1-28 to avoid month-end issues
+    const randomDate = new Date(randomYear, randomMonth, randomDay);
+
+    dummyBuyers.push({
+      name: `${buyerName}${uniqueSuffix}`,
+      contactNumber: phoneNumber,
+      address: address,
+      createdAt: randomDate,
+      updatedAt: randomDate,
+    });
+  }
+
+  const buyers = await BuyerModel.insertMany(dummyBuyers);
+
+  res.status(201).json({
+    status: "success",
+    message: `${buyers.length} dummy buyers created successfully`,
+    data: buyers.map((buyer) => buyer.toObject()),
+  });
+});
+
 // Update
 export const updateBuyerById = asyncHandler(async (req, res) => {
   const { buyerId } = req.params;

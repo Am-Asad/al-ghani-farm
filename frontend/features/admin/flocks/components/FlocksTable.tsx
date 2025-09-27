@@ -89,24 +89,6 @@ const FlocksTable = ({ flocks }: FlocksTableProps) => {
         return formatSingleDigit(row.original.farmId.supervisor);
       },
     },
-    {
-      id: "createdAt",
-      header: "Created At",
-      accessorKey: "createdAt",
-      visible: true,
-      cell: ({ row }) => {
-        return formatDate(row.original.createdAt);
-      },
-    },
-    {
-      id: "updatedAt",
-      header: "Updated At",
-      accessorKey: "updatedAt",
-      visible: true,
-      cell: ({ row }) => {
-        return formatDate(row.original.createdAt);
-      },
-    },
   ];
 
   const rowActions: RowAction<FlockType>[] = [

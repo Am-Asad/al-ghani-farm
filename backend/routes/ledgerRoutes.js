@@ -12,6 +12,7 @@ import {
   getAllLedgers,
   getLedgerById,
   createBulkLedgers,
+  createDummyLedgers,
   createLedger,
   updateLedgerById,
   deleteAllLedgers,
@@ -35,6 +36,8 @@ router.post(
   zodValidate(createBulkLedgersSchema),
   createBulkLedgers
 );
+
+router.post("/dummy", authorizeRoles(["admin", "manager"]), createDummyLedgers);
 
 router.post(
   "/",

@@ -12,6 +12,7 @@ import {
   getAllFlocks,
   getFlockById,
   createBulkFlocks,
+  createDummyFlocks,
   createFlock,
   updateFlockById,
   deleteAllFlocks,
@@ -37,6 +38,8 @@ router.post(
   zodValidate(createBulkFlocksSchema),
   createBulkFlocks
 );
+
+router.post("/dummy", authorizeRoles(["admin", "manager"]), createDummyFlocks);
 
 router.post(
   "/",

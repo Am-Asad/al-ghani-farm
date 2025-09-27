@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Muhammad Asif",
+    "contactNumber": "03001234567",
+    "address": "123 Main Street, Karachi",
+    "createdAt": "2021-02-15T00:00:00.000Z",
+    "updatedAt": "2021-02-15T00:00:00.000Z"
+  },
+  {
+    "name": "Fatima Khan",
+    "contactNumber": "03012345678",
+    "address": "456 Park Avenue, Lahore",
+    "createdAt": "2022-08-22T00:00:00.000Z",
+    "updatedAt": "2022-08-22T00:00:00.000Z"
+  },
+  {
+    "name": "Ahmed Hassan",
+    "contactNumber": "03023456789",
+    "address": "789 Garden Road, Islamabad",
+    "createdAt": "2020-11-08T00:00:00.000Z",
+    "updatedAt": "2020-11-08T00:00:00.000Z"
+  },
+  {
+    "name": "Aisha Malik",
+    "contactNumber": "03034567890",
+    "address": "321 Market Street, Faisalabad",
+    "createdAt": "2023-05-12T00:00:00.000Z",
+    "updatedAt": "2023-05-12T00:00:00.000Z"
+  },
+  {
+    "name": "Ali Raza",
+    "contactNumber": "03045678901",
+    "address": "654 University Road, Rawalpindi",
+    "createdAt": "2024-09-30T00:00:00.000Z",
+    "updatedAt": "2024-09-30T00:00:00.000Z"
+  },
+  {
+    "name": "Zainab Sheikh",
+    "contactNumber": "03056789012",
+    "address": "987 Mall Road, Multan",
+    "createdAt": "2021-12-03T00:00:00.000Z",
+    "updatedAt": "2021-12-03T00:00:00.000Z"
+  },
+  {
+    "name": "Omar Khan",
+    "contactNumber": "03067890123",
+    "address": "147 Business District, Peshawar",
+    "createdAt": "2022-06-18T00:00:00.000Z",
+    "updatedAt": "2022-06-18T00:00:00.000Z"
+  },
+  {
+    "name": "Maryam Ali",
+    "contactNumber": "03078901234",
+    "address": "258 Industrial Area, Quetta",
+    "createdAt": "2020-08-25T00:00:00.000Z",
+    "updatedAt": "2020-08-25T00:00:00.000Z"
+  },
+  {
+    "name": "Hassan Rizvi",
+    "contactNumber": "03089012345",
+    "address": "369 Residential Block, Sialkot",
+    "createdAt": "2023-01-14T00:00:00.000Z",
+    "updatedAt": "2023-01-14T00:00:00.000Z"
+  },
+  {
+    "name": "Khadija Ahmed",
+    "contactNumber": "03090123456",
+    "address": "741 Commercial Zone, Gujranwala",
+    "createdAt": "2024-04-07T00:00:00.000Z",
+    "updatedAt": "2024-04-07T00:00:00.000Z"
+  }
+]

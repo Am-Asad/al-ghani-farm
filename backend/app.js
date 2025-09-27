@@ -77,8 +77,8 @@ app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/entities", entitiesRoutes);
 
 // ERROR HANDLING MIDDLEWARES
-app.use(notFound);
 app.use(mongoErrorTranslator);
+app.use(notFound);
 app.use(errorHandler);
 
 export default app;

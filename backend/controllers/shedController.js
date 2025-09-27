@@ -233,6 +233,98 @@ export const createBulkSheds = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const createDummySheds = asyncHandler(async (req, res, next) => {
+  const { count = 10 } = req.query;
+  const countNum = Math.min(Math.max(parseInt(count, 10) || 10, 1), 100); // Limit between 1-100
+
+  // Get existing farms
+  const farms = await FarmModel.find({}).select("_id name");
+
+  if (farms.length === 0) {
+    const error = new AppError(
+      "No farms found. Please create farms first.",
+      400,
+      "NO_FARMS_FOUND",
+      true
+    );
+    return next(error);
+  }
+
+  const dummySheds = [];
+  const shedNames = [
+    "Shed A",
+    "Shed B",
+    "Shed C",
+    "Shed D",
+    "Shed E",
+    "Shed F",
+    "Shed G",
+    "Shed H",
+    "Shed I",
+    "Shed J",
+    "Shed K",
+    "Shed L",
+    "Shed M",
+    "Shed N",
+    "Shed O",
+    "Shed P",
+    "Shed Q",
+    "Shed R",
+    "Shed S",
+    "Shed T",
+    "Shed U",
+    "Shed V",
+    "Shed W",
+    "Shed X",
+    "Shed Y",
+    "Shed Z",
+    "North Shed",
+    "South Shed",
+    "East Shed",
+    "West Shed",
+  ];
+
+  const capacityOptions = [
+    500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 3000,
+  ];
+
+  for (let i = 0; i < countNum; i++) {
+    const farm = farms[i % farms.length];
+    const shedName = shedNames[i % shedNames.length];
+    const capacity =
+      capacityOptions[Math.floor(Math.random() * capacityOptions.length)];
+
+    // Add unique suffix if we need more sheds than available names
+    const uniqueSuffix =
+      i >= shedNames.length ? ` ${Math.floor(i / shedNames.length) + 1}` : "";
+
+    // Generate random date between 2020 and 2025
+    const startYear = 2020;
+    const endYear = 2025;
+    const randomYear =
+      startYear + Math.floor(Math.random() * (endYear - startYear + 1));
+    const randomMonth = Math.floor(Math.random() * 12);
+    const randomDay = Math.floor(Math.random() * 28) + 1; // 1-28 to avoid month-end issues
+    const randomDate = new Date(randomYear, randomMonth, randomDay);
+
+    dummySheds.push({
+      name: `${shedName}${uniqueSuffix}`,
+      capacity: capacity,
+      farmId: farm._id,
+      createdAt: randomDate,
+      updatedAt: randomDate,
+    });
+  }
+
+  const sheds = await ShedModel.insertMany(dummySheds);
+
+  res.status(201).json({
+    status: "success",
+    message: `${sheds.length} dummy sheds created successfully`,
+    data: sheds,
+  });
+});
+
 export const createShed = asyncHandler(async (req, res, next) => {
   const { farmId } = req.body;
 

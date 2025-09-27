@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { FarmModel } from "../models/farms.js";
 import { FlockModel } from "../models/flocks.js";
+import { ShedModel } from "../models/sheds.js";
 import { LedgerModel } from "../models/ledger.js";
 import { AppError } from "../utils/AppError.js";
 
@@ -264,6 +265,161 @@ export const createBulkFlocks = asyncHandler(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     message: "Flocks created successfully",
+    data: flocks,
+  });
+});
+
+export const createDummyFlocks = asyncHandler(async (req, res, next) => {
+  const { count = 10 } = req.query;
+  const countNum = Math.min(Math.max(parseInt(count, 10) || 10, 1), 50); // Limit between 1-50
+
+  // Get existing farms and sheds
+  const farms = await FarmModel.find({}).select("_id name");
+  const sheds = await ShedModel.find({}).select("_id name farmId");
+
+  if (farms.length === 0) {
+    const error = new AppError(
+      "No farms found. Please create farms first.",
+      400,
+      "NO_FARMS_FOUND",
+      true
+    );
+    return next(error);
+  }
+
+  if (sheds.length === 0) {
+    const error = new AppError(
+      "No sheds found. Please create sheds first.",
+      400,
+      "NO_SHEDS_FOUND",
+      true
+    );
+    return next(error);
+  }
+
+  const dummyFlocks = [];
+  const flockNames = [
+    "Batch A-001",
+    "Batch B-002",
+    "Batch C-003",
+    "Batch D-004",
+    "Batch E-005",
+    "Batch F-006",
+    "Batch G-007",
+    "Batch H-008",
+    "Batch I-009",
+    "Batch J-010",
+    "Batch K-011",
+    "Batch L-012",
+    "Batch M-013",
+    "Batch N-014",
+    "Batch O-015",
+    "Batch P-016",
+    "Batch Q-017",
+    "Batch R-018",
+    "Batch S-019",
+    "Batch T-020",
+  ];
+
+  const statuses = ["active", "completed"];
+  const totalChicksOptions = [
+    1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000,
+  ];
+
+  for (let i = 0; i < countNum; i++) {
+    const farm = farms[i % farms.length];
+    const farmSheds = sheds.filter(
+      (shed) => shed.farmId.toString() === farm._id.toString()
+    );
+
+    if (farmSheds.length === 0) {
+      continue; // Skip if no sheds for this farm
+    }
+
+    const flockName = flockNames[i % flockNames.length];
+    const uniqueSuffix =
+      i >= flockNames.length ? `-${Math.floor(i / flockNames.length) + 1}` : "";
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const totalChicks =
+      totalChicksOptions[Math.floor(Math.random() * totalChicksOptions.length)];
+
+    // Create allocations for this flock
+    const allocations = [];
+    let remainingChicks = totalChicks;
+    const numSheds = Math.min(
+      farmSheds.length,
+      Math.floor(Math.random() * 3) + 1
+    ); // 1-3 sheds
+
+    for (let j = 0; j < numSheds && remainingChicks > 0; j++) {
+      const shed = farmSheds[j];
+      const chicksForShed =
+        j === numSheds - 1
+          ? remainingChicks
+          : Math.floor(Math.random() * remainingChicks) + 1;
+
+      allocations.push({
+        shedId: shed._id,
+        chicks: chicksForShed,
+      });
+
+      remainingChicks -= chicksForShed;
+    }
+
+    // Generate dates between 2020 and 2025
+    const startYear = 2020;
+    const endYear = 2025;
+    const randomYear =
+      startYear + Math.floor(Math.random() * (endYear - startYear + 1));
+    const randomMonth = Math.floor(Math.random() * 12);
+    const randomDay = Math.floor(Math.random() * 28) + 1; // 1-28 to avoid month-end issues
+    const startDate = new Date(randomYear, randomMonth, randomDay);
+
+    let endDate = null;
+    if (status === "completed") {
+      // End date should be after start date, within the same year or next year
+      const endYear = startDate.getFullYear() + (Math.random() > 0.7 ? 1 : 0); // 30% chance to go to next year
+      const endMonth = Math.floor(Math.random() * 12);
+      const endDay = Math.floor(Math.random() * 28) + 1;
+      endDate = new Date(endYear, endMonth, endDay);
+
+      // Ensure end date is after start date
+      if (endDate <= startDate) {
+        endDate = new Date(startDate);
+        endDate.setDate(
+          endDate.getDate() + Math.floor(Math.random() * 100) + 30
+        ); // 30-130 days later
+      }
+    }
+
+    dummyFlocks.push({
+      name: `${flockName}${uniqueSuffix}`,
+      status: status,
+      startDate: startDate,
+      endDate: endDate,
+      totalChicks: totalChicks,
+      allocations: allocations,
+      farmId: farm._id,
+      createdAt: startDate,
+      updatedAt: startDate,
+    });
+  }
+
+  if (dummyFlocks.length === 0) {
+    const error = new AppError(
+      "No valid flocks could be created. Ensure farms have associated sheds.",
+      400,
+      "NO_VALID_FLOCKS",
+      true
+    );
+    return next(error);
+  }
+
+  const flocks = await FlockModel.insertMany(dummyFlocks);
+
+  res.status(201).json({
+    status: "success",
+    message: `${flocks.length} dummy flocks created successfully`,
     data: flocks,
   });
 });

@@ -99,6 +99,91 @@ export const createBulkFarms = asyncHandler(async (req, res) => {
   });
 });
 
+export const createDummyFarms = asyncHandler(async (req, res) => {
+  const { count = 10 } = req.query;
+  const countNum = Math.min(Math.max(parseInt(count, 10) || 10, 1), 100); // Limit between 1-100
+
+  const dummyFarms = [];
+  const farmNames = [
+    "Green Valley Farm",
+    "Sunrise Poultry Farm",
+    "Golden Harvest Farm",
+    "Blue Sky Farm",
+    "Mountain View Farm",
+    "River Side Farm",
+    "Sunset Farm",
+    "Eagle's Nest Farm",
+    "Prairie Farm",
+    "Oak Tree Farm",
+    "Crystal Lake Farm",
+    "Windmill Farm",
+    "Rose Garden Farm",
+    "Maple Leaf Farm",
+    "Silver Creek Farm",
+    "Pine Ridge Farm",
+    "Diamond Farm",
+    "Emerald Valley Farm",
+    "Ruby Ranch",
+    "Sapphire Farm",
+  ];
+
+  const supervisorNames = [
+    "Ahmed Hassan",
+    "Muhammad Ali",
+    "Fatima Khan",
+    "Ali Raza",
+    "Aisha Malik",
+    "Omar Sheikh",
+    "Zainab Ahmed",
+    "Hassan Rizvi",
+    "Maryam Khan",
+    "Usman Ali",
+    "Khadija Sheikh",
+    "Ibrahim Malik",
+    "Amina Hassan",
+    "Yusuf Khan",
+    "Hafsa Ali",
+    "Tariq Raza",
+    "Nadia Sheikh",
+    "Saad Malik",
+    "Layla Khan",
+    "Hamza Ali",
+  ];
+
+  for (let i = 0; i < countNum; i++) {
+    const farmName = farmNames[i % farmNames.length];
+    const supervisorName = supervisorNames[i % supervisorNames.length];
+
+    // Add unique suffix if we need more farms than available names
+    const uniqueSuffix =
+      i >= farmNames.length ? ` ${Math.floor(i / farmNames.length) + 1}` : "";
+
+    // Generate random date between 2020 and 2025
+    const startYear = 2020;
+    const endYear = 2025;
+    const randomYear =
+      startYear + Math.floor(Math.random() * (endYear - startYear + 1));
+    const randomMonth = Math.floor(Math.random() * 12);
+    const randomDay = Math.floor(Math.random() * 28) + 1; // 1-28 to avoid month-end issues
+    const randomDate = new Date(randomYear, randomMonth, randomDay);
+
+    dummyFarms.push({
+      name: `${farmName}${uniqueSuffix}`,
+      supervisor: supervisorName,
+      createdAt: randomDate,
+      updatedAt: randomDate,
+    });
+  }
+
+  const farms = await FarmModel.insertMany(dummyFarms);
+
+  res.status(201).json({
+    status: "success",
+    message: `${farms.length} dummy farms created successfully`,
+    data: farms,
+  });
+});
+
 export const createFarm = asyncHandler(async (req, res) => {
   const farm = await FarmModel.create(req.body);
   res.status(201).json({

@@ -1,0 +1,82 @@
+[
+  {
+    "username": "admin_user",
+    "email": "admin@alghanifarm.com",
+    "password": "password123",
+    "role": "admin",
+    "createdAt": "2020-01-15T00:00:00.000Z",
+    "updatedAt": "2020-01-15T00:00:00.000Z"
+  },
+  {
+    "username": "manager_1",
+    "email": "manager1@alghanifarm.com",
+    "password": "password123",
+    "role": "manager",
+    "createdAt": "2021-03-22T00:00:00.000Z",
+    "updatedAt": "2021-03-22T00:00:00.000Z"
+  },
+  {
+    "username": "viewer_1",
+    "email": "viewer1@alghanifarm.com",
+    "password": "password123",
+    "role": "viewer",
+    "createdAt": "2022-07-08T00:00:00.000Z",
+    "updatedAt": "2022-07-08T00:00:00.000Z"
+  },
+  {
+    "username": "farm_supervisor",
+    "email": "supervisor@alghanifarm.com",
+    "password": "password123",
+    "role": "manager",
+    "createdAt": "2020-11-12T00:00:00.000Z",
+    "updatedAt": "2020-11-12T00:00:00.000Z"
+  },
+  {
+    "username": "accountant_1",
+    "email": "accountant1@alghanifarm.com",
+    "password": "password123",
+    "role": "viewer",
+    "createdAt": "2023-05-30T00:00:00.000Z",
+    "updatedAt": "2023-05-30T00:00:00.000Z"
+  },
+  {
+    "username": "operator_1",
+    "email": "operator1@alghanifarm.com",
+    "password": "password123",
+    "role": "viewer",
+    "createdAt": "2021-12-03T00:00:00.000Z",
+    "updatedAt": "2021-12-03T00:00:00.000Z"
+  },
+  {
+    "username": "supervisor_1",
+    "email": "supervisor1@alghanifarm.com",
+    "password": "password123",
+    "role": "manager",
+    "createdAt": "2022-06-18T00:00:00.000Z",
+    "updatedAt": "2022-06-18T00:00:00.000Z"
+  },
+  {
+    "username": "staff_1",
+    "email": "staff1@alghanifarm.com",
+    "password": "password123",
+    "role": "viewer",
+    "createdAt": "2020-08-25T00:00:00.000Z",
+    "updatedAt": "2020-08-25T00:00:00.000Z"
+  },
+  {
+    "username": "assistant_1",
+    "email": "assistant1@alghanifarm.com",
+    "password": "password123",
+    "role": "viewer",
+    "createdAt": "2023-01-14T00:00:00.000Z",
+    "updatedAt": "2023-01-14T00:00:00.000Z"
+  },
+  {
+    "username": "helper_1",
+    "email": "helper1@alghanifarm.com",
+    "password": "password123",
+    "role": "viewer",
+    "createdAt": "2024-04-07T00:00:00.000Z",
+    "updatedAt": "2024-04-07T00:00:00.000Z"
+  }
+]
