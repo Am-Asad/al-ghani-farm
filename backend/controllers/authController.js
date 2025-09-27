@@ -96,11 +96,11 @@ export const userSignin = asyncHandler(async (req, res) => {
   };
 
   res.cookie("access_token", access_token, {
-    ...cookieOptions,
+    // ...cookieOptions,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
   res.cookie("refresh_token", refresh_token, {
-    ...cookieOptions,
+    // ...cookieOptions,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -115,8 +115,8 @@ export const userSignin = asyncHandler(async (req, res) => {
 export const userLogout = asyncHandler(async (req, res) => {
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    // secure: process.env.NODE_ENV === "production",
+    // sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     path: "/",
     maxAge: 0,
     domain:
@@ -180,8 +180,8 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
   // Enhanced cookie security settings
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    // secure: process.env.NODE_ENV === "production",
+    // sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     path: "/",
     domain:
       process.env.NODE_ENV === "production"
@@ -190,7 +190,7 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
   };
 
   res.cookie("access_token", access_token, {
-    ...cookieOptions,
+    // ...cookieOptions,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
