@@ -42,3 +42,11 @@ export const createBulkShedsSchema = z.object({
   query: z.object({}).optional(),
   params: z.object({}).optional(),
 });
+
+export const deleteBulkShedsSchema = z.object({
+  body: z
+    .array(z.string().min(1, "Shed ID is required"))
+    .min(1, "At least one shed ID is required"),
+  query: z.object({}).optional(),
+  params: z.object({}).optional(),
+});

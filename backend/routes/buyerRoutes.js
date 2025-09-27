@@ -6,6 +6,7 @@ import {
   createBulkBuyersSchema,
   createBuyerSchema,
   updateBuyerSchema,
+  deleteBulkBuyersSchema,
 } from "../validations/buyerSchemas.js";
 import {
   getAllBuyers,
@@ -14,6 +15,7 @@ import {
   createBuyer,
   updateBuyerById,
   deleteAllBuyers,
+  deleteBulkBuyers,
   deleteBuyerById,
   getBuyersForDropdown,
 } from "../controllers/buyerController.js";
@@ -53,6 +55,12 @@ router.put(
 
 // Delete buyer
 router.delete("/all", authorizeRoles(["admin"]), deleteAllBuyers);
+router.delete(
+  "/bulk",
+  authorizeRoles(["admin"]),
+  zodValidate(deleteBulkBuyersSchema),
+  deleteBulkBuyers
+);
 router.delete("/:buyerId", authorizeRoles(["admin"]), deleteBuyerById);
 
 export default router;

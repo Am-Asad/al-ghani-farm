@@ -4,13 +4,12 @@ import DataTable, { RowAction } from "@/features/shared/components/DataTable";
 import { Buyer as BuyerType } from "@/types";
 import { Column } from "@/features/shared/components/DataTable";
 import { formatDate } from "@/utils/format-date";
-import CreateEditBuyerForm from "../buyers/components/CreateEditBuyerForm";
+import CreateEditBuyerForm from "./CreateEditBuyerForm";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
-import { useDeleteBuyer } from "../buyers/hooks/useDeleteBuyer";
+import { useDeleteBuyer } from "../hooks/useDeleteBuyer";
 import { Edit, Eye, Phone, Trash2 } from "lucide-react";
-import { useDeleteBulkBuyers } from "../buyers/hooks/useDeleteBulkBuyers";
+import { useDeleteBulkBuyers } from "../hooks/useDeleteBulkBuyers";
 import { Button } from "@/components/ui/button";
-import CreateEditFarmForm from "../farms/components/CreateEditFarmForm";
 
 type BuyersTableProps = {
   buyers: BuyerType[];
@@ -48,7 +47,9 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
       visible: true,
       cell: ({ row }) => {
         return (
-          <span className="truncate">{row.original.address || "N/A"}</span>
+          <span className="truncate">
+            {row.original.address ? row.original.address : "N/A"}
+          </span>
         );
       },
     },

@@ -18,10 +18,13 @@
 [x] filters ui updated.
 [x] flocks detail card update with allocations details.
 [x] Fix the response types for flocks, farms, and sheds.
+
+[x] Use the entities select in create update form modals.
+[x] Data table component added
+[] Data table component edit delete, bulk delete functionality needs to be fixed.
 [] Check all the modules by creating, updating, and deleting data.  
 [] Check the pagination and filtering for all the modules.
 [] Update the sort by filter with multiple values.
-[] Use the entities select in create update form modals.
 [] Leaving the create in bulk functionality for all modules for later.
 [] Leaving the flock chicks allocation count must not be greater than the total capacity of a shed check for now.
 [] Leaving the delete in bulk functionality for all modules for now.

@@ -18,7 +18,7 @@ import {
   userTemplateHeaders,
   userSampleData,
   transformUserRecordsToAPI,
-} from "@/features/users/utils/userBulkConfig";
+} from "@/features/admin/users/utils/userBulkConfig";
 import { queryKeys } from "@/lib/query-client";
 
 const CreateBulkUsers = () => {

@@ -7,13 +7,29 @@ import { APIResponse } from "@/types";
 import { User as UserType } from "@/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-export const useGetAllUsers = () => {
+type QueryParams = {
+  page: string;
+  limit: string;
+  search: string;
+  role: "admin" | "manager" | "viewer" | "all";
+  sortBy: string;
+  sortOrder: string;
+};
+
+export const useGetAllUsers = (query: QueryParams) => {
   const { user } = useAuthContext();
   return useQuery({
-    queryKey: queryKeys.users,
+    queryKey: [...queryKeys.users, query],
     queryFn: async () => {
       try {
-        const response = await api.get<APIResponse<UserType[]>>("/users");
+        // Convert "all" role back to empty string for backend
+        const apiQuery = {
+          ...query,
+          role: query.role === "all" ? "" : query.role,
+        };
+        const response = await api.get<APIResponse<UserType[]>>("/users", {
+          params: apiQuery,
+        });
         return response.data;
       } catch (error) {
         toast.error(
@@ -24,5 +40,6 @@ export const useGetAllUsers = () => {
       }
     },
     enabled: !!user?._id,
+    placeholderData: (previousData) => previousData,
   });
 };

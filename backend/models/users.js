@@ -56,4 +56,57 @@ userSchema.methods.comparePassword = async function (
   return await bcrypt.compare(inputPassword, storedPassword);
 };
 
+// STATICS
+userSchema.statics.getAllUsersPaginated = function ({
+  search,
+  role,
+  limit = 10,
+  offset = 0,
+  sortBy = "createdAt",
+  sortOrder = "desc",
+} = {}) {
+  const sortDir = sortOrder === "asc" ? 1 : -1;
+
+  const pipeline = [
+    ...(search || role
+      ? [
+          {
+            $match: {
+              ...(search
+                ? {
+                    $or: [
+                      { username: { $regex: search, $options: "i" } },
+                      { email: { $regex: search, $options: "i" } },
+                    ],
+                  }
+                : {}),
+              ...(role && role !== "" ? { role } : {}),
+            },
+          },
+        ]
+      : []),
+    { $sort: { [sortBy]: sortDir } },
+    {
+      $facet: {
+        items: [
+          ...(offset > 0 ? [{ $skip: offset }] : []),
+          { $limit: Math.max(limit, 0) },
+          { $project: { password: 0 } }, // Exclude password from results
+        ],
+        total: [{ $count: "count" }],
+      },
+    },
+    {
+      $project: {
+        items: 1,
+        total: { $ifNull: [{ $arrayElemAt: ["$total.count", 0] }, 0] },
+      },
+    },
+  ];
+
+  return this.aggregate(pipeline).then(
+    (res) => res[0] || { items: [], total: 0 }
+  );
+};
+
 export const UserModel = mongoose.model("User", userSchema);

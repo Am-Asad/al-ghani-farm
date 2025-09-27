@@ -6,6 +6,7 @@ import {
   getFarmById,
   updateFarmById,
   deleteAllFarms,
+  deleteBulkFarms,
   deleteFarmById,
   createBulkFarms,
 } from "../controllers/farmController.js";
@@ -16,6 +17,7 @@ import {
   createFarmSchema,
   updateFarmSchema,
   createBulkFarmsSchema,
+  deleteBulkFarmsSchema,
 } from "../validations/farmSchemas.js";
 
 const router = Router();
@@ -49,6 +51,12 @@ router.put(
 );
 
 router.delete("/all", authorizeRoles(["admin"]), deleteAllFarms);
+router.delete(
+  "/bulk",
+  authorizeRoles(["admin"]),
+  zodValidate(deleteBulkFarmsSchema),
+  deleteBulkFarms
+);
 router.delete("/:farmId", authorizeRoles(["admin"]), deleteFarmById);
 
 export default router;

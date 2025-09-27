@@ -6,6 +6,7 @@ import {
   createShedSchema,
   updateShedSchema,
   createBulkShedsSchema,
+  deleteBulkShedsSchema,
 } from "../validations/shedSchemas.js";
 import {
   getAllSheds,
@@ -14,6 +15,7 @@ import {
   createShed,
   updateShedById,
   deleteAllSheds,
+  deleteBulkSheds,
   deleteShedById,
   getShedsForDropdown,
 } from "../controllers/shedController.js";
@@ -53,6 +55,12 @@ router.put(
 
 // Delete shed
 router.delete("/all", authorizeRoles(["admin"]), deleteAllSheds);
+router.delete(
+  "/bulk",
+  authorizeRoles(["admin"]),
+  zodValidate(deleteBulkShedsSchema),
+  deleteBulkSheds
+);
 router.delete("/:shedId", authorizeRoles(["admin"]), deleteShedById);
 
 export default router;

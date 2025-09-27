@@ -1,19 +1,30 @@
 "use client";
-import React, { useState } from "react";
-import { useGetAllUsers } from "@/features/users/hooks/useGetAllUsers";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import React from "react";
+import { useGetAllUsers } from "@/features/admin/users/hooks/useGetAllUsers";
+import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Users } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
-import UserCard from "@/features/users/components/UserCard";
-import UsersHeader from "@/features/users/components/UsersHeader";
+import UsersTable from "@/features/admin/users/components/UsersTable";
+import UsersHeader from "@/features/admin/users/components/UsersHeader";
+import UsersFilters from "@/features/admin/users/components/UsersFilters";
+import Pagination from "@/features/shared/components/Pagination";
+import { useUsersQueryParams } from "@/features/admin/users/hooks/useUsersQueryParams";
 
 const UsersPage = () => {
-  const [search, setSearch] = useState("");
-  const { data, isLoading, isError, error } = useGetAllUsers();
+  const { query, setPage, setLimit } = useUsersQueryParams();
+  const { data, isLoading, isError, error } = useGetAllUsers(query);
+
+  const users = data?.data || [];
+  const pagination = data?.pagination ?? {
+    page: 1,
+    limit: 1,
+    totalCount: 0,
+    hasMore: false,
+  };
 
   if (isLoading) {
-    return <CardsSkeleton />;
+    return <TableSkeleton />;
   }
 
   if (isError) {
@@ -29,29 +40,27 @@ const UsersPage = () => {
     );
   }
 
-  const users = data?.data || [];
-  const filteredUsers = users.filter((user) =>
-    user.username.toLowerCase().includes(search.toLowerCase())
-  );
   return (
     <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
-      {/* Page header */}
-      <UsersHeader
-        search={search}
-        setSearch={setSearch}
-        totalUsers={users.length}
+      {/* Users header */}
+      <UsersHeader totalUsers={pagination.totalCount} />
+      {/* Filters */}
+      <UsersFilters />
+      {/* Table */}
+      <div className="flex-1 overflow-y-scroll pb-1 mt-4">
+        {users.length > 0 ? (
+          <UsersTable users={users} />
+        ) : (
+          <DataNotFound title="users" icon={<Users className="w-10 h-10" />} />
+        )}
+      </div>
+      <Pagination
+        page={pagination.page}
+        limit={pagination.limit}
+        hasMore={pagination.hasMore}
+        onChangePage={setPage}
+        onChangeLimit={setLimit}
       />
-
-      {/* Users grid */}
-      {filteredUsers.length > 0 ? (
-        <div className="flex-1 overflow-y-scroll grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredUsers.map((user) => (
-            <UserCard key={user._id} user={user} />
-          ))}
-        </div>
-      ) : (
-        <DataNotFound title="users" icon={<Users className="w-10 h-10" />} />
-      )}
     </div>
   );
 };

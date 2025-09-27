@@ -43,3 +43,11 @@ export const updateFarmSchema = z.object({
   query: z.object({}).optional(),
   params: z.object({}).optional(),
 });
+
+export const deleteBulkFarmsSchema = z.object({
+  body: z
+    .array(z.string().min(1, "Farm ID cannot be empty"))
+    .min(1, "At least one farm ID is required"),
+  query: z.object({}).optional(),
+  params: z.object({}).optional(),
+});

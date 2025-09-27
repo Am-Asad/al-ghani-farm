@@ -6,6 +6,7 @@ import {
   createBulkLedgersSchema,
   createLedgerSchema,
   updateLedgerSchema,
+  deleteBulkLedgersSchema,
 } from "../validations/ledgerSchemas.js";
 import {
   getAllLedgers,
@@ -14,6 +15,7 @@ import {
   createLedger,
   updateLedgerById,
   deleteAllLedgers,
+  deleteBulkLedgers,
   deleteLedgerById,
 } from "../controllers/ledgerController.js";
 
@@ -51,6 +53,12 @@ router.put(
 
 // Delete ledger
 router.delete("/all", authorizeRoles(["admin"]), deleteAllLedgers);
+router.delete(
+  "/bulk",
+  authorizeRoles(["admin"]),
+  zodValidate(deleteBulkLedgersSchema),
+  deleteBulkLedgers
+);
 router.delete("/:ledgerId", authorizeRoles(["admin"]), deleteLedgerById);
 
 export default router;

@@ -173,3 +173,11 @@ export const createBulkFlocksSchema = z.object({
   query: z.object({}).optional(),
   params: z.object({}).optional(),
 });
+
+export const deleteBulkFlocksSchema = z.object({
+  body: z
+    .array(z.string().min(1, "Flock ID is required"))
+    .min(1, "At least one flock ID is required"),
+  query: z.object({}).optional(),
+  params: z.object({}).optional(),
+});

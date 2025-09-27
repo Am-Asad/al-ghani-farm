@@ -9,7 +9,7 @@ import BuyersHeader from "../buyers/components/BuyerHeader";
 import { useBuyersQueryParams } from "../buyers/hooks/useBuyersQueryParams";
 import BuyersFilters from "../buyers/components/BuyersFilters";
 import Pagination from "@/features/shared/components/Pagination";
-import BuyersTable from "./BuyersTable";
+import BuyersTable from "../buyers/components/BuyersTable";
 
 const BuyersTab = () => {
   const { query, setPage, setLimit } = useBuyersQueryParams();

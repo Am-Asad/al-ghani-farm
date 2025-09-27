@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { FarmModel } from "../models/farms.js";
 import { FlockModel } from "../models/flocks.js";
@@ -146,6 +147,76 @@ export const deleteAllFarms = asyncHandler(async (req, res) => {
       "All farms and their associated sheds, flocks, and ledgers deleted successfully",
     data: {
       deletedFarms: farms.deletedCount,
+    },
+  });
+});
+
+export const deleteBulkFarms = asyncHandler(async (req, res) => {
+  const farmIds = req.body;
+
+  // Validate input
+  if (!Array.isArray(farmIds) || farmIds.length === 0) {
+    throw new AppError(
+      "Farm IDs array is required",
+      400,
+      "INVALID_FARM_IDS",
+      true
+    );
+  }
+
+  // Validate that all farmIds are valid ObjectIds
+  const validFarmIds = farmIds.filter(
+    (id) => typeof id === "string" && mongoose.Types.ObjectId.isValid(id)
+  );
+
+  if (validFarmIds.length === 0) {
+    throw new AppError(
+      "No valid farm IDs provided",
+      400,
+      "INVALID_FARM_IDS",
+      true
+    );
+  }
+
+  // Check if farms exist
+  const existingFarms = await FarmModel.find({ _id: { $in: validFarmIds } });
+  if (existingFarms.length === 0) {
+    throw new AppError(
+      "No farms found with provided IDs",
+      404,
+      "FARMS_NOT_FOUND",
+      true
+    );
+  }
+
+  // 1. Delete all ledgers associated with these farms
+  const deletedLedgers = await LedgerModel.deleteMany({
+    farmId: { $in: validFarmIds },
+  });
+
+  // 2. Delete all flocks associated with these farms
+  const deletedFlocks = await FlockModel.deleteMany({
+    farmId: { $in: validFarmIds },
+  });
+
+  // 3. Delete all sheds associated with these farms
+  const deletedSheds = await ShedModel.deleteMany({
+    farmId: { $in: validFarmIds },
+  });
+
+  // 4. Finally delete the farms themselves
+  const deletedFarms = await FarmModel.deleteMany({
+    _id: { $in: validFarmIds },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: `Successfully deleted ${validFarmIds.length} farms and their associated data`,
+    data: {
+      deletedFarms: deletedFarms.deletedCount,
+      deletedFlocks: deletedFlocks.deletedCount,
+      deletedSheds: deletedSheds.deletedCount,
+      deletedLedgers: deletedLedgers.deletedCount,
     },
   });
 });

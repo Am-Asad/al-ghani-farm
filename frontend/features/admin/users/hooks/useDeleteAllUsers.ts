@@ -5,27 +5,27 @@ import { queryKeys } from "@/lib/query-client";
 import { AxiosError } from "axios";
 import { APIResponse } from "@/types";
 
-export const useDeleteBulkUsers = () => {
+export const useDeleteAllUsers = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     onMutate: () => {
-      toast.loading("Deleting users...", { id: "deleteBulkUsers" });
+      toast.loading("Deleting all users...", { id: "deleteAllUsers" });
     },
     mutationFn: async () => {
       const response = await api.delete<APIResponse<[]>>(`/users/all`);
       return response.data;
     },
     onSuccess: (response) => {
-      toast.success(response.message, { id: "deleteBulkUsers" });
+      toast.success(response.message, { id: "deleteAllUsers" });
       queryClient.invalidateQueries({ queryKey: queryKeys.users });
     },
     onError: (error) => {
       toast.error(
         error instanceof AxiosError
           ? error.response?.data?.error?.message
-          : "Delete bulk users failed",
-        { id: "deleteBulkUsers" }
+          : "Delete all users failed",
+        { id: "deleteAllUsers" }
       );
     },
   });

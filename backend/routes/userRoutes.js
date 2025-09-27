@@ -5,6 +5,7 @@ import {
   createUser,
   updateSingleUser,
   deleteAllUsers,
+  deleteBulkUsers,
   deleteSingleUser,
   getMeUser,
   createUserBulk,
@@ -13,9 +14,11 @@ import { authHandler } from "../middleware/authHandler.js";
 import { authorizeRoles } from "../middleware/authorizeRoles.js";
 import { zodValidate } from "../middleware/zodValidate.js";
 import {
+  getAllUsersSchema,
   updateUserSchema,
   createUserSchema,
   createUserBulkSchema,
+  deleteBulkUsersSchema,
 } from "../validations/userSchemas.js";
 
 const router = Router();
@@ -24,7 +27,7 @@ const router = Router();
 router.use(authHandler);
 
 // Routes
-router.get("/", getAllUsers);
+router.get("/", zodValidate(getAllUsersSchema), getAllUsers);
 router.get("/me", getMeUser);
 router.get("/:id", getSingleUser);
 
@@ -49,6 +52,12 @@ router.put(
 );
 
 router.delete("/all", authorizeRoles(["admin"]), deleteAllUsers);
+router.delete(
+  "/bulk",
+  authorizeRoles(["admin"]),
+  zodValidate(deleteBulkUsersSchema),
+  deleteBulkUsers
+);
 router.delete("/:id", authorizeRoles(["admin"]), deleteSingleUser);
 
 export default router;

@@ -360,6 +360,64 @@ export const deleteAllFlocks = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const deleteBulkFlocks = asyncHandler(async (req, res, next) => {
+  const flockIds = req.body;
+
+  // Validate input
+  if (!Array.isArray(flockIds) || flockIds.length === 0) {
+    throw new AppError(
+      "Flock IDs array is required",
+      400,
+      "INVALID_FLOCK_IDS",
+      true
+    );
+  }
+
+  // Validate that all flockIds are valid ObjectIds
+  const validFlockIds = flockIds.filter(
+    (id) => typeof id === "string" && mongoose.Types.ObjectId.isValid(id)
+  );
+
+  if (validFlockIds.length === 0) {
+    throw new AppError(
+      "No valid flock IDs provided",
+      400,
+      "INVALID_FLOCK_IDS",
+      true
+    );
+  }
+
+  // Check if flocks exist
+  const existingFlocks = await FlockModel.find({ _id: { $in: validFlockIds } });
+  if (existingFlocks.length === 0) {
+    throw new AppError(
+      "No flocks found with provided IDs",
+      404,
+      "FLOCKS_NOT_FOUND",
+      true
+    );
+  }
+
+  // Delete all ledgers associated with these flocks
+  const deletedLedgers = await LedgerModel.deleteMany({
+    flockId: { $in: validFlockIds },
+  });
+
+  // Finally delete the flocks themselves
+  const deletedFlocks = await FlockModel.deleteMany({
+    _id: { $in: validFlockIds },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: `Successfully deleted ${validFlockIds.length} flocks and their associated data`,
+    data: {
+      deletedFlocks: deletedFlocks.deletedCount,
+      deletedLedgers: deletedLedgers.deletedCount,
+    },
+  });
+});
+
 export const deleteFlockById = asyncHandler(async (req, res, next) => {
   const { flockId } = req.params;
 

@@ -72,3 +72,11 @@ export const createBulkBuyersSchema = z.object({
   query: z.object({}).optional(),
   params: z.object({}).optional(),
 });
+
+export const deleteBulkBuyersSchema = z.object({
+  body: z
+    .array(z.string().min(1, "Buyer ID is required"))
+    .min(1, "At least one buyer ID is required"),
+  query: z.object({}).optional(),
+  params: z.object({}).optional(),
+});

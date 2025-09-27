@@ -324,6 +324,64 @@ export const deleteAllSheds = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const deleteBulkSheds = asyncHandler(async (req, res, next) => {
+  const shedIds = req.body;
+
+  // Validate input
+  if (!Array.isArray(shedIds) || shedIds.length === 0) {
+    throw new AppError(
+      "Shed IDs array is required",
+      400,
+      "INVALID_SHED_IDS",
+      true
+    );
+  }
+
+  // Validate that all shedIds are valid ObjectIds
+  const validShedIds = shedIds.filter(
+    (id) => typeof id === "string" && mongoose.Types.ObjectId.isValid(id)
+  );
+
+  if (validShedIds.length === 0) {
+    throw new AppError(
+      "No valid shed IDs provided",
+      400,
+      "INVALID_SHED_IDS",
+      true
+    );
+  }
+
+  // Check if sheds exist
+  const existingSheds = await ShedModel.find({ _id: { $in: validShedIds } });
+  if (existingSheds.length === 0) {
+    throw new AppError(
+      "No sheds found with provided IDs",
+      404,
+      "SHEDS_NOT_FOUND",
+      true
+    );
+  }
+
+  // Delete all ledgers associated with these sheds
+  const deletedLedgers = await LedgerModel.deleteMany({
+    shedId: { $in: validShedIds },
+  });
+
+  // Finally delete the sheds themselves
+  const deletedSheds = await ShedModel.deleteMany({
+    _id: { $in: validShedIds },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: `Successfully deleted ${validShedIds.length} sheds and their associated data`,
+    data: {
+      deletedSheds: deletedSheds.deletedCount,
+      deletedLedgers: deletedLedgers.deletedCount,
+    },
+  });
+});
+
 export const deleteShedById = asyncHandler(async (req, res, next) => {
   const { shedId } = req.params;
 

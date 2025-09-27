@@ -6,6 +6,7 @@ import {
   createFlockSchema,
   updateFlockSchema,
   createBulkFlocksSchema,
+  deleteBulkFlocksSchema,
 } from "../validations/flockSchemas.js";
 import {
   getAllFlocks,
@@ -14,6 +15,7 @@ import {
   createFlock,
   updateFlockById,
   deleteAllFlocks,
+  deleteBulkFlocks,
   deleteFlockById,
   getFlocksForDropdown,
 } from "../controllers/flockController.js";
@@ -53,6 +55,12 @@ router.put(
 
 // Delete flock
 router.delete("/all", authorizeRoles(["admin"]), deleteAllFlocks);
+router.delete(
+  "/bulk",
+  authorizeRoles(["admin"]),
+  zodValidate(deleteBulkFlocksSchema),
+  deleteBulkFlocks
+);
 router.delete("/:flockId", authorizeRoles(["admin"]), deleteFlockById);
 
 export default router;

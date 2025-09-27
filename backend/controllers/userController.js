@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { UserModel } from "../models/users.js";
 import { AppError } from "../utils/AppError.js";
@@ -5,11 +6,42 @@ import bcrypt from "bcryptjs";
 
 // Get
 export const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await UserModel.find().sort({ createdAt: -1 });
+  const {
+    search = "",
+    role = "",
+    limit = "10",
+    page = "1",
+    sortBy = "createdAt",
+    sortOrder = "desc",
+  } = req.query;
+
+  const limitNum = Math.max(parseInt(limit, 10) || 10, 0);
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const offsetNum = (pageNum - 1) * limitNum;
+  const sortField = ["createdAt", "updatedAt"].includes(sortBy)
+    ? sortBy
+    : "createdAt";
+  const sortDir = sortOrder === "asc" ? "asc" : "desc";
+
+  const { items, total } = await UserModel.getAllUsersPaginated({
+    search,
+    role,
+    limit: limitNum,
+    offset: offsetNum,
+    sortBy: sortField,
+    sortOrder: sortDir,
+  });
+
   res.status(200).json({
     status: "success",
     message: "Users fetched successfully",
-    data: users,
+    data: items.map((user) => ({ ...user })),
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      totalCount: total,
+      hasMore: offsetNum + items.length < total,
+    },
   });
 });
 
@@ -142,5 +174,66 @@ export const deleteAllUsers = asyncHandler(async (req, res) => {
     status: "success",
     message: "All users deleted successfully",
     data: [],
+  });
+});
+
+export const deleteBulkUsers = asyncHandler(async (req, res, next) => {
+  const userIds = req.body;
+
+  // Validate input
+  if (!Array.isArray(userIds) || userIds.length === 0) {
+    throw new AppError(
+      "User IDs array is required",
+      400,
+      "INVALID_USER_IDS",
+      true
+    );
+  }
+
+  // Validate that all userIds are valid ObjectIds
+  const validUserIds = userIds.filter(
+    (id) => typeof id === "string" && mongoose.Types.ObjectId.isValid(id)
+  );
+
+  if (validUserIds.length === 0) {
+    throw new AppError(
+      "No valid user IDs provided",
+      400,
+      "INVALID_USER_IDS",
+      true
+    );
+  }
+
+  if (validUserIds.length !== userIds.length) {
+    throw new AppError(
+      "Some user IDs are invalid",
+      400,
+      "INVALID_USER_IDS",
+      true
+    );
+  }
+
+  // Check if users exist
+  const existingUsers = await UserModel.find({ _id: { $in: validUserIds } });
+  if (existingUsers.length === 0) {
+    throw new AppError(
+      "No users found with provided IDs",
+      404,
+      "USERS_NOT_FOUND",
+      true
+    );
+  }
+
+  // Delete the users
+  const deletedUsers = await UserModel.deleteMany({
+    _id: { $in: validUserIds },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: `Successfully deleted ${validUserIds.length} users`,
+    data: {
+      deletedUsers: deletedUsers.deletedCount,
+    },
   });
 });

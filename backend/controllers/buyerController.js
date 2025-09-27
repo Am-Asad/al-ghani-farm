@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { BuyerModel } from "../models/buyer.js";
 import { LedgerModel } from "../models/ledger.js";
@@ -168,6 +169,64 @@ export const deleteAllBuyers = asyncHandler(async (req, res, next) => {
     data: {
       deletedBuyers: deletedBuyers.deletedCount,
       deletedLedgers: "All related ledgers",
+    },
+  });
+});
+
+export const deleteBulkBuyers = asyncHandler(async (req, res, next) => {
+  const buyerIds = req.body;
+
+  // Validate input
+  if (!Array.isArray(buyerIds) || buyerIds.length === 0) {
+    throw new AppError(
+      "Buyer IDs array is required",
+      400,
+      "INVALID_BUYER_IDS",
+      true
+    );
+  }
+
+  // Validate that all buyerIds are valid ObjectIds
+  const validBuyerIds = buyerIds.filter(
+    (id) => typeof id === "string" && mongoose.Types.ObjectId.isValid(id)
+  );
+
+  if (validBuyerIds.length === 0) {
+    throw new AppError(
+      "No valid buyer IDs provided",
+      400,
+      "INVALID_BUYER_IDS",
+      true
+    );
+  }
+
+  // Check if buyers exist
+  const existingBuyers = await BuyerModel.find({ _id: { $in: validBuyerIds } });
+  if (existingBuyers.length === 0) {
+    throw new AppError(
+      "No buyers found with provided IDs",
+      404,
+      "BUYERS_NOT_FOUND",
+      true
+    );
+  }
+
+  // Delete all ledgers associated with these buyers
+  const deletedLedgers = await LedgerModel.deleteMany({
+    buyerId: { $in: validBuyerIds },
+  });
+
+  // Finally delete the buyers themselves
+  const deletedBuyers = await BuyerModel.deleteMany({
+    _id: { $in: validBuyerIds },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: `Successfully deleted ${validBuyerIds.length} buyers and their associated data`,
+    data: {
+      deletedBuyers: deletedBuyers.deletedCount,
+      deletedLedgers: deletedLedgers.deletedCount,
     },
   });
 });

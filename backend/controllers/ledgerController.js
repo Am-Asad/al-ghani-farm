@@ -503,3 +503,57 @@ export const deleteAllLedgers = asyncHandler(async (req, res, next) => {
     },
   });
 });
+
+export const deleteBulkLedgers = asyncHandler(async (req, res, next) => {
+  const ledgerIds = req.body;
+
+  // Validate input
+  if (!Array.isArray(ledgerIds) || ledgerIds.length === 0) {
+    throw new AppError(
+      "Ledger IDs array is required",
+      400,
+      "INVALID_LEDGER_IDS",
+      true
+    );
+  }
+
+  // Validate that all ledgerIds are valid ObjectIds
+  const validLedgerIds = ledgerIds.filter(
+    (id) => typeof id === "string" && mongoose.Types.ObjectId.isValid(id)
+  );
+
+  if (validLedgerIds.length === 0) {
+    throw new AppError(
+      "No valid ledger IDs provided",
+      400,
+      "INVALID_LEDGER_IDS",
+      true
+    );
+  }
+
+  // Check if ledgers exist
+  const existingLedgers = await LedgerModel.find({
+    _id: { $in: validLedgerIds },
+  });
+  if (existingLedgers.length === 0) {
+    throw new AppError(
+      "No ledgers found with provided IDs",
+      404,
+      "LEDGERS_NOT_FOUND",
+      true
+    );
+  }
+
+  // Delete the ledgers themselves
+  const deletedLedgers = await LedgerModel.deleteMany({
+    _id: { $in: validLedgerIds },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: `Successfully deleted ${validLedgerIds.length} ledgers`,
+    data: {
+      deletedLedgers: deletedLedgers.deletedCount,
+    },
+  });
+});

@@ -254,3 +254,11 @@ export const createBulkLedgersSchema = z.object({
   query: z.object({}).optional(),
   params: z.object({}).optional(),
 });
+
+export const deleteBulkLedgersSchema = z.object({
+  body: z
+    .array(z.string().min(1, "Ledger ID is required"))
+    .min(1, "At least one ledger ID is required"),
+  query: z.object({}).optional(),
+  params: z.object({}).optional(),
+});
