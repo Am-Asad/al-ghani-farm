@@ -51,7 +51,7 @@ const UsersFilters = () => {
     });
 
   return (
-    <div className="space-y-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className="space-y-4 p-4 bg-card border rounded-lg shadow-sm">
       {/* Search and Role Row */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
@@ -62,7 +62,7 @@ const UsersFilters = () => {
           />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Role:
           </label>
           <Select
@@ -88,7 +88,7 @@ const UsersFilters = () => {
       {/* Sort and Actions Row */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Sort by:
           </label>
           <div className="flex items-center gap-2">
@@ -140,7 +140,7 @@ const UsersFilters = () => {
             size="sm"
             variant="ghost"
             onClick={handleResetFilters}
-            className="h-9 px-4 text-gray-600 hover:text-gray-900"
+            className="h-9 px-4 text-muted-foreground hover:text-foreground"
           >
             Reset
           </Button>

@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Sidebar */}
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         {/* Main content */}
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 overflow-hidden">
           {/* Top header */}
           <header className="bg-background border-b border-gray-300 flex items-center justify-between py-4 px-6">
             <div className="flex items-center gap-4 justify-between">

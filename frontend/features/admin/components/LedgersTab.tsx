@@ -6,10 +6,10 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";
 import React from "react";
 import LedgerHeader from "../ledgers/components/LedgerHeader";
-import LedgerCard from "../ledgers/components/LedgerCard";
 import { useLedgerQueryParams } from "../ledgers/hooks/useLedgerQueryParams";
 import LedgerFilters from "../flocks/components/LedgerFilters";
 import Pagination from "@/features/shared/components/Pagination";
+import LedgersTable from "../ledgers/components/LedgersTable";
 
 const LedgersTab = () => {
   const { query, setPage, setLimit } = useLedgerQueryParams();
@@ -43,17 +43,13 @@ const LedgersTab = () => {
   return (
     <div className="space-y-6">
       {/* Ledgers header */}
-      <LedgerHeader totalLedgers={ledgers.length} />
+      <LedgerHeader totalLedgers={ledgers.length} showActions={true} />
       {/* Filters */}
       <LedgerFilters />
       {/* Ledgers grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
         {ledgers.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ledgers.map((ledger) => (
-              <LedgerCard key={ledger._id} ledger={ledger} />
-            ))}
-          </div>
+          <LedgersTable ledgers={ledgers} />
         ) : (
           <DataNotFound
             title="ledgers"

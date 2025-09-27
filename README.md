@@ -10,11 +10,6 @@
 
 [x] Decide how to show data in tables and how to add filters and pagination.
 [x] Decide the frontend of the application thoroughly, as what to show on details page, what to show on simple pages, and what to show in reports and in ledgers.
-[x] Filteration system and pagination implemented for farms.
-[x] Filteration system and pagination implemented for buyers.
-[x] Filteration system and pagination implemented for sheds.
-[x] Filteration system and pagination implemented for flocks.
-[x] Filteration system and pagination implemented in the admin module as well.
 [x] filters ui updated.
 [x] flocks detail card update with allocations details.
 [x] Fix the response types for flocks, farms, and sheds.
@@ -28,3 +23,7 @@
 [] Leaving the create in bulk functionality for all modules for later.
 [] Leaving the flock chicks allocation count must not be greater than the total capacity of a shed check for now.
 [] Leaving the delete in bulk functionality for all modules for now.
+
+[x] Filters and pagination implemented for all the modules.
+[] Making the application live
+[]

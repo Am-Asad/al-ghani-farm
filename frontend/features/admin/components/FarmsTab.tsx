@@ -43,7 +43,7 @@ const FarmsTab = () => {
   return (
     <div className="space-y-6">
       {/* Farms header */}
-      <FarmHeader totalFarms={farms.length} />
+      <FarmHeader />
       {/* Filters */}
       <FarmFilters />
       {/* Grid */}

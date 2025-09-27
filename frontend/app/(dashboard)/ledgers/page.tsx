@@ -8,8 +8,8 @@ import { useLedgerQueryParams } from "@/features/admin/ledgers/hooks/useLedgerQu
 import Pagination from "@/features/shared/components/Pagination";
 import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedgers";
 import LedgerHeader from "@/features/admin/ledgers/components/LedgerHeader";
-import LedgerCard from "@/features/admin/ledgers/components/LedgerCard";
 import LedgerFilters from "@/features/admin/flocks/components/LedgerFilters";
+import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
 
 const LedgersPage = () => {
   const { query, setPage, setLimit } = useLedgerQueryParams();
@@ -41,29 +41,23 @@ const LedgersPage = () => {
   }
 
   return (
-    <div className="px-6 py-4 flex flex-col flex-1 overflow-y-scroll">
+    <div className="p-6 flex flex-col flex-1 overflow-y-scroll">
       {/* Ledgers header */}
-      <LedgerHeader />
-      {/* Filters */}
-      <LedgerFilters />
-      {/* Ledgers grid */}
-      <div className="flex-1 overflow-y-scroll pb-1 mt-4">
-        {ledgers.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ledgers.map((ledger) => (
-              <LedgerCard
-                key={ledger._id}
-                ledger={ledger}
-                showActions={false}
-              />
-            ))}
-          </div>
-        ) : (
-          <DataNotFound
-            title="ledgers"
-            icon={<Building2 className="w-10 h-10" />}
-          />
-        )}
+      <LedgerHeader showActions={false} />
+      <div className="flex-1 overflow-y-scroll pb-1">
+        {/* Filters */}
+        <LedgerFilters />
+        {/* Ledgers grid */}
+        <div className="flex-1 overflow-y-scroll overflow-x-hidden pb-1 mt-4">
+          {ledgers.length > 0 ? (
+            <LedgersTable ledgers={ledgers} />
+          ) : (
+            <DataNotFound
+              title="ledgers"
+              icon={<Building2 className="w-10 h-10" />}
+            />
+          )}
+        </div>
       </div>
       {/* Pagination */}
       <Pagination

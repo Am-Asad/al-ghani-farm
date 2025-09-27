@@ -43,7 +43,7 @@ const FlocksPage = () => {
   return (
     <div className="px-6 py-4 flex flex-col flex-1 overflow-y-scroll">
       {/* Flocks header */}
-      <FlockHeader totalFlocks={flocks.length} showActions={false} />
+      <FlockHeader showActions={false} />
       {/* Filters */}
       <FlockFilters />
       {/* Flocks grid */}

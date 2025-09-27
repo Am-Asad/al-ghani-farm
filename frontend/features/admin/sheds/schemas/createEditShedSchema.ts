@@ -5,8 +5,7 @@ export const createEditShedSchema = z.object({
   capacity: z
     .number()
     .int("Capacity must be an integer")
-    .min(0, "Capacity must be at least 0")
-    .optional(),
+    .min(0, "Capacity must be at least 0"),
   farmId: z.string().min(1, "Farm is required"),
 });
 

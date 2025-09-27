@@ -189,7 +189,7 @@ const LedgerFilters = () => {
     });
 
   return (
-    <div className="space-y-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className="space-y-4 p-4 bg-card border rounded-lg shadow-sm">
       {/* Search and Farm Selection Row */}
       <div className="flex flex-col sm:flex-row gap-3 justify-between">
         <div className="flex-1">
@@ -243,7 +243,7 @@ const LedgerFilters = () => {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Date Range:
           </label>
           <div className="flex items-center gap-2">
@@ -260,7 +260,7 @@ const LedgerFilters = () => {
                       {format(new Date(pendingDateFrom), "MMM d")}
                     </span>
                   ) : (
-                    <span className="text-xs text-gray-500">From</span>
+                    <span className="text-xs text-muted-foreground">From</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -293,7 +293,7 @@ const LedgerFilters = () => {
                       {format(new Date(pendingDateTo), "MMM d")}
                     </span>
                   ) : (
-                    <span className="text-xs text-gray-500">To</span>
+                    <span className="text-xs text-muted-foreground">To</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -313,7 +313,7 @@ const LedgerFilters = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Payment:
           </label>
           <div className="flex items-center gap-2">
@@ -342,7 +342,7 @@ const LedgerFilters = () => {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Total Amount:
           </label>
           <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ const LedgerFilters = () => {
               placeholder="Min"
               className="w-24 h-9"
             />
-            <span className="text-sm text-gray-500">-</span>
+            <span className="text-sm text-muted-foreground">-</span>
             <Input
               type="number"
               inputMode="numeric"
@@ -366,7 +366,7 @@ const LedgerFilters = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Amount Paid:
           </label>
           <div className="flex items-center gap-2">
@@ -378,7 +378,7 @@ const LedgerFilters = () => {
               placeholder="Min"
               className="w-24 h-9"
             />
-            <span className="text-sm text-gray-500">-</span>
+            <span className="text-sm text-muted-foreground">-</span>
             <Input
               type="number"
               inputMode="numeric"
@@ -390,7 +390,7 @@ const LedgerFilters = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Balance:
           </label>
           <div className="flex items-center gap-2">
@@ -402,7 +402,7 @@ const LedgerFilters = () => {
               placeholder="Min"
               className="w-24 h-9"
             />
-            <span className="text-sm text-gray-500">-</span>
+            <span className="text-sm text-muted-foreground">-</span>
             <Input
               type="number"
               inputMode="numeric"
@@ -418,7 +418,7 @@ const LedgerFilters = () => {
       <div className="flex flex-col sm:flex-row gap-3"></div>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Net Wt:
           </label>
           <div className="flex items-center gap-2">
@@ -430,7 +430,7 @@ const LedgerFilters = () => {
               placeholder="Min"
               className="w-24 h-9"
             />
-            <span className="text-sm text-gray-500">-</span>
+            <span className="text-sm text-muted-foreground">-</span>
             <Input
               type="number"
               inputMode="numeric"
@@ -446,7 +446,7 @@ const LedgerFilters = () => {
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+            <label className="text-sm font-medium text-foreground whitespace-nowrap">
               Sort by:
             </label>
             <div className="flex items-center gap-2">
@@ -485,7 +485,7 @@ const LedgerFilters = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+            <label className="text-sm font-medium text-foreground whitespace-nowrap">
               Status:
             </label>
             <div className="flex items-center gap-2">
@@ -521,7 +521,7 @@ const LedgerFilters = () => {
             size="sm"
             variant="ghost"
             onClick={handleResetFilters}
-            className="h-9 px-4 text-gray-600 hover:text-gray-900"
+            className="h-9 px-4 text-muted-foreground hover:text-foreground"
           >
             Reset
           </Button>

@@ -43,7 +43,7 @@ const ShedsPage = () => {
   return (
     <div className="px-6 py-4 flex flex-col flex-1 overflow-y-scroll">
       {/* Sheds header */}
-      <ShedsHeader totalSheds={sheds.length} showActions={false} />
+      <ShedsHeader showActions={false} />
       {/* Filters */}
       <ShedFilters />
       {/* Users grid */}

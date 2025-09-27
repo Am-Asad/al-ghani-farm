@@ -1,22 +1,12 @@
-import { Button } from "@/components/ui/button";
-import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import { Trash } from "lucide-react";
-import { useParams } from "next/navigation";
 import React from "react";
 import CreateEditShedForm from "./CreateEditShedForm";
-import CreateBulkSheds from "./CreateBulkSheds";
-import { useDeleteBulkSheds } from "../hooks/useDeleteBulkSheds";
 
 type ShedHeaderProps = {
-  totalSheds: number;
   showActions?: boolean;
 };
 
-const ShedHeader = ({ totalSheds, showActions = true }: ShedHeaderProps) => {
-  const { farmId } = useParams() as { farmId: string };
-  const { mutate: deleteBulkSheds } = useDeleteBulkSheds();
-
+const ShedHeader = ({ showActions = true }: ShedHeaderProps) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -29,13 +19,13 @@ const ShedHeader = ({ totalSheds, showActions = true }: ShedHeaderProps) => {
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">
-        {totalSheds > 0 && showActions && (
+        {/* {totalSheds > 0 && showActions && (
           <RoleGuard requiredRole={["admin"]}>
             <ConfirmationDialog
               title={`Delete All Sheds (${totalSheds})`}
               description={`Are you sure you want to delete all ${totalSheds} sheds?`}
               confirmationText="Delete_All_Sheds"
-              onConfirm={() => deleteBulkSheds({ farmId })}
+              onConfirm={() => deleteBulkSheds([])}
               trigger={
                 <Button className="w-fit">
                   <Trash className="w-4 h-4 mr-2" />
@@ -44,12 +34,12 @@ const ShedHeader = ({ totalSheds, showActions = true }: ShedHeaderProps) => {
               }
             />
           </RoleGuard>
-        )}
+        )} */}
 
         {showActions && (
           <RoleGuard requiredRole={["admin", "manager"]}>
             <CreateEditShedForm />
-            <CreateBulkSheds />
+            {/* <CreateBulkSheds /> */}
           </RoleGuard>
         )}
       </div>

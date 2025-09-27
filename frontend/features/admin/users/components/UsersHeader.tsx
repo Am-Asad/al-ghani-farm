@@ -1,20 +1,13 @@
 "use client";
 import React from "react";
-import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
-import { useDeleteAllUsers } from "../hooks/useDeleteAllUsers";
-import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import CreateEditUserForm from "./CreateEditUserForm";
-import CreateBulkUsers from "./CreateBulkUsers";
 
 type UsersHeaderProps = {
-  totalUsers: number;
+  showActions?: boolean;
 };
 
-const UsersHeader = ({ totalUsers }: UsersHeaderProps) => {
-  const { mutate: deleteAllUsers } = useDeleteAllUsers();
-
+const UsersHeader = ({ showActions = true }: UsersHeaderProps) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col">
@@ -25,13 +18,13 @@ const UsersHeader = ({ totalUsers }: UsersHeaderProps) => {
       </div>
 
       <div className="flex-1 flex gap-2 flex-wrap">
-        {totalUsers > 0 && (
+        {/* {totalUsers > 0 && (
           <RoleGuard requiredRole={["admin"]}>
             <ConfirmationDialog
               title={`Delete All Users (${totalUsers})`}
               description={`Are you sure you want to delete all ${totalUsers} users?`}
               confirmationText={`Delete All Users (${totalUsers})`}
-              onConfirm={() => deleteAllUsers()}
+              onConfirm={() => deleteAllUsers([])}
               trigger={
                 <Button className="w-fit">
                   <Trash className="w-4 h-4 mr-2" />
@@ -40,11 +33,13 @@ const UsersHeader = ({ totalUsers }: UsersHeaderProps) => {
               }
             />
           </RoleGuard>
+        )} */}
+        {showActions && (
+          <RoleGuard requiredRole={["admin", "manager"]}>
+            <CreateEditUserForm />
+            {/* <CreateBulkUsers /> */}
+          </RoleGuard>
         )}
-        <RoleGuard requiredRole={["admin", "manager"]}>
-          <CreateEditUserForm />
-          <CreateBulkUsers />
-        </RoleGuard>
       </div>
     </div>
   );

@@ -155,17 +155,26 @@ const CreateEditShedForm = ({
 
           {/* Shed Capacity */}
           <div className="space-y-2">
-            <Label htmlFor="capacity">Capacity (Optional)</Label>
+            <Label htmlFor="capacity">Capacity</Label>
             <Input
               id="capacity"
               name="capacity"
               type="number"
               placeholder="Enter shed capacity"
-              defaultValue={selectedShed?.capacity ? selectedShed.capacity : ""}
+              defaultValue={selectedShed?.capacity ? selectedShed.capacity : 0}
+              className={`${
+                getFieldError("capacity") ? "border-destructive" : ""
+              }`}
             />
-            <p className="text-xs text-muted-foreground">
-              Maximum number of chicks this shed can hold
-            </p>
+            {getFieldError("capacity") ? (
+              <p className="text-xs text-destructive">
+                {getFieldError("capacity")}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Maximum number of chicks this shed can hold
+              </p>
+            )}
           </div>
 
           {/* Farm Id */}

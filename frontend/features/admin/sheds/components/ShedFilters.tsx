@@ -99,7 +99,7 @@ const ShedFilters = () => {
     });
 
   return (
-    <div className="space-y-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className="space-y-4 p-4 bg-card border rounded-lg shadow-sm">
       {/* Search and Farm Selection Row */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
@@ -121,7 +121,7 @@ const ShedFilters = () => {
       {/* Capacity Range Row */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Capacity:
           </label>
           <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ const ShedFilters = () => {
               placeholder="Min"
               className="w-20 h-9"
             />
-            <span className="text-sm text-gray-500">-</span>
+            <span className="text-sm text-muted-foreground">-</span>
             <Input
               type="number"
               inputMode="numeric"
@@ -147,7 +147,7 @@ const ShedFilters = () => {
 
         {/* Date Range */}
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Date Range:
           </label>
           <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ const ShedFilters = () => {
                       {format(new Date(pendingDateFrom), "MMM d")}
                     </span>
                   ) : (
-                    <span className="text-xs text-gray-500">From</span>
+                    <span className="text-xs text-muted-foreground">From</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -197,7 +197,7 @@ const ShedFilters = () => {
                       {format(new Date(pendingDateTo), "MMM d")}
                     </span>
                   ) : (
-                    <span className="text-xs text-gray-500">To</span>
+                    <span className="text-xs text-muted-foreground">To</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -221,7 +221,7 @@ const ShedFilters = () => {
       {/* Sort and Actions Row */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
             Sort by:
           </label>
           <div className="flex items-center gap-2">
@@ -273,7 +273,7 @@ const ShedFilters = () => {
             size="sm"
             variant="ghost"
             onClick={handleResetFilters}
-            className="h-9 px-4 text-gray-600 hover:text-gray-900"
+            className="h-9 px-4 text-muted-foreground hover:text-foreground"
           >
             Reset
           </Button>

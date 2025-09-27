@@ -43,7 +43,7 @@ const BuyersPage = () => {
   return (
     <div className="p-6 overflow-hidden flex flex-col flex-1">
       {/* Page header */}
-      <BuyerHeader totalBuyers={buyers.length} showActions={false} />
+      <BuyerHeader showActions={false} />
       {/* Filters */}
       <BuyersFilters />
       {/* Grid */}

@@ -7,6 +7,7 @@ import { Building2, X } from "lucide-react";
 import { User } from "lucide-react";
 import { LogOut } from "lucide-react";
 import { useAuthContext } from "@/providers/AuthProvider";
+import Link from "next/link";
 
 type SidebarProps = {
   sidebarOpen: boolean;
@@ -26,9 +27,12 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       <div className="flex items-center justify-between py-5 px-6 border-b border-sidebar-border">
         <div className="flex items-center space-x-2">
           <Building2 className="w-8 h-8 text-sidebar-primary" />
-          <h1 className="text-xl font-bold text-sidebar-foreground">
+          <Link
+            href="/"
+            className="text-xl font-bold text-sidebar-foreground hover:text-sidebar-primary transition-colors"
+          >
             AL GHANI
-          </h1>
+          </Link>
         </div>
         <Button
           variant="ghost"

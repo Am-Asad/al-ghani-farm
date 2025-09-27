@@ -202,16 +202,16 @@ const DataTable = <T,>({
 
   if (data.length === 0) {
     return (
-      <div
-        className={`rounded-lg border bg-white p-8 text-center ${className}`}
-      >
+      <div className={`rounded-lg border bg-card p-8 text-center ${className}`}>
         <p className="text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className={`rounded-lg border bg-white ${className}`}>
+    <div
+      className={`rounded-lg w-full border bg-card overflow-hidden ${className}`}
+    >
       {showColumnVisibilityToggle && (
         <div className="flex justify-between items-center p-4 border-b">
           <div className="flex gap-2 items-center">
@@ -259,12 +259,21 @@ const DataTable = <T,>({
           </DropdownMenu>
         </div>
       )}
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="overflow-x-auto w-full">
+        <table className="w-full table-auto min-w-max">
+          <colgroup>
+            {selectionMode !== "none" && <col className="w-12" />}
+            {visibleColumns.map((column) => (
+              <col key={column.id} style={{ width: column.width || "auto" }} />
+            ))}
+            {(rowActions.length > 0 || customActions) && (
+              <col className="w-20" />
+            )}
+          </colgroup>
           <thead>
             <tr className="border-b">
               {selectionMode !== "none" && (
-                <th className="w-12 p-4">
+                <th className="p-4">
                   {selectionMode === "multiple" && (
                     <Checkbox
                       checked={
@@ -281,20 +290,19 @@ const DataTable = <T,>({
               {visibleColumns.map((column) => (
                 <th
                   key={column.id}
-                  className="p-4 text-left font-medium text-gray-900"
-                  style={{ width: column.width }}
+                  className="p-4 text-left font-medium text-foreground"
                 >
-                  <span>{column.header}</span>
+                  {column.header}
                 </th>
               ))}
               {(rowActions.length > 0 || customActions) && (
-                <th className="w-12 p-4 text-left font-medium text-gray-900">
+                <th className="p-4 text-left font-medium text-foreground">
                   Actions
                 </th>
               )}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="overflow-hidden">
             {data.map((row) => {
               const rowId = getRowId(row);
               const isSelected = selectionState.selectedRows.has(rowId);
@@ -303,7 +311,7 @@ const DataTable = <T,>({
                 <tr
                   key={rowId}
                   className={`border-b last:border-b-0 ${
-                    isSelected ? "bg-gray-50" : "hover:bg-gray-50"
+                    isSelected ? "bg-muted/50" : "hover:bg-muted/50"
                   }`}
                 >
                   {selectionMode !== "none" && (
@@ -318,7 +326,7 @@ const DataTable = <T,>({
                     </td>
                   )}
                   {visibleColumns.map((column) => (
-                    <td key={column.id} className="p-4 text-gray-700">
+                    <td key={column.id} className="p-4 text-foreground">
                       {renderCell(column, row)}
                     </td>
                   ))}

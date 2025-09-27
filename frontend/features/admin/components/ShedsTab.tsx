@@ -43,7 +43,7 @@ const ShedsTab = () => {
   return (
     <div className="space-y-6">
       {/* Sheds header */}
-      <ShedsHeader totalSheds={sheds.length} />
+      <ShedsHeader showActions={true} />
       {/* Filters */}
       <ShedFilters />
       {/* Grid */}

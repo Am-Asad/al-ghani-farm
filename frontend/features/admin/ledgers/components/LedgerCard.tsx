@@ -1,5 +1,5 @@
 import React from "react";
-import { LedgerResponse as LedgerResponseType } from "@/types";
+import { Ledger as LedgerType } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Truck, User, Weight, Calendar, Expand } from "lucide-react";
@@ -13,13 +13,13 @@ import { useDeleteLedger } from "../hooks/useDeleteLedger";
 import { Button } from "@/components/ui/button";
 
 type LedgerCardProps = {
-  ledger: LedgerResponseType;
+  ledger: LedgerType;
   showActions?: boolean;
 };
 
 const LedgerCard = ({ ledger, showActions = true }: LedgerCardProps) => {
   const { mutate: deleteLedger } = useDeleteLedger();
-  const balance = ledger.balance || ledger.totalAmount - ledger.amountPaid;
+  const balance = ledger.totalAmount - ledger.amountPaid;
   const isPaid = balance <= 0;
   const isOverdue = balance > 0;
 

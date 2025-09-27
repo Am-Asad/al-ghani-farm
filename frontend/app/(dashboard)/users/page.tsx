@@ -43,7 +43,7 @@ const UsersPage = () => {
   return (
     <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
       {/* Users header */}
-      <UsersHeader totalUsers={pagination.totalCount} />
+      <UsersHeader showActions={true} />
       {/* Filters */}
       <UsersFilters />
       {/* Table */}
