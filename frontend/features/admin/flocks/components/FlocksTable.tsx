@@ -12,6 +12,7 @@ import { Flock as FlockType } from "@/types";
 import { useDeleteFlock } from "../hooks/useDeleteFlock";
 import { useDeleteBulkFlocks } from "../hooks/useDeleteBulkFlocks";
 import CreateEditFlockForm from "./CreateEditFlockForm";
+import { useRouter } from "next/navigation";
 
 type FlocksTableProps = {
   flocks: FlockType[];
@@ -21,6 +22,7 @@ const FlocksTable = ({ flocks }: FlocksTableProps) => {
   const [selectedFlocks, setSelectedFlocks] = useState<FlockType[]>([]);
   const { mutate: deleteFlock } = useDeleteFlock();
   const { mutate: deleteBulkFlocks } = useDeleteBulkFlocks();
+  const router = useRouter();
 
   const columns: Column<FlockType>[] = [
     {
@@ -100,7 +102,7 @@ const FlocksTable = ({ flocks }: FlocksTableProps) => {
           variant="ghost"
           size="sm"
           className="w-full justify-start"
-          onClick={() => alert(`Viewing details for ${row.name}`)}
+          onClick={() => router.push(`/flocks/${row._id}`)}
         >
           <Eye className="mr-2 h-4 w-4" />
           View Details

@@ -11,6 +11,7 @@ import CreateEditShedForm from "./CreateEditShedForm";
 import { useDeleteBulkSheds } from "../hooks/useDeleteBulkSheds";
 import { Button } from "@/components/ui/button";
 import { Edit, Eye, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type ShedsTableProps = {
   sheds: ShedType[];
@@ -20,6 +21,7 @@ const ShedsTable = ({ sheds }: ShedsTableProps) => {
   const [selectedSheds, setSelectedSheds] = useState<ShedType[]>([]);
   const { mutate: deleteShed } = useDeleteShed();
   const { mutate: deleteBulkSheds } = useDeleteBulkSheds();
+  const router = useRouter();
 
   const columns: Column<ShedType>[] = [
     {
@@ -63,7 +65,7 @@ const ShedsTable = ({ sheds }: ShedsTableProps) => {
           variant="ghost"
           size="sm"
           className="w-full justify-start"
-          onClick={() => alert(`Viewing details for ${row.name}`)}
+          onClick={() => router.push(`/sheds/${row._id}`)}
         >
           <Eye className="mr-2 h-4 w-4" />
           View Details

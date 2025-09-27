@@ -25,5 +25,5 @@
 [] Leaving the delete in bulk functionality for all modules for now.
 
 [x] Filters and pagination implemented for all the modules.
-[] Making the application live
+[x] Making the application live
 []
