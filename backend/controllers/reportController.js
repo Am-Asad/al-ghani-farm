@@ -2351,6 +2351,9 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
     driverNames,
     accountantNames,
 
+    // Search
+    search,
+
     // Sorting and pagination
     sortBy = "date",
     sortOrder = "desc",
@@ -2606,6 +2609,9 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
     matchConditions.push({ accountantName: { $in: accountantNameList } });
   }
 
+  // Add search filter (will be applied after lookups)
+  // Note: Search for related entities will be handled after $addFields stage
+
   // Validate sort parameters
   const allowedSortFields = [
     "date",
@@ -2711,6 +2717,30 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
       },
     },
   ];
+
+  // Add search filter after lookups (to search across related entities)
+  if (search && search.trim()) {
+    console.log("Search filter applied:", search.trim());
+    const searchRegex = new RegExp(search.trim(), "i");
+    pipeline.push({
+      $match: {
+        $or: [
+          { vehicleNumber: searchRegex },
+          { driverName: searchRegex },
+          { driverContact: searchRegex },
+          { accountantName: searchRegex },
+          { "buyerInfo.name": searchRegex },
+          { "buyerInfo.contactNumber": searchRegex },
+          { "farmInfo.name": searchRegex },
+          { "farmInfo.supervisor": searchRegex },
+          { "flockInfo.name": searchRegex },
+          { "shedInfo.name": searchRegex },
+        ],
+      },
+    });
+  } else {
+    console.log("No search filter applied. Search value:", search);
+  }
 
   // Add grouping based on groupBy parameter
   if (validGroupBy === "none") {

@@ -50,9 +50,10 @@ export const formatCurrency = (
  * Format a number with custom options
  */
 export const formatNumber = (
-  value: number,
+  value: number | undefined | null,
   options: NumberFormatOptions = {}
 ): string => {
+  const safeValue = value ?? 0;
   const {
     locale = "en-US",
     minimumFractionDigits = 0,
@@ -73,7 +74,7 @@ export const formatNumber = (
     formatOptions.compactDisplay = compactDisplay;
   }
 
-  return value.toLocaleString(locale, formatOptions);
+  return safeValue.toLocaleString(locale, formatOptions);
 };
 
 /**
@@ -98,8 +99,9 @@ export const formatPercentage = (
 /**
  * Format a number with thousands separators (legacy function for backward compatibility)
  */
-export const formatAmount = (amount: number): string => {
-  return formatNumber(amount, {
+export const formatAmount = (amount: number | undefined | null): string => {
+  const safeAmount = amount ?? 0;
+  return formatNumber(safeAmount, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
     useGrouping: true,

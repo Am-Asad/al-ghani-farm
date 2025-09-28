@@ -37,20 +37,21 @@ All requests require authentication via the `authHandler` middleware.
 
 ### Advanced Filters
 
-| Parameter         | Type   | Description                                           |
-| ----------------- | ------ | ----------------------------------------------------- |
-| `paymentStatus`   | string | Filter by payment status: `paid`, `partial`, `unpaid` |
-| `minAmount`       | number | Minimum total amount filter                           |
-| `maxAmount`       | number | Maximum total amount filter                           |
-| `minNetWeight`    | number | Minimum net weight filter                             |
-| `maxNetWeight`    | number | Maximum net weight filter                             |
-| `minBirds`        | number | Minimum bird count filter                             |
-| `maxBirds`        | number | Maximum bird count filter                             |
-| `minRate`         | number | Minimum rate filter                                   |
-| `maxRate`         | number | Maximum rate filter                                   |
-| `vehicleNumbers`  | string | Comma-separated list of vehicle numbers               |
-| `driverNames`     | string | Comma-separated list of driver names                  |
-| `accountantNames` | string | Comma-separated list of accountant names              |
+| Parameter         | Type   | Description                                                                                                                          |
+| ----------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `paymentStatus`   | string | Filter by payment status: `paid`, `partial`, `unpaid`                                                                                |
+| `minAmount`       | number | Minimum total amount filter                                                                                                          |
+| `maxAmount`       | number | Maximum total amount filter                                                                                                          |
+| `minNetWeight`    | number | Minimum net weight filter                                                                                                            |
+| `maxNetWeight`    | number | Maximum net weight filter                                                                                                            |
+| `minBirds`        | number | Minimum bird count filter                                                                                                            |
+| `maxBirds`        | number | Maximum bird count filter                                                                                                            |
+| `minRate`         | number | Minimum rate filter                                                                                                                  |
+| `maxRate`         | number | Maximum rate filter                                                                                                                  |
+| `vehicleNumbers`  | string | Comma-separated list of vehicle numbers                                                                                              |
+| `driverNames`     | string | Comma-separated list of driver names                                                                                                 |
+| `accountantNames` | string | Comma-separated list of accountant names                                                                                             |
+| `search`          | string | Search across vehicle numbers, driver names, contact numbers, accountant names, buyer names, farm names, flock names, and shed names |
 
 ### Sorting and Pagination Parameters
 
@@ -217,6 +218,13 @@ curl -X GET "http://localhost:5000/api/reports/universal?driverNames=Ahmed Ali,S
 
 ```bash
 curl -X GET "http://localhost:5000/api/reports/universal?accountantNames=John Doe,Jane Smith&duration=monthly&groupBy=accountant&sortBy=totalAmount&sortOrder=desc" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+#### Search Across All Fields
+
+```bash
+curl -X GET "http://localhost:5000/api/reports/universal?search=asad&duration=monthly" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
