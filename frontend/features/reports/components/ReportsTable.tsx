@@ -1,42 +1,29 @@
 "use client";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { ReportTransaction, ReportSummary } from "../hooks/useGetReports";
-import { formatAmount } from "@/utils/format-amount";
-import { formatDate } from "@/utils/format-date";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
+import DataTable, { RowAction } from "@/features/shared/components/DataTable";
+import { Column } from "@/features/shared/components/DataTable";
+import { ReportTransaction } from "../hooks/useGetReports";
+import {
+  formatAmount,
+  formatDateCompact,
+  formatSingleDigit,
+} from "@/utils/formatting";
+import { cn } from "@/lib/utils";
 
 type ReportsTableProps = {
   transactions: ReportTransaction[];
-  summary: ReportSummary | undefined;
   isLoading?: boolean;
   includeDetails?: boolean;
 };
 
 const ReportsTable = ({
   transactions,
-  summary,
   isLoading,
   includeDetails = true,
 }: ReportsTableProps) => {
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-4 bg-muted animate-pulse rounded" />
-        <div className="h-4 bg-muted animate-pulse rounded" />
-        <div className="h-4 bg-muted animate-pulse rounded" />
-      </div>
-    );
-  }
-
-  // Safety check for undefined summary
-  if (!summary) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        No summary data available
-      </div>
-    );
-  }
-
   const getPaymentStatusBadge = (amountPaid: number, totalAmount: number) => {
     if (amountPaid === totalAmount) {
       return <Badge variant="default">Paid</Badge>;
@@ -47,183 +34,260 @@ const ReportsTable = ({
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-card p-4 rounded-lg border">
-          <h3 className="text-sm font-medium text-muted-foreground">
-            Total Transactions
-          </h3>
-          <p className="text-2xl font-bold">{summary.totalTransactions}</p>
-        </div>
-        <div className="bg-card p-4 rounded-lg border">
-          <h3 className="text-sm font-medium text-muted-foreground">
-            Total Amount
-          </h3>
-          <p className="text-2xl font-bold">
-            {formatAmount(summary.totalAmount || 0)}
-          </p>
-        </div>
-        <div className="bg-card p-4 rounded-lg border">
-          <h3 className="text-sm font-medium text-muted-foreground">
-            Total Birds
-          </h3>
-          <p className="text-2xl font-bold">
-            {(summary.totalBirds || 0).toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-card p-4 rounded-lg border">
-          <h3 className="text-sm font-medium text-muted-foreground">
-            Net Weight (kg)
-          </h3>
-          <p className="text-2xl font-bold">
-            {(summary.totalNetWeight || 0).toLocaleString()}
-          </p>
-        </div>
-      </div>
+  const columns: Column<ReportTransaction>[] = [
+    {
+      id: "date",
+      header: "Date",
+      accessorKey: "date",
+      visible: true,
+      cell: ({ row }) => {
+        return formatDateCompact(row.original.date);
+      },
+    },
+    {
+      id: "buyer",
+      header: "Buyer",
+      accessorKey: "buyerInfo" as keyof ReportTransaction,
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.buyerInfo.name)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {formatSingleDigit(row.original.buyerInfo.contactNumber)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "farm",
+      header: "Farm",
+      accessorKey: "farmInfo" as keyof ReportTransaction,
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.farmInfo.name)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {formatSingleDigit(row.original.farmInfo.supervisor)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "flock",
+      header: "Flock",
+      accessorKey: "flockInfo" as keyof ReportTransaction,
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.flockInfo.name)}
+            </div>
+            <Badge variant="outline" className="text-xs">
+              {formatSingleDigit(row.original.flockInfo.status)}
+            </Badge>
+          </div>
+        );
+      },
+    },
+    {
+      id: "shed",
+      header: "Shed",
+      accessorKey: "shedInfo" as keyof ReportTransaction,
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.shedInfo.name)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Cap: {formatSingleDigit(row.original.shedInfo.capacity)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "vehicle",
+      header: "Vehicle",
+      accessorKey: "vehicleNumber",
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <span className="font-mono text-sm">
+            {formatSingleDigit(row.original.vehicleNumber)}
+          </span>
+        );
+      },
+    },
+    {
+      id: "driver",
+      header: "Driver",
+      accessorKey: "driverName",
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.driverName)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {formatSingleDigit(row.original.driverContact)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "birds",
+      header: "Birds",
+      accessorKey: "numberOfBirds",
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <span className="text-center">
+            {(row.original.numberOfBirds || 0).toLocaleString()}
+          </span>
+        );
+      },
+    },
+    {
+      id: "netWeight",
+      header: "Net Weight",
+      accessorKey: "netWeight",
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <span className="text-center">
+            {(row.original.netWeight || 0).toLocaleString()} kg
+          </span>
+        );
+      },
+    },
+    {
+      id: "rate",
+      header: "Rate",
+      accessorKey: "rate",
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <span className="text-center">
+            {formatAmount(row.original.rate || 0)}
+          </span>
+        );
+      },
+    },
+    {
+      id: "totalAmount",
+      header: "Total Amount",
+      accessorKey: "totalAmount",
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <span className="text-center font-medium">
+            {formatAmount(row.original.totalAmount || 0)}
+          </span>
+        );
+      },
+    },
+    {
+      id: "amountPaid",
+      header: "Paid",
+      accessorKey: "amountPaid",
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <span className="text-center">
+            {formatAmount(row.original.amountPaid || 0)}
+          </span>
+        );
+      },
+    },
+    {
+      id: "balance",
+      header: "Balance",
+      accessorKey: "balance",
+      visible: true,
+      cell: ({ row }) => {
+        return (
+          <span
+            className={cn(
+              "text-center",
+              row.original.balance > 0 ? "text-red-500" : "text-green-500"
+            )}
+          >
+            {formatAmount(row.original.balance || 0)}
+          </span>
+        );
+      },
+    },
+    {
+      id: "status",
+      header: "Status",
+      accessorKey: "totalAmount" as keyof ReportTransaction,
+      visible: true,
+      cell: ({ row }) => {
+        return getPaymentStatusBadge(
+          row.original.amountPaid || 0,
+          row.original.totalAmount || 0
+        );
+      },
+    },
+  ];
 
+  const rowActions: RowAction<ReportTransaction>[] = [
+    {
+      label: "View Details",
+      value: "view",
+      component: (row: ReportTransaction) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+          onClick={() => {
+            // TODO: Implement view details functionality
+            console.log("View transaction details:", row._id);
+          }}
+        >
+          <Eye className="mr-2 h-4 w-4" />
+          View Details
+        </Button>
+      ),
+    },
+  ];
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-4 bg-muted animate-pulse rounded" />
+        <div className="h-4 bg-muted animate-pulse rounded" />
+        <div className="h-4 bg-muted animate-pulse rounded" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
       {/* Transactions Table */}
-      {includeDetails && transactions.length > 0 && (
-        <div className="border rounded-lg overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Buyer
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Farm
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Flock
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Shed
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Vehicle
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Driver
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-medium">
-                  Birds
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-medium">
-                  Net Weight
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-medium">
-                  Rate
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-medium">
-                  Total Amount
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-medium">
-                  Paid
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-medium">
-                  Balance
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-medium">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((transaction) => (
-                <tr
-                  key={transaction._id}
-                  className="border-b hover:bg-muted/50"
-                >
-                  <td className="px-4 py-3 font-medium">
-                    {formatDate(transaction.date)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium">
-                        {transaction.buyerInfo.name}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {transaction.buyerInfo.contactNumber}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium">
-                        {transaction.farmInfo.name}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {transaction.farmInfo.supervisor}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium">
-                        {transaction.flockInfo.name}
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {transaction.flockInfo.status}
-                      </Badge>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium">
-                        {transaction.shedInfo.name}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Cap: {transaction.shedInfo.capacity}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-sm">
-                    {transaction.vehicleNumber}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium">
-                        {transaction.driverName}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {transaction.driverContact}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {(transaction.numberOfBirds || 0).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {(transaction.netWeight || 0).toLocaleString()} kg
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {formatAmount(transaction.rate || 0)}
-                  </td>
-                  <td className="px-4 py-3 text-center font-medium">
-                    {formatAmount(transaction.totalAmount || 0)}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {formatAmount(transaction.amountPaid || 0)}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {formatAmount(transaction.balance || 0)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {getPaymentStatusBadge(
-                      transaction.amountPaid || 0,
-                      transaction.totalAmount || 0
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {includeDetails && (
+        <DataTable
+          data={transactions}
+          columns={columns}
+          getRowId={(row) => row._id}
+          rowActions={rowActions}
+          emptyMessage="No transactions found"
+          showColumnVisibilityToggle={true}
+        />
       )}
     </div>
   );

@@ -7,16 +7,16 @@ type ShedOption = { _id: string; name: string };
 export const useGetShedsDropdown = (params: {
   search: string;
   farmId?: string; // Can be comma-separated string for multiple farms
-  shedId?: string; // Can be comma-separated string for multiple sheds
+  shedIds?: string; // Comma-separated string of selected shed IDs
 }) => {
-  const { search, farmId, shedId } = params;
+  const { search, farmId, shedIds } = params;
   return useQuery({
-    queryKey: ["sheds-dropdown", search, farmId ?? "", shedId ?? ""],
+    queryKey: ["sheds-dropdown", search, farmId ?? "", shedIds ?? ""],
     queryFn: async () => {
       const response = await api.get<APIResponse<ShedOption[]>>(
         `/sheds/dropdown`,
         {
-          params: { search, farmId, shedId },
+          params: { search, farmId, shedIds },
         }
       );
       return response.data;

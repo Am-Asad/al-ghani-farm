@@ -26,11 +26,10 @@ const FarmsMultiSelect = ({
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, 300);
 
-  // Don't pass farmId to dropdown hook to allow multi-selection
-  // The dropdown should show all available farms, not just the selected ones
+  // Pass selected farm IDs to backend so they're always included in results
   const { data, isLoading, isFetching } = useGetFarmsDropdown({
     search: debouncedQuery,
-    // farmId: undefined, // Removed to allow multi-selection
+    farmIds: value, // Pass comma-separated selected IDs
   });
 
   const farms: MultiSelectOption[] = useMemo(() => data?.data || [], [data]);

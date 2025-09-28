@@ -3,8 +3,7 @@ import React, { useState } from "react";
 import DataTable, { RowAction } from "@/features/shared/components/DataTable";
 import { Farm as FarmType } from "@/types";
 import { Column } from "@/features/shared/components/DataTable";
-import { formatDate } from "@/utils/format-date";
-import { formatSingleDigit } from "@/utils/format-single-digit";
+import { formatDateCompact, formatSingleDigit } from "@/utils/formatting";
 import CreateEditFarmForm from "./CreateEditFarmForm";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
@@ -60,7 +59,7 @@ const FarmsTable = ({ farms }: FarmsTableProps) => {
       accessorKey: "createdAt",
       visible: true,
       cell: ({ row }) => {
-        return formatDate(row.original.createdAt);
+        return formatDateCompact(row.original.createdAt);
       },
     },
   ];

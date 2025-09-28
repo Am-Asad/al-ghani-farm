@@ -30,13 +30,12 @@ const FlocksMultiSelect = ({
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, 300);
 
-  // Don't pass flockId to dropdown hook to allow multi-selection
-  // The dropdown should show all available flocks based on farm/shed filters, not just the selected ones
+  // Pass selected flock IDs to backend so they're always included in results
   const { data, isLoading, isFetching } = useGetFlocksDropdown({
     search: debouncedQuery,
     farmId: farmId || undefined,
     shedId: shedId || undefined,
-    // flockId: undefined, // Removed to allow multi-selection
+    flockIds: value, // Pass comma-separated selected IDs
   });
 
   const flocks: MultiSelectOption[] = useMemo(() => data?.data || [], [data]);

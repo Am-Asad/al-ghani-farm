@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import DataTable, { RowAction } from "@/features/shared/components/DataTable";
 import { User as UserType } from "@/types";
 import { Column } from "@/features/shared/components/DataTable";
-import { formatDate } from "@/utils/format-date";
+import { formatDate } from "@/utils/formatting";
 import CreateEditUserForm from "./CreateEditUserForm";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { useDeleteUser } from "../hooks/useDeleteUser";

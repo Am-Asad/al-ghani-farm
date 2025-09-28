@@ -45,19 +45,42 @@ export const getAllFarms = asyncHandler(async (req, res) => {
 });
 
 export const getFarmsForDropdown = asyncHandler(async (req, res) => {
-  const { search = "", farmId = "" } = req.query;
+  const { search = "", farmIds = "" } = req.query;
 
-  const conditions = [];
-  if (farmId) conditions.push({ _id: farmId });
-  if (search.trim())
-    conditions.push({ name: { $regex: search.trim(), $options: "i" } });
+  const orConditions = [];
 
-  const query = conditions.length > 0 ? { $or: conditions } : {};
+  // Always include selected farms (comma-separated list)
+  if (typeof farmIds === "string" && farmIds.trim()) {
+    const selectedFarmIds = farmIds
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (selectedFarmIds.length > 0) {
+      orConditions.push({ _id: { $in: selectedFarmIds } });
+    }
+  }
+
+  // Include search results if search query is provided
+  if (typeof search === "string" && search.trim()) {
+    orConditions.push({ name: { $regex: search.trim(), $options: "i" } });
+  }
+
+  // Build the final query
+  let query;
+  if (orConditions.length > 0) {
+    query = { $or: orConditions };
+  } else if (typeof search === "string" && search.trim()) {
+    // If there's a search but no results, return empty
+    query = { _id: { $in: [] } };
+  } else {
+    // If no search query, return default options (first 20 farms)
+    query = {};
+  }
 
   const farms = await FarmModel.find(query)
     .select("_id name")
     .sort({ name: 1 })
-    .limit(10);
+    .limit(50); // Increased limit to accommodate selected items + search results
 
   res.status(200).json({
     status: "success",

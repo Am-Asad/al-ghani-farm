@@ -341,22 +341,42 @@ export const deleteBulkBuyers = asyncHandler(async (req, res, next) => {
 });
 
 export const getBuyersForDropdown = asyncHandler(async (req, res) => {
-  const { search = "", buyerId = "" } = req.query;
+  const { search = "", buyerIds = "" } = req.query;
 
-  const andConditions = [];
-  if (typeof buyerId === "string" && buyerId.trim()) {
-    andConditions.push({ _id: buyerId });
+  const orConditions = [];
+
+  // Always include selected buyers (comma-separated list)
+  if (typeof buyerIds === "string" && buyerIds.trim()) {
+    const selectedBuyerIds = buyerIds
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (selectedBuyerIds.length > 0) {
+      orConditions.push({ _id: { $in: selectedBuyerIds } });
+    }
   }
+
+  // Include search results if search query is provided
   if (typeof search === "string" && search.trim()) {
-    andConditions.push({ name: { $regex: search.trim(), $options: "i" } });
+    orConditions.push({ name: { $regex: search.trim(), $options: "i" } });
   }
 
-  const query = andConditions.length > 0 ? { $and: andConditions } : {};
+  // Build the final query
+  let query;
+  if (orConditions.length > 0) {
+    query = { $or: orConditions };
+  } else if (typeof search === "string" && search.trim()) {
+    // If there's a search but no results, return empty
+    query = { _id: { $in: [] } };
+  } else {
+    // If no search query, return default options (first 20 buyers)
+    query = {};
+  }
 
   const buyers = await BuyerModel.find(query)
     .select("_id name")
     .sort({ name: 1 })
-    .limit(10);
+    .limit(50); // Increased limit to accommodate selected items + search results
 
   res.status(200).json({
     status: "success",

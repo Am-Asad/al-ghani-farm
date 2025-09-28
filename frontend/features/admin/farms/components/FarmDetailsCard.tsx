@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FarmDetails } from "@/types";
-import { formatDate } from "@/utils/format-date";
-import { formatSingleDigit } from "@/utils/format-single-digit";
+import { formatDate, formatSingleDigit } from "@/utils/formatting";
 import { Building2 } from "lucide-react";
 import React from "react";
 

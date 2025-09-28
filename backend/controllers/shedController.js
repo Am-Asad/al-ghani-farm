@@ -152,11 +152,25 @@ export const getAllSheds = asyncHandler(async (req, res) => {
 });
 
 export const getShedsForDropdown = asyncHandler(async (req, res) => {
-  const { search = "", farmId = "", shedId = "" } = req.query;
+  const { search = "", farmId = "", shedIds = "" } = req.query;
 
+  const orConditions = [];
+
+  // Always include selected sheds (comma-separated list)
+  if (typeof shedIds === "string" && shedIds.trim()) {
+    const selectedShedIds = shedIds
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (selectedShedIds.length > 0) {
+      orConditions.push({ _id: { $in: selectedShedIds } });
+    }
+  }
+
+  // Include search results with farm filtering
   const andConditions = [];
 
-  // Support multiple farm IDs (comma-separated)
+  // Support multiple farm IDs (comma-separated) for search results
   if (typeof farmId === "string" && farmId.trim()) {
     const farmIds = farmId
       .split(",")
@@ -169,30 +183,33 @@ export const getShedsForDropdown = asyncHandler(async (req, res) => {
     }
   }
 
-  // Support multiple shed IDs (comma-separated)
-  if (typeof shedId === "string" && shedId.trim()) {
-    const shedIds = shedId
-      .split(",")
-      .map((id) => id.trim())
-      .filter(Boolean);
-    if (shedIds.length === 1) {
-      andConditions.push({ _id: shedIds[0] });
-    } else if (shedIds.length > 1) {
-      andConditions.push({ _id: { $in: shedIds } });
-    }
-  }
-
+  // Add search condition
   if (typeof search === "string" && search.trim()) {
     andConditions.push({ name: { $regex: search.trim(), $options: "i" } });
   }
 
-  const query = andConditions.length > 0 ? { $and: andConditions } : {};
+  // If we have search conditions, add them to OR conditions
+  if (andConditions.length > 0) {
+    orConditions.push({ $and: andConditions });
+  }
+
+  // Build the final query
+  let query;
+  if (orConditions.length > 0) {
+    query = { $or: orConditions };
+  } else if (typeof search === "string" && search.trim()) {
+    // If there's a search but no results, return empty
+    query = { _id: { $in: [] } };
+  } else {
+    // If no search query, return default options (first 20 sheds)
+    query = {};
+  }
 
   const sheds = await ShedModel.find(query)
     .select("_id name")
     .populate("farmId", "name")
     .sort({ name: 1 })
-    .limit(10);
+    .limit(50); // Increased limit to accommodate selected items + search results
 
   res.status(200).json({
     status: "success",

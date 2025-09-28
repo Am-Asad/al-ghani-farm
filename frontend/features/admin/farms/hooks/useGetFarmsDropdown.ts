@@ -5,16 +5,16 @@ import { Farm as FarmType } from "@/types";
 
 export const useGetFarmsDropdown = (params: {
   search: string;
-  farmId?: string;
+  farmIds?: string; // Comma-separated string of selected farm IDs
 }) => {
-  const { search, farmId } = params;
+  const { search, farmIds } = params;
   return useQuery({
-    queryKey: ["farms-dropdown", search, farmId ?? ""],
+    queryKey: ["farms-dropdown", search, farmIds ?? ""],
     queryFn: async () => {
       const response = await api.get<
         APIResponse<Pick<FarmType, "_id" | "name">[]>
       >(`/farms/dropdown`, {
-        params: { search, farmId },
+        params: { search, farmIds },
       });
       return response.data;
     },

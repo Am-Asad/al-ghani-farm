@@ -2,8 +2,7 @@
 import React, { useState } from "react";
 import DataTable, { RowAction } from "@/features/shared/components/DataTable";
 import { Column } from "@/features/shared/components/DataTable";
-import { formatDate } from "@/utils/format-date";
-import { formatSingleDigit } from "@/utils/format-single-digit";
+import { formatDate, formatSingleDigit } from "@/utils/formatting";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { Edit, Eye, Trash2 } from "lucide-react";

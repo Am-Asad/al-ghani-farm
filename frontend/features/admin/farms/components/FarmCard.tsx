@@ -3,12 +3,12 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2 } from "lucide-react";
 import { Farm } from "@/types";
-import { formatDate } from "@/utils/format-date";
+import { formatDate } from "@/utils/formatting";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import CreateEditFarmForm from "./CreateEditFarmForm";
 import { useDeleteFarm } from "../hooks/useDeleteFarm";
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import { formatSingleDigit } from "@/utils/format-single-digit";
+import { formatSingleDigit } from "@/utils/formatting";
 
 import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 

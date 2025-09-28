@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 import { Flock } from "@/types";
-import { formatDate } from "@/utils/format-date";
+import { formatDate } from "@/utils/formatting";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import CreateEditFlockForm from "./CreateEditFlockForm";
 import { useDeleteFlock } from "../hooks/useDeleteFlock";
-import { formatSingleDigit } from "@/utils/format-single-digit";
+import { formatSingleDigit } from "@/utils/formatting";
 import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 
 type FlockCardProps = {

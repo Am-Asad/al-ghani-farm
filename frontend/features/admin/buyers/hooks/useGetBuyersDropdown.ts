@@ -6,16 +6,16 @@ type BuyerOption = { _id: string; name: string };
 
 export const useGetBuyersDropdown = (params: {
   search: string;
-  buyerId?: string;
+  buyerIds?: string; // Comma-separated string of selected buyer IDs
 }) => {
-  const { search, buyerId } = params;
+  const { search, buyerIds } = params;
   return useQuery({
-    queryKey: ["buyers-dropdown", search, buyerId ?? ""],
+    queryKey: ["buyers-dropdown", search, buyerIds ?? ""],
     queryFn: async () => {
       const response = await api.get<APIResponse<BuyerOption[]>>(
         `/buyers/dropdown`,
         {
-          params: { search, buyerId },
+          params: { search, buyerIds },
         }
       );
       return response.data;

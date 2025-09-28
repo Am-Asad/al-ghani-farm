@@ -2,6 +2,7 @@
 import React from "react";
 import ReportFilters from "@/features/reports/components/ReportFilters";
 import ReportsTable from "@/features/reports/components/ReportsTable";
+import ReportsSummary from "@/features/reports/components/ReportsSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useReportQueryParams } from "@/features/reports/hooks/useReportQueryParams";
 import {
@@ -76,50 +77,41 @@ const ReportsPage = () => {
 
       {/* Filters */}
       <ReportFilters />
-
       {/* Reports Content */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {reportData?.reportTitle || "Report Results"}
-            {reportData &&
-              "dateRange" in reportData &&
-              reportData.dateRange && (
-                <div className="text-sm font-normal text-muted-foreground mt-1">
-                  {reportData.dateRange.from} - {reportData.dateRange.to}
-                </div>
-              )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {reportData?.summary ? (
-            <div className="space-y-6">
-              <ReportsTable
-                transactions={transactions}
-                summary={summary}
-                isLoading={reportsLoading}
-                includeDetails={query.includeDetails === "true"}
-              />
+      {reportData?.summary ? (
+        <div className="space-y-6">
+          {/* Summary Section */}
+          <ReportsSummary
+            summary={summary}
+            isLoading={reportsLoading}
+            reportTitle={reportData?.reportTitle}
+            dateRange={reportData?.dateRange}
+          />
 
-              {/* Pagination */}
-              {query.includeDetails === "true" && pagination.totalCount > 0 && (
-                <Pagination
-                  page={pagination.page || 1}
-                  limit={pagination.limit || 10}
-                  hasMore={pagination.hasMore}
-                  onChangePage={(p) => setPage(p)}
-                  onChangeLimit={(l) => setLimit(l)}
-                />
-              )}
-            </div>
-          ) : (
-            <DataNotFound
-              title="reports"
-              icon={<FileText className="w-10 h-10" />}
+          {/* Transactions Table */}
+          <ReportsTable
+            transactions={transactions}
+            isLoading={reportsLoading}
+            includeDetails={query.includeDetails === "true"}
+          />
+
+          {/* Pagination */}
+          {query.includeDetails === "true" && pagination.totalCount > 0 && (
+            <Pagination
+              page={pagination.page || 1}
+              limit={pagination.limit || 10}
+              hasMore={pagination.hasMore}
+              onChangePage={(p) => setPage(p)}
+              onChangeLimit={(l) => setLimit(l)}
             />
           )}
-        </CardContent>
-      </Card>
+        </div>
+      ) : (
+        <DataNotFound
+          title="reports"
+          icon={<FileText className="w-10 h-10" />}
+        />
+      )}
     </div>
   );
 };

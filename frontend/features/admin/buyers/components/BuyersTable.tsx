@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import DataTable, { RowAction } from "@/features/shared/components/DataTable";
 import { Buyer as BuyerType } from "@/types";
 import { Column } from "@/features/shared/components/DataTable";
-import { formatDate } from "@/utils/format-date";
+import { formatDateCompact } from "@/utils/formatting";
 import CreateEditBuyerForm from "./CreateEditBuyerForm";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { useDeleteBuyer } from "../hooks/useDeleteBuyer";
@@ -59,7 +59,7 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
       accessorKey: "createdAt",
       visible: true,
       cell: ({ row }) => {
-        return formatDate(row.original.createdAt);
+        return formatDateCompact(row.original.createdAt);
       },
     },
   ];

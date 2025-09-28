@@ -9,8 +9,11 @@ import { Ledger as LedgerType } from "@/types";
 import { useDeleteLedger } from "../hooks/useDeleteLedger";
 import { useDeleteBulkLedgers } from "../hooks/useDeleteBulkLedgers";
 import CreateEditLedgerForm from "./CreateEditLedgerForm";
-import { formatAmount, formatCurrency } from "@/utils/format-amount";
-import { formatDate } from "@/utils/format-date";
+import {
+  formatAmount,
+  formatCurrency,
+  formatDateCompact,
+} from "@/utils/formatting";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -210,7 +213,7 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
       visible: true,
       width: "120px",
       cell: ({ row }) => {
-        return formatDate(row.original.date);
+        return formatDateCompact(row.original.date);
       },
     },
   ];

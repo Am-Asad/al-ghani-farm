@@ -16,14 +16,15 @@
 
 [x] Use the entities select in create update form modals.
 [x] Data table component added
-[] Data table component edit delete, bulk delete functionality needs to be fixed.
-[] Check all the modules by creating, updating, and deleting data.  
-[] Check the pagination and filtering for all the modules.
+[x] Data table component edit delete, bulk delete functionality needs to be fixed.
+[x] Check all the modules by creating, updating, and deleting data.  
+[x] Check the pagination and filtering for all the modules.
+
+[x] Filters and pagination implemented for all the modules.
+[x] Making the application live
+[x] Reports module implemented on the client and the server.
+
 [] Update the sort by filter with multiple values.
 [] Leaving the create in bulk functionality for all modules for later.
 [] Leaving the flock chicks allocation count must not be greater than the total capacity of a shed check for now.
 [] Leaving the delete in bulk functionality for all modules for now.
-
-[x] Filters and pagination implemented for all the modules.
-[x] Making the application live
-[]

@@ -10,7 +10,7 @@ import {
 import { User, Mail, Calendar, Pencil } from "lucide-react";
 import { User as UserType } from "@/types";
 import CreateEditUserForm from "./CreateEditUserForm";
-import { formatDate } from "@/utils/format-date";
+import { formatDate } from "@/utils/formatting";
 import { cn } from "@/lib/utils";
 import { useDeleteUser } from "../hooks/useDeleteUser";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";

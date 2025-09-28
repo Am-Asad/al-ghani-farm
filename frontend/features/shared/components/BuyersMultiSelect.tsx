@@ -26,11 +26,10 @@ const BuyersMultiSelect = ({
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, 300);
 
-  // Don't pass buyerId to dropdown hook to allow multi-selection
-  // The dropdown should show all available buyers, not just the selected ones
+  // Pass selected buyer IDs to backend so they're always included in results
   const { data, isLoading, isFetching } = useGetBuyersDropdown({
     search: debouncedQuery,
-    // buyerId: undefined, // Removed to allow multi-selection
+    buyerIds: value, // Pass comma-separated selected IDs
   });
 
   const buyers: MultiSelectOption[] = useMemo(() => data?.data || [], [data]);

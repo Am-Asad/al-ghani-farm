@@ -28,12 +28,11 @@ const ShedsMultiSelect = ({
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, 300);
 
-  // Don't pass shedId to dropdown hook to allow multi-selection
-  // The dropdown should show all available sheds based on farm filters, not just the selected ones
+  // Pass selected shed IDs to backend so they're always included in results
   const { data, isLoading, isFetching } = useGetShedsDropdown({
     search: debouncedQuery,
     farmId: farmId || undefined,
-    // shedId: undefined, // Removed to allow multi-selection
+    shedIds: value, // Pass comma-separated selected IDs
   });
 
   const sheds: MultiSelectOption[] = useMemo(() => data?.data || [], [data]);

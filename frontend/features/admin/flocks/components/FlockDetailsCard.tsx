@@ -1,8 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Flock } from "@/types";
-import { formatDate } from "@/utils/format-date";
-import { formatSingleDigit } from "@/utils/format-single-digit";
+import { formatDate, formatSingleDigit } from "@/utils/formatting";
 import { Building2, Users, Calendar, Hash } from "lucide-react";
 import React from "react";
 

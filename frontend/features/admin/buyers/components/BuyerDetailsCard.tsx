@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Buyer } from "@/types";
-import { formatDate } from "@/utils/format-date";
+import { formatDate } from "@/utils/formatting";
 import { Building2 } from "lucide-react";
 import React from "react";
 
