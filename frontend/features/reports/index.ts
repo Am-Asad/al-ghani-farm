@@ -12,6 +12,5 @@ export type {
   ReportTransaction,
   ReportSummary,
   ReportData,
-  GroupedReportData,
   APIResponse,
 } from "./hooks/useGetReports";

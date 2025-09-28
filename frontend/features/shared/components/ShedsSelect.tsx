@@ -59,7 +59,7 @@ const ShedsSelect = ({
   const { data, isLoading, isFetching } = useGetShedsDropdown({
     search: debouncedQuery,
     farmId: farmId || undefined,
-    shedId: selectedShedId || undefined,
+    shedIds: selectedShedId || undefined,
   });
   const sheds: ShedOption[] = useMemo(() => data?.data || [], [data]);
 

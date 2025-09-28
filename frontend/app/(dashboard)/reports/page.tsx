@@ -3,7 +3,6 @@ import React from "react";
 import ReportFilters from "@/features/reports/components/ReportFilters";
 import ReportsTable from "@/features/reports/components/ReportsTable";
 import ReportsSummary from "@/features/reports/components/ReportsSummary";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useReportQueryParams } from "@/features/reports/hooks/useReportQueryParams";
 import {
   useGetReports,

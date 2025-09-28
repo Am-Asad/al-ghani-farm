@@ -62,7 +62,7 @@ const FlocksSelect = ({
     search: debouncedQuery,
     farmId: farmId || undefined,
     shedId: shedId || undefined,
-    flockId: selectedFlockId || undefined,
+    flockIds: selectedFlockId || undefined,
   });
   const flocks: FlockOption[] = useMemo(() => data?.data || [], [data]);
 

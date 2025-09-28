@@ -56,7 +56,7 @@ const FarmsSelect = ({
 
   const { data, isLoading, isFetching } = useGetFarmsDropdown({
     search: debouncedQuery,
-    farmId: selectedFarmId || undefined,
+    farmIds: selectedFarmId || undefined,
   });
   const farms: FarmOption[] = useMemo(() => data?.data || [], [data]);
 

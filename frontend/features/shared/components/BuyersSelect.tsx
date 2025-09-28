@@ -56,7 +56,7 @@ const BuyersSelect = ({
 
   const { data, isLoading, isFetching } = useGetBuyersDropdown({
     search: debouncedQuery,
-    buyerId: selectedBuyerId || undefined,
+    buyerIds: selectedBuyerId || undefined,
   });
   const buyers: BuyerOption[] = useMemo(() => data?.data || [], [data]);
 

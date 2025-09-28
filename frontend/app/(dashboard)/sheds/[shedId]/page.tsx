@@ -4,7 +4,7 @@ import { useGetShedById } from "@/features/admin/sheds/hooks/useGetShedById";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import { ArrowLeft, Building2, FileText } from "lucide-react";
+import { ArrowLeft, Building2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import ShedDetailsCard from "@/features/admin/sheds/components/ShedDetailsCard";
