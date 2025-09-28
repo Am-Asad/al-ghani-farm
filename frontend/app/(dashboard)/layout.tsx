@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Main content */}
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Top header */}
-          <header className="bg-background border-b border-gray-300 flex items-center justify-between py-4 px-6">
+          <header className="bg-background border-b border-border flex items-center justify-between py-4 px-6">
             <div className="flex items-center gap-4 justify-between">
               <Button
                 variant="ghost"

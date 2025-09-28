@@ -43,8 +43,9 @@ const LedgerCard = ({ ledger, showActions = true }: LedgerCardProps) => {
               }
               className={cn(
                 "text-xs",
-                isPaid && "bg-green-100 text-green-800 hover:bg-green-100",
-                isOverdue && "bg-red-100 text-red-800 hover:bg-red-100"
+                isPaid && "bg-chart-2/10 text-chart-2 hover:bg-chart-2/10",
+                isOverdue &&
+                  "bg-destructive/10 text-destructive hover:bg-destructive/10"
               )}
             >
               {isPaid ? "Paid" : isOverdue ? "Overdue" : "Pending"}
@@ -109,7 +110,7 @@ const LedgerCard = ({ ledger, showActions = true }: LedgerCardProps) => {
 
             <div className="text-center">
               <p className="text-xs text-muted-foreground mb-1">Amount Paid</p>
-              <p className="text-lg font-semibold text-green-600">
+              <p className="text-lg font-semibold text-chart-2">
                 {formatAmount(ledger.amountPaid)}
               </p>
             </div>
@@ -119,7 +120,7 @@ const LedgerCard = ({ ledger, showActions = true }: LedgerCardProps) => {
               <p
                 className={cn(
                   "text-lg font-semibold",
-                  balance > 0 ? "text-red-600" : "text-green-600"
+                  balance > 0 ? "text-destructive" : "text-chart-2"
                 )}
               >
                 {formatAmount(balance)}

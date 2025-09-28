@@ -176,7 +176,7 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
         return (
           <span
             className={
-              isOverdue ? "text-red-600 font-medium" : "text-green-600"
+              isOverdue ? "text-destructive font-medium" : "text-chart-2"
             }
           >
             {formatCurrency(balance)}
@@ -197,8 +197,8 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
             variant={isOverdue ? "destructive" : "default"}
             className={cn(
               isOverdue
-                ? "bg-red-100 text-red-800"
-                : "bg-green-100 text-green-800"
+                ? "bg-destructive/10 text-destructive"
+                : "bg-chart-2/10 text-chart-2"
             )}
           >
             {isOverdue ? "Overdue" : "Paid"}
@@ -265,7 +265,7 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start text-red-600 hover:text-red-800"
+              className="w-full justify-start text-destructive hover:text-destructive/80"
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Ledger

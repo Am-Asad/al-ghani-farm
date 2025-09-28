@@ -69,32 +69,32 @@ const ReportsSummary = ({
       title: "Total Transactions",
       value: summary.totalTransactions,
       icon: Receipt,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-chart-1",
+      bgColor: "bg-chart-1/10",
       description: "Total number of transactions",
     },
     {
       title: "Total Amount",
       value: formatAmount(summary.totalAmount || 0),
       icon: DollarSign,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
+      color: "text-chart-2",
+      bgColor: "bg-chart-2/10",
       description: "Total monetary value",
     },
     {
       title: "Total Birds",
       value: (summary.totalBirds || 0).toLocaleString(),
       icon: Users,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      color: "text-chart-3",
+      bgColor: "bg-chart-3/10",
       description: "Total number of birds",
     },
     {
       title: "Net Weight",
       value: `${(summary.totalNetWeight || 0).toLocaleString()} kg`,
       icon: Weight,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
+      color: "text-chart-4",
+      bgColor: "bg-chart-4/10",
       description: "Total net weight",
     },
   ];
@@ -217,24 +217,24 @@ const ReportsSummary = ({
             Payment Summary
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 rounded-lg bg-green-50 border border-green-200">
-              <CreditCard className="w-6 h-6 text-green-600 mx-auto mb-2" />
-              <p className="text-sm text-green-700 font-medium">Total Paid</p>
-              <p className="text-lg font-bold text-green-800">
+            <div className="text-center p-4 rounded-lg bg-chart-2/10 border border-chart-2/20">
+              <CreditCard className="w-6 h-6 text-chart-2 mx-auto mb-2" />
+              <p className="text-sm text-chart-2 font-medium">Total Paid</p>
+              <p className="text-lg font-bold text-chart-2">
                 {formatAmount(summary.totalPaid || 0)}
               </p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-orange-50 border border-orange-200">
-              <DollarSign className="w-6 h-6 text-orange-600 mx-auto mb-2" />
-              <p className="text-sm text-orange-700 font-medium">Balance Due</p>
-              <p className="text-lg font-bold text-orange-800">
+            <div className="text-center p-4 rounded-lg bg-chart-4/10 border border-chart-4/20">
+              <DollarSign className="w-6 h-6 text-chart-4 mx-auto mb-2" />
+              <p className="text-sm text-chart-4 font-medium">Balance Due</p>
+              <p className="text-lg font-bold text-chart-4">
                 {formatAmount(summary.totalBalance || 0)}
               </p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-blue-50 border border-blue-200">
-              <TrendingUp className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-              <p className="text-sm text-blue-700 font-medium">Payment Rate</p>
-              <p className="text-lg font-bold text-blue-800">
+            <div className="text-center p-4 rounded-lg bg-chart-1/10 border border-chart-1/20">
+              <TrendingUp className="w-6 h-6 text-chart-1 mx-auto mb-2" />
+              <p className="text-sm text-chart-1 font-medium">Payment Rate</p>
+              <p className="text-lg font-bold text-chart-1">
                 {summary.totalAmount > 0
                   ? `${(
                       (summary.totalPaid / summary.totalAmount) *

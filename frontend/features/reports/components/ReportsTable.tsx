@@ -222,7 +222,7 @@ const ReportsTable = ({
           <span
             className={cn(
               "text-center",
-              row.original.balance > 0 ? "text-red-500" : "text-green-500"
+              row.original.balance > 0 ? "text-destructive" : "text-chart-2"
             )}
           >
             {formatAmount(row.original.balance || 0)}

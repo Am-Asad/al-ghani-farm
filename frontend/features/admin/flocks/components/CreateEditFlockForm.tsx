@@ -523,7 +523,7 @@ const CreateEditFlockForm = ({
                         <span
                           className={
                             totalChicks - totalAllocatedChicks === 0
-                              ? "text-green-600"
+                              ? "text-chart-2"
                               : "text-destructive"
                           }
                         >

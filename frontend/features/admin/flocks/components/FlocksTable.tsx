@@ -137,7 +137,7 @@ const FlocksTable = ({ flocks }: FlocksTableProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start text-red-600 hover:text-red-800"
+              className="w-full justify-start text-destructive hover:text-destructive/80"
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Flock

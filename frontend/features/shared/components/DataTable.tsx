@@ -364,7 +364,7 @@ const DataTable = <T,>({
                                     }
                                     className={
                                       action.variant === "destructive"
-                                        ? "text-red-600"
+                                        ? "text-destructive"
                                         : ""
                                     }
                                   >

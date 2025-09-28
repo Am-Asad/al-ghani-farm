@@ -122,14 +122,14 @@ const AllocationsTable = ({
                       <p className="text-xl font-semibold">
                         {utilizationPercentage}%
                       </p>
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div className="flex-1 bg-muted rounded-full h-2">
                         <div
                           className={`h-2 rounded-full transition-all duration-300 ${
                             utilizationPercentage >= 90
-                              ? "bg-red-500"
+                              ? "bg-destructive"
                               : utilizationPercentage >= 70
-                              ? "bg-yellow-500"
-                              : "bg-green-500"
+                              ? "bg-chart-4"
+                              : "bg-chart-2"
                           }`}
                           style={{
                             width: `${Math.min(utilizationPercentage, 100)}%`,

@@ -36,9 +36,9 @@ const BulkDataPreview = <T extends Record<string, unknown>>({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {success ? (
-              <CheckCircle className="w-5 h-5 text-green-600" />
+              <CheckCircle className="w-5 h-5 text-chart-2" />
             ) : (
-              <XCircle className="w-5 h-5 text-red-600" />
+              <XCircle className="w-5 h-5 text-destructive" />
             )}
             Parse Results
           </CardTitle>
@@ -51,11 +51,11 @@ const BulkDataPreview = <T extends Record<string, unknown>>({
             </div>
             <div>
               <p className="text-muted-foreground">Valid Rows</p>
-              <p className="font-medium text-green-600">{validRows}</p>
+              <p className="font-medium text-chart-2">{validRows}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Invalid Rows</p>
-              <p className="font-medium text-red-600">{invalidRows}</p>
+              <p className="font-medium text-destructive">{invalidRows}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Success Rate</p>
@@ -69,32 +69,34 @@ const BulkDataPreview = <T extends Record<string, unknown>>({
 
       {/* Errors Display */}
       {errors && errors.length > 0 && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-destructive/20 bg-destructive/5">
           <CardContent className="pt-6">
             <div className="flex items-start space-x-2">
-              <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5" />
+              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
               <div className="space-y-1">
-                <p className="font-medium text-red-800">Validation Errors:</p>
-                <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
+                <p className="font-medium text-destructive">
+                  Validation Errors:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm text-destructive/80">
                   {errors.slice(0, 5).map((error, index) => (
                     <li key={index}>{error}</li>
                   ))}
                   {errors.length > 5 && (
-                    <li className="text-red-600">
+                    <li className="text-destructive">
                       ... and {errors.length - 5} more errors
                     </li>
                   )}
                 </ul>
-                <div className="mt-3 p-3 bg-red-100 rounded border border-red-200">
-                  <p className="text-sm font-medium text-red-800 mb-2">
+                <div className="mt-3 p-3 bg-destructive/10 rounded border border-destructive/20">
+                  <p className="text-sm font-medium text-destructive mb-2">
                     💡 Helpful Tips:
                   </p>
-                  <ul className="text-xs text-red-700 space-y-1">
+                  <ul className="text-xs text-destructive/80 space-y-1">
                     <li>
                       • Make sure your CSV has headers:{" "}
                       {templateHeaders.map((header, index) => (
                         <span key={header}>
-                          <code className="bg-red-200 px-1 rounded">
+                          <code className="bg-destructive/20 px-1 rounded">
                             {header}
                           </code>
                           {index < templateHeaders.length - 1 && ", "}
