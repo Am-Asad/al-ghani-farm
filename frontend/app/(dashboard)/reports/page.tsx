@@ -2,11 +2,13 @@
 import React from "react";
 import ReportFilters from "@/features/reports/components/ReportFilters";
 import ReportsTable from "@/features/reports/components/ReportsTable";
+import GroupedReportsTable from "@/features/reports/components/GroupedReportsTable";
 import ReportsSummary from "@/features/reports/components/ReportsSummary";
 import { useReportQueryParams } from "@/features/reports/hooks/useReportQueryParams";
 import {
   useGetReports,
   ReportTransaction,
+  GroupedResult,
 } from "@/features/reports/hooks/useGetReports";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";
@@ -25,10 +27,15 @@ const ReportsPage = () => {
 
   const reportData = reportsData?.data;
 
-  // Handle simplified ReportData structure
+  // Handle both grouped and non-grouped ReportData structure
   const transactions =
     (reportData as { transactions: ReportTransaction[] })?.transactions || [];
+  const groupedResults =
+    (reportData as { groupedResults: GroupedResult[] })?.groupedResults || [];
   const summary = reportData?.summary;
+  const groupBy = (reportData as { groupBy?: string })?.groupBy || "none";
+  const isGrouped = groupBy !== "none" && groupedResults.length > 0;
+
   const pagination = (
     reportData as {
       pagination?: {
@@ -70,6 +77,11 @@ const ReportsPage = () => {
           <p className="text-muted-foreground">
             Generate comprehensive reports with flexible filtering and date
             ranges
+            {isGrouped && (
+              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                Grouped by {groupBy}
+              </span>
+            )}
           </p>
         </div>
       </div>
@@ -87,22 +99,33 @@ const ReportsPage = () => {
             dateRange={reportData?.dateRange}
           />
 
-          {/* Transactions Table */}
-          <ReportsTable
-            transactions={transactions}
-            isLoading={reportsLoading}
-            includeDetails={query.includeDetails === "true"}
-          />
-
-          {/* Pagination */}
-          {query.includeDetails === "true" && pagination.totalCount > 0 && (
-            <Pagination
-              page={pagination.page || 1}
-              limit={pagination.limit || 10}
-              hasMore={pagination.hasMore}
-              onChangePage={(p) => setPage(p)}
-              onChangeLimit={(l) => setLimit(l)}
+          {/* Transactions Table or Grouped Results */}
+          {isGrouped ? (
+            <GroupedReportsTable
+              groupedResults={groupedResults}
+              groupBy={groupBy}
+              isLoading={reportsLoading}
+              includeDetails={query.includeDetails === "true"}
             />
+          ) : (
+            <>
+              <ReportsTable
+                transactions={transactions}
+                isLoading={reportsLoading}
+                includeDetails={query.includeDetails === "true"}
+              />
+
+              {/* Pagination - only for non-grouped results */}
+              {query.includeDetails === "true" && pagination.totalCount > 0 && (
+                <Pagination
+                  page={pagination.page || 1}
+                  limit={pagination.limit || 10}
+                  hasMore={pagination.hasMore}
+                  onChangePage={(p) => setPage(p)}
+                  onChangeLimit={(l) => setLimit(l)}
+                />
+              )}
+            </>
           )}
         </div>
       ) : (

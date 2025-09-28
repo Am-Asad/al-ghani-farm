@@ -69,6 +69,9 @@ import {
  * - All transactions for specific sheds across different farms: ?shedIds=id1,id2,id3&duration=custom&startDate=2024-01-01&endDate=2024-01-31
  * - All transactions for specific flocks with payment filters: ?flockIds=id1,id2&paymentStatus=unpaid&minAmount=1000
  * - Farm-level report with custom date range: ?farmIds=id1&duration=custom&startDate=2024-01-01&endDate=2024-01-31&groupBy=farm
+ * - Group by buyer for comparative analysis: ?duration=monthly&groupBy=buyer
+ * - Group by date for daily breakdown: ?duration=monthly&groupBy=date
+ * - Group by driver for performance analysis: ?duration=weekly&groupBy=driver
  */
 export const getUniversalReport = asyncHandler(async (req, res) => {
   const {
@@ -110,12 +113,26 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
 
     // Aggregation
     includeDetails = true,
+    groupBy = "none",
   } = req.query;
 
   // Validate pagination
   const parsedPage = Math.max(parseInt(page) || 1, 1);
   const parsedLimit = Math.min(parseInt(limit) || 10, 1000);
   const parsedOffset = (parsedPage - 1) * parsedLimit;
+
+  // Validate groupBy parameter
+  const allowedGroupBy = [
+    "buyer",
+    "farm",
+    "flock",
+    "shed",
+    "driver",
+    "accountant",
+    "date",
+    "none",
+  ];
+  const validGroupBy = allowedGroupBy.includes(groupBy) ? groupBy : "none";
 
   // Build date range based on duration
   let dateRange = {};
@@ -487,11 +504,78 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
     });
   }
 
-  // Add aggregation pipeline for summary and transactions
-  pipeline.push(
-    {
+  // Build group stage based on groupBy parameter
+  const buildGroupStage = (groupBy) => {
+    let groupId = null;
+    let groupInfo = null;
+
+    switch (groupBy) {
+      case "buyer":
+        groupId = "$buyerInfo._id";
+        groupInfo = {
+          _id: "$buyerInfo._id",
+          name: "$buyerInfo.name",
+          contactNumber: "$buyerInfo.contactNumber",
+          address: "$buyerInfo.address",
+        };
+        break;
+      case "farm":
+        groupId = "$farmInfo._id";
+        groupInfo = {
+          _id: "$farmInfo._id",
+          name: "$farmInfo.name",
+          supervisor: "$farmInfo.supervisor",
+        };
+        break;
+      case "flock":
+        groupId = "$flockInfo._id";
+        groupInfo = {
+          _id: "$flockInfo._id",
+          name: "$flockInfo.name",
+          status: "$flockInfo.status",
+        };
+        break;
+      case "shed":
+        groupId = "$shedInfo._id";
+        groupInfo = {
+          _id: "$shedInfo._id",
+          name: "$shedInfo.name",
+          capacity: "$shedInfo.capacity",
+        };
+        break;
+      case "driver":
+        groupId = "$driverName";
+        groupInfo = {
+          driverName: "$driverName",
+          driverContact: "$driverContact",
+        };
+        break;
+      case "accountant":
+        groupId = "$accountantName";
+        groupInfo = {
+          accountantName: "$accountantName",
+        };
+        break;
+      case "date":
+        groupId = {
+          $dateToString: { format: "%Y-%m-%d", date: "$date" },
+        };
+        groupInfo = {
+          date: {
+            $dateToString: { format: "%Y-%m-%d", date: "$date" },
+          },
+        };
+        break;
+      default: // "none"
+        groupId = null;
+        groupInfo = null;
+        break;
+    }
+
+    const groupStage = {
       $group: {
-        _id: null,
+        _id: groupId,
+        ...(groupInfo && { groupInfo: { $first: groupInfo } }),
         transactions: { $push: "$$ROOT" },
         totalTransactions: { $sum: 1 },
         totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
@@ -508,132 +592,331 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
         earliestDate: { $min: "$date" },
         latestDate: { $max: "$date" },
       },
-    },
-    {
-      $project: {
-        _id: 0,
-        reportTitle: reportTitle,
+    };
+
+    return groupStage;
+  };
+
+  // Add aggregation pipeline for summary and transactions
+  pipeline.push(buildGroupStage(validGroupBy), {
+    $project: {
+      _id: 0,
+      groupId: "$_id",
+      groupInfo: "$groupInfo",
+      summary: {
+        totalTransactions: "$totalTransactions",
+        totalEmptyVehicleWeight: {
+          $round: ["$totalEmptyVehicleWeight", 2],
+        },
+        totalGrossWeight: { $round: ["$totalGrossWeight", 2] },
+        totalNetWeight: { $round: ["$totalNetWeight", 2] },
+        totalBirds: "$totalBirds",
+        totalRate: { $round: ["$totalRate", 2] },
+        totalAmount: { $round: ["$totalAmount", 2] },
+        totalPaid: { $round: ["$totalPaid", 2] },
+        totalBalance: { $round: ["$totalBalance", 2] },
+        averageRate: { $round: ["$averageRate", 2] },
+        averageNetWeight: { $round: ["$averageNetWeight", 2] },
+        averageBirdsPerTransaction: {
+          $round: ["$averageBirdsPerTransaction", 2],
+        },
         dateRange: {
           from: {
             $dateToString: { format: "%Y-%m-%d", date: "$earliestDate" },
           },
           to: { $dateToString: { format: "%Y-%m-%d", date: "$latestDate" } },
         },
-        summary: {
-          totalTransactions: "$totalTransactions",
-          totalEmptyVehicleWeight: {
-            $round: ["$totalEmptyVehicleWeight", 2],
-          },
-          totalGrossWeight: { $round: ["$totalGrossWeight", 2] },
-          totalNetWeight: { $round: ["$totalNetWeight", 2] },
-          totalBirds: "$totalBirds",
-          totalRate: { $round: ["$totalRate", 2] },
-          totalAmount: { $round: ["$totalAmount", 2] },
-          totalPaid: { $round: ["$totalPaid", 2] },
-          totalBalance: { $round: ["$totalBalance", 2] },
-          averageRate: { $round: ["$averageRate", 2] },
-          averageNetWeight: { $round: ["$averageNetWeight", 2] },
-          averageBirdsPerTransaction: {
-            $round: ["$averageBirdsPerTransaction", 2],
-          },
-        },
-        transactions: parsedIncludeDetails
-          ? {
-              $slice: [
-                {
-                  $map: {
-                    input: {
-                      $sortArray: {
-                        input: "$transactions",
-                        sortBy: { [validSortBy]: sortDirection },
-                      },
-                    },
-                    as: "transaction",
-                    in: {
-                      _id: "$$transaction._id",
-                      date: "$$transaction.date",
-                      vehicleNumber: "$$transaction.vehicleNumber",
-                      driverName: "$$transaction.driverName",
-                      driverContact: "$$transaction.driverContact",
-                      accountantName: "$$transaction.accountantName",
-                      emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
-                      grossWeight: "$$transaction.grossWeight",
-                      netWeight: "$$transaction.netWeight",
-                      numberOfBirds: "$$transaction.numberOfBirds",
-                      rate: "$$transaction.rate",
-                      totalAmount: "$$transaction.totalAmount",
-                      amountPaid: "$$transaction.amountPaid",
-                      balance: "$$transaction.balance",
-                      buyerInfo: "$$transaction.buyerInfo",
-                      farmInfo: "$$transaction.farmInfo",
-                      flockInfo: "$$transaction.flockInfo",
-                      shedInfo: "$$transaction.shedInfo",
-                      createdAt: "$$transaction.createdAt",
-                      updatedAt: "$$transaction.updatedAt",
+      },
+      transactions: parsedIncludeDetails
+        ? {
+            $slice: [
+              {
+                $map: {
+                  input: {
+                    $sortArray: {
+                      input: "$transactions",
+                      sortBy: { [validSortBy]: sortDirection },
                     },
                   },
+                  as: "transaction",
+                  in: {
+                    _id: "$$transaction._id",
+                    date: "$$transaction.date",
+                    vehicleNumber: "$$transaction.vehicleNumber",
+                    driverName: "$$transaction.driverName",
+                    driverContact: "$$transaction.driverContact",
+                    accountantName: "$$transaction.accountantName",
+                    emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
+                    grossWeight: "$$transaction.grossWeight",
+                    netWeight: "$$transaction.netWeight",
+                    numberOfBirds: "$$transaction.numberOfBirds",
+                    rate: "$$transaction.rate",
+                    totalAmount: "$$transaction.totalAmount",
+                    amountPaid: "$$transaction.amountPaid",
+                    balance: "$$transaction.balance",
+                    buyerInfo: "$$transaction.buyerInfo",
+                    farmInfo: "$$transaction.farmInfo",
+                    flockInfo: "$$transaction.flockInfo",
+                    shedInfo: "$$transaction.shedInfo",
+                    createdAt: "$$transaction.createdAt",
+                    updatedAt: "$$transaction.updatedAt",
+                  },
                 },
-                parsedOffset,
-                parsedLimit,
-              ],
-            }
-          : [],
-        pagination: {
-          totalCount: "$totalTransactions",
-          hasMore: {
-            $gt: ["$totalTransactions", { $add: [parsedOffset, parsedLimit] }],
-          },
-        },
-      },
-    }
-  );
+              },
+              parsedOffset,
+              parsedLimit,
+            ],
+          }
+        : [],
+    },
+  });
 
   // Execute aggregation
   const result = await LedgerModel.aggregate(pipeline);
 
   // Handle case when no transactions found
   if (result.length === 0) {
+    const emptyResponse = {
+      reportTitle: reportTitle,
+      summary: {
+        totalTransactions: 0,
+        totalEmptyVehicleWeight: 0,
+        totalGrossWeight: 0,
+        totalNetWeight: 0,
+        totalBirds: 0,
+        totalRate: 0,
+        totalAmount: 0,
+        totalPaid: 0,
+        totalBalance: 0,
+        averageRate: 0,
+        averageNetWeight: 0,
+        averageBirdsPerTransaction: 0,
+        dateRange: {
+          from: null,
+          to: null,
+        },
+      },
+    };
+
+    if (validGroupBy === "none") {
+      emptyResponse.transactions = [];
+      emptyResponse.pagination = {
+        page: parsedPage,
+        limit: parsedLimit,
+        totalCount: 0,
+        hasMore: false,
+      };
+    } else {
+      emptyResponse.groupedResults = [];
+    }
+
     return res.status(200).json({
       status: "success",
       message: "Universal report fetched successfully",
-      data: {
-        reportTitle: reportTitle,
-        summary: {
-          totalTransactions: 0,
-          totalEmptyVehicleWeight: 0,
-          totalGrossWeight: 0,
-          totalNetWeight: 0,
-          totalBirds: 0,
-          totalRate: 0,
-          totalAmount: 0,
-          totalPaid: 0,
-          totalBalance: 0,
-          averageRate: 0,
-          averageNetWeight: 0,
-          averageBirdsPerTransaction: 0,
-        },
-        transactions: [],
-        pagination: {
-          page: parsedPage,
-          limit: parsedLimit,
-          totalCount: 0,
-          hasMore: false,
-        },
-      },
+      data: emptyResponse,
     });
   }
 
-  const reportData = result[0];
+  // Process results based on grouping
+  if (validGroupBy === "none") {
+    // Non-grouped response (original format)
+    const reportData = result[0];
 
-  // Add proper pagination values
-  if (reportData.pagination) {
-    reportData.pagination.page = parsedPage;
-    reportData.pagination.limit = parsedLimit;
+    // Calculate overall summary from all groups
+    const overallSummary = result.reduce(
+      (acc, group) => {
+        acc.totalTransactions += group.summary.totalTransactions;
+        acc.totalEmptyVehicleWeight += group.summary.totalEmptyVehicleWeight;
+        acc.totalGrossWeight += group.summary.totalGrossWeight;
+        acc.totalNetWeight += group.summary.totalNetWeight;
+        acc.totalBirds += group.summary.totalBirds;
+        acc.totalRate += group.summary.totalRate;
+        acc.totalAmount += group.summary.totalAmount;
+        acc.totalPaid += group.summary.totalPaid;
+        acc.totalBalance += group.summary.totalBalance;
+        return acc;
+      },
+      {
+        totalTransactions: 0,
+        totalEmptyVehicleWeight: 0,
+        totalGrossWeight: 0,
+        totalNetWeight: 0,
+        totalBirds: 0,
+        totalRate: 0,
+        totalAmount: 0,
+        totalPaid: 0,
+        totalBalance: 0,
+      }
+    );
+
+    // Calculate averages
+    const totalTransactions = overallSummary.totalTransactions;
+    overallSummary.averageRate =
+      totalTransactions > 0 ? overallSummary.totalRate / totalTransactions : 0;
+    overallSummary.averageNetWeight =
+      totalTransactions > 0
+        ? overallSummary.totalNetWeight / totalTransactions
+        : 0;
+    overallSummary.averageBirdsPerTransaction =
+      totalTransactions > 0 ? overallSummary.totalBirds / totalTransactions : 0;
+
+    // Round values
+    Object.keys(overallSummary).forEach((key) => {
+      if (
+        typeof overallSummary[key] === "number" &&
+        key !== "totalTransactions" &&
+        key !== "totalBirds"
+      ) {
+        overallSummary[key] = Math.round(overallSummary[key] * 100) / 100;
+      }
+    });
+
+    // Get date range from all groups
+    const allDates = result
+      .flatMap((group) => [
+        new Date(group.summary.dateRange.from),
+        new Date(group.summary.dateRange.to),
+      ])
+      .filter((date) => date && !isNaN(date));
+
+    const responseData = {
+      reportTitle: reportTitle,
+      dateRange: {
+        from:
+          allDates.length > 0
+            ? new Date(Math.min(...allDates)).toISOString().split("T")[0]
+            : null,
+        to:
+          allDates.length > 0
+            ? new Date(Math.max(...allDates)).toISOString().split("T")[0]
+            : null,
+      },
+      summary: {
+        ...overallSummary,
+        dateRange: {
+          from:
+            allDates.length > 0
+              ? new Date(Math.min(...allDates)).toISOString().split("T")[0]
+              : null,
+          to:
+            allDates.length > 0
+              ? new Date(Math.max(...allDates)).toISOString().split("T")[0]
+              : null,
+        },
+      },
+      transactions: result.flatMap((group) => group.transactions),
+      pagination: {
+        page: parsedPage,
+        limit: parsedLimit,
+        totalCount: overallSummary.totalTransactions,
+        hasMore: overallSummary.totalTransactions > parsedOffset + parsedLimit,
+      },
+    };
+
+    res.status(200).json({
+      status: "success",
+      message: "Universal report fetched successfully",
+      data: responseData,
+    });
+  } else {
+    // Grouped response
+    const groupedResults = result.map((group) => ({
+      groupId: group.groupId,
+      groupInfo: group.groupInfo,
+      summary: group.summary,
+      transactions: group.transactions,
+    }));
+
+    // Calculate overall summary from all groups
+    const overallSummary = result.reduce(
+      (acc, group) => {
+        acc.totalTransactions += group.summary.totalTransactions;
+        acc.totalEmptyVehicleWeight += group.summary.totalEmptyVehicleWeight;
+        acc.totalGrossWeight += group.summary.totalGrossWeight;
+        acc.totalNetWeight += group.summary.totalNetWeight;
+        acc.totalBirds += group.summary.totalBirds;
+        acc.totalRate += group.summary.totalRate;
+        acc.totalAmount += group.summary.totalAmount;
+        acc.totalPaid += group.summary.totalPaid;
+        acc.totalBalance += group.summary.totalBalance;
+        return acc;
+      },
+      {
+        totalTransactions: 0,
+        totalEmptyVehicleWeight: 0,
+        totalGrossWeight: 0,
+        totalNetWeight: 0,
+        totalBirds: 0,
+        totalRate: 0,
+        totalAmount: 0,
+        totalPaid: 0,
+        totalBalance: 0,
+      }
+    );
+
+    // Calculate averages
+    const totalTransactions = overallSummary.totalTransactions;
+    overallSummary.averageRate =
+      totalTransactions > 0 ? overallSummary.totalRate / totalTransactions : 0;
+    overallSummary.averageNetWeight =
+      totalTransactions > 0
+        ? overallSummary.totalNetWeight / totalTransactions
+        : 0;
+    overallSummary.averageBirdsPerTransaction =
+      totalTransactions > 0 ? overallSummary.totalBirds / totalTransactions : 0;
+
+    // Round values
+    Object.keys(overallSummary).forEach((key) => {
+      if (
+        typeof overallSummary[key] === "number" &&
+        key !== "totalTransactions" &&
+        key !== "totalBirds"
+      ) {
+        overallSummary[key] = Math.round(overallSummary[key] * 100) / 100;
+      }
+    });
+
+    // Get date range from all groups
+    const allDates = result
+      .flatMap((group) => [
+        new Date(group.summary.dateRange.from),
+        new Date(group.summary.dateRange.to),
+      ])
+      .filter((date) => date && !isNaN(date));
+
+    const responseData = {
+      reportTitle: reportTitle,
+      dateRange: {
+        from:
+          allDates.length > 0
+            ? new Date(Math.min(...allDates)).toISOString().split("T")[0]
+            : null,
+        to:
+          allDates.length > 0
+            ? new Date(Math.max(...allDates)).toISOString().split("T")[0]
+            : null,
+      },
+      summary: {
+        ...overallSummary,
+        dateRange: {
+          from:
+            allDates.length > 0
+              ? new Date(Math.min(...allDates)).toISOString().split("T")[0]
+              : null,
+          to:
+            allDates.length > 0
+              ? new Date(Math.max(...allDates)).toISOString().split("T")[0]
+              : null,
+        },
+      },
+      groupedResults: groupedResults,
+      groupBy: validGroupBy,
+    };
+
+    res.status(200).json({
+      status: "success",
+      message: "Universal report fetched successfully",
+      data: responseData,
+    });
   }
-
-  res.status(200).json({
-    status: "success",
-    message: "Universal report fetched successfully",
-    data: reportData,
-  });
 });

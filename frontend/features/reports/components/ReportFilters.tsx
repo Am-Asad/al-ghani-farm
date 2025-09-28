@@ -36,6 +36,7 @@ const ReportFilters = () => {
     period,
     paymentStatus,
     includeDetails,
+    groupBy,
     buyerIds,
     farmIds,
     flockIds,
@@ -60,6 +61,7 @@ const ReportFilters = () => {
   );
   const [pendingIncludeDetails, setPendingIncludeDetails] =
     useState(includeDetails);
+  const [pendingGroupBy, setPendingGroupBy] = useState(groupBy);
   const [pendingBuyerIds, setPendingBuyerIds] = useState(buyerIds);
   const [pendingFarmIds, setPendingFarmIds] = useState(farmIds);
   const [pendingFlockIds, setPendingFlockIds] = useState(flockIds);
@@ -97,6 +99,9 @@ const ReportFilters = () => {
     setPendingIncludeDetails(includeDetails);
   }, [includeDetails]);
   useEffect(() => {
+    setPendingGroupBy(groupBy);
+  }, [groupBy]);
+  useEffect(() => {
     setPendingBuyerIds(buyerIds);
   }, [buyerIds]);
   useEffect(() => {
@@ -127,6 +132,7 @@ const ReportFilters = () => {
       period: pendingPeriod,
       paymentStatus: pendingPaymentStatus,
       includeDetails: pendingIncludeDetails,
+      groupBy: pendingGroupBy,
       buyerIds: pendingBuyerIds,
       farmIds: pendingFarmIds,
       flockIds: pendingFlockIds,
@@ -148,6 +154,7 @@ const ReportFilters = () => {
     setPendingPeriod("");
     setPendingPaymentStatus("all");
     setPendingIncludeDetails("true");
+    setPendingGroupBy("none");
     setPendingBuyerIds("");
     setPendingFarmIds("");
     setPendingFlockIds("");
@@ -372,6 +379,32 @@ const ReportFilters = () => {
                 <SelectItem value="unpaid">Unpaid</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-foreground whitespace-nowrap">
+            Group by:
+          </label>
+          <div className="flex items-center gap-2">
+            <Select value={pendingGroupBy} onValueChange={setPendingGroupBy}>
+              <SelectTrigger className="w-36 h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Grouping</SelectItem>
+                <SelectItem value="buyer">Buyer</SelectItem>
+                <SelectItem value="farm">Farm</SelectItem>
+                <SelectItem value="flock">Flock</SelectItem>
+                <SelectItem value="shed">Shed</SelectItem>
+                <SelectItem value="driver">Driver</SelectItem>
+                <SelectItem value="accountant">Accountant</SelectItem>
+                <SelectItem value="date">Date</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="text-xs text-muted-foreground max-w-32">
+              Compare performance across groups
+            </div>
           </div>
         </div>
 

@@ -37,6 +37,7 @@ export type ReportQueryParams = {
 
   // Aggregation
   includeDetails?: string; // 'true', 'false'
+  groupBy?: string; // 'buyer', 'farm', 'flock', 'shed', 'driver', 'accountant', 'date', 'none'
 };
 
 const DEFAULTS: ReportQueryParams = {
@@ -67,6 +68,7 @@ const DEFAULTS: ReportQueryParams = {
   driverNames: "",
   accountantNames: "",
   includeDetails: "true",
+  groupBy: "none",
 };
 
 export const useReportQueryParams = () => {
@@ -105,6 +107,7 @@ export const useReportQueryParams = () => {
       driverNames?: string;
       accountantNames?: string;
       includeDetails?: string;
+      groupBy?: string;
     }) => {
       // When filters change, reset page to 1
       setParams({ ...filters, page: "1" });
@@ -158,6 +161,7 @@ export const useReportQueryParams = () => {
     driverNames: query.driverNames ?? "",
     accountantNames: query.accountantNames ?? "",
     includeDetails: query.includeDetails ?? "true",
+    groupBy: query.groupBy ?? "none",
     // setters
     setFilters,
     setPage,

@@ -28,3 +28,4 @@
 [] Leaving the create in bulk functionality for all modules for later.
 [] Leaving the flock chicks allocation count must not be greater than the total capacity of a shed check for now.
 [] Leaving the delete in bulk functionality for all modules for now.
+[] Remove unnecessary files and code.

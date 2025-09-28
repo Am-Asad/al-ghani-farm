@@ -66,6 +66,27 @@ export type ReportSummary = {
   };
 };
 
+export type GroupInfo = {
+  _id?: string;
+  name?: string;
+  contactNumber?: string;
+  address?: string;
+  supervisor?: string;
+  status?: string;
+  capacity?: number;
+  driverName?: string;
+  driverContact?: string;
+  accountantName?: string;
+  date?: string;
+};
+
+export type GroupedResult = {
+  groupId: string | null;
+  groupInfo: GroupInfo | null;
+  summary: ReportSummary;
+  transactions: ReportTransaction[];
+};
+
 export type ReportData = {
   reportTitle: string;
   dateRange?: {
@@ -80,6 +101,9 @@ export type ReportData = {
     page?: number;
     limit?: number;
   };
+  // Grouped response fields
+  groupedResults?: GroupedResult[];
+  groupBy?: string;
 };
 
 export type APIResponse<T> = {
