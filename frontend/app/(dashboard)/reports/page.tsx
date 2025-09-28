@@ -99,16 +99,17 @@ const ReportsPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {transactions.length > 0 ? (
+          {reportData?.summary ? (
             <div className="space-y-6">
               <ReportsTable
                 transactions={transactions}
                 summary={summary}
                 isLoading={reportsLoading}
+                includeDetails={query.includeDetails === "true"}
               />
 
               {/* Pagination */}
-              {pagination.totalCount > 0 && (
+              {query.includeDetails === "true" && pagination.totalCount > 0 && (
                 <Pagination
                   page={pagination.page || 1}
                   limit={pagination.limit || 10}

@@ -9,12 +9,14 @@ type ReportsTableProps = {
   transactions: ReportTransaction[];
   summary: ReportSummary | undefined;
   isLoading?: boolean;
+  includeDetails?: boolean;
 };
 
 const ReportsTable = ({
   transactions,
   summary,
   isLoading,
+  includeDetails = true,
 }: ReportsTableProps) => {
   if (isLoading) {
     return (
@@ -82,7 +84,7 @@ const ReportsTable = ({
       </div>
 
       {/* Transactions Table */}
-      {transactions.length > 0 ? (
+      {includeDetails && transactions.length > 0 && (
         <div className="border rounded-lg overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/50">
@@ -221,10 +223,6 @@ const ReportsTable = ({
               ))}
             </tbody>
           </table>
-        </div>
-      ) : (
-        <div className="text-center py-8 text-muted-foreground">
-          <p>No transactions found for the selected criteria</p>
         </div>
       )}
     </div>

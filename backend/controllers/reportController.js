@@ -2632,6 +2632,10 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
   const allowedGroupBy = ["buyer", "farm", "flock", "shed", "date", "none"];
   const validGroupBy = allowedGroupBy.includes(groupBy) ? groupBy : "none";
 
+  // Parse includeDetails as boolean
+  const parsedIncludeDetails =
+    includeDetails === "true" || includeDetails === true;
+
   // Build aggregation pipeline
   const pipeline = [
     // Match conditions
@@ -2720,7 +2724,6 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
 
   // Add search filter after lookups (to search across related entities)
   if (search && search.trim()) {
-    console.log("Search filter applied:", search.trim());
     const searchRegex = new RegExp(search.trim(), "i");
     pipeline.push({
       $match: {
@@ -2738,8 +2741,6 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
         ],
       },
     });
-  } else {
-    console.log("No search filter applied. Search value:", search);
   }
 
   // Add grouping based on groupBy parameter
@@ -2794,7 +2795,7 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
               $round: ["$averageBirdsPerTransaction", 2],
             },
           },
-          transactions: includeDetails
+          transactions: parsedIncludeDetails
             ? {
                 $slice: [
                   {
@@ -2905,7 +2906,7 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
               },
             },
           },
-          transactions: includeDetails
+          transactions: parsedIncludeDetails
             ? {
                 $slice: [
                   {

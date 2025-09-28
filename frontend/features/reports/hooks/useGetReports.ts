@@ -88,7 +88,10 @@ export type GroupedReportData = {
   summary: ReportSummary;
   ledgers: Array<{
     groupId: string;
-    groupInfo: any;
+    groupInfo: {
+      _id: string;
+      name: string;
+    };
     summary: ReportSummary;
     transactions: ReportTransaction[];
   }>;

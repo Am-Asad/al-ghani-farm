@@ -64,10 +64,10 @@ All requests require authentication via the `authHandler` middleware.
 
 ### Grouping and Aggregation Parameters
 
-| Parameter        | Type    | Default  | Description                                                        |
-| ---------------- | ------- | -------- | ------------------------------------------------------------------ |
-| `groupBy`        | string  | `"none"` | Group results by: `buyer`, `farm`, `flock`, `shed`, `date`, `none` |
-| `includeDetails` | boolean | `true`   | Include individual transaction details in the response             |
+| Parameter        | Type   | Default  | Description                                                                                          |
+| ---------------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| `groupBy`        | string | `"none"` | Group results by: `buyer`, `farm`, `flock`, `shed`, `date`, `none`                                   |
+| `includeDetails` | string | `"true"` | Include individual transactions in response (`"true"` = show transactions, `"false"` = summary only) |
 
 ## Duration Types
 
@@ -140,6 +140,13 @@ curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6
 
 ```bash
 curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6789012345,64a1b2c3d4e5f6789012346&duration=monthly&date=2024-01-15" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+#### Summary Only Report (No Individual Transactions)
+
+```bash
+curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6789012345&duration=monthly&includeDetails=false" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
