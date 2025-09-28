@@ -117,9 +117,6 @@ export const useGetReports = (query?: ReportQueryParams) => {
             })
         );
 
-        // Debug: Log the query being sent to API
-        console.log("Reports API Query:", cleanQuery);
-
         const response = await api.get<APIResponse<ReportData>>(
           `/reports/universal`,
           {
