@@ -156,12 +156,30 @@ export const getShedsForDropdown = asyncHandler(async (req, res) => {
 
   const andConditions = [];
 
+  // Support multiple farm IDs (comma-separated)
   if (typeof farmId === "string" && farmId.trim()) {
-    andConditions.push({ farmId });
+    const farmIds = farmId
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (farmIds.length === 1) {
+      andConditions.push({ farmId: farmIds[0] });
+    } else if (farmIds.length > 1) {
+      andConditions.push({ farmId: { $in: farmIds } });
+    }
   }
 
+  // Support multiple shed IDs (comma-separated)
   if (typeof shedId === "string" && shedId.trim()) {
-    andConditions.push({ _id: shedId });
+    const shedIds = shedId
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (shedIds.length === 1) {
+      andConditions.push({ _id: shedIds[0] });
+    } else if (shedIds.length > 1) {
+      andConditions.push({ _id: { $in: shedIds } });
+    }
   }
 
   if (typeof search === "string" && search.trim()) {

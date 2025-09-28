@@ -19,6 +19,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Filter, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
 import { useReportQueryParams } from "../hooks/useReportQueryParams";
+import BuyersMultiSelect from "@/features/shared/components/BuyersMultiSelect";
+import FarmsMultiSelect from "@/features/shared/components/FarmsMultiSelect";
+import FlocksMultiSelect from "@/features/shared/components/FlocksMultiSelect";
+import ShedsMultiSelect from "@/features/shared/components/ShedsMultiSelect";
 
 const ReportFilters = () => {
   const {
@@ -32,6 +36,10 @@ const ReportFilters = () => {
     period,
     paymentStatus,
     includeDetails,
+    buyerIds,
+    farmIds,
+    flockIds,
+    shedIds,
     setFilters,
     reset,
   } = useReportQueryParams();
@@ -52,6 +60,10 @@ const ReportFilters = () => {
   );
   const [pendingIncludeDetails, setPendingIncludeDetails] =
     useState(includeDetails);
+  const [pendingBuyerIds, setPendingBuyerIds] = useState(buyerIds);
+  const [pendingFarmIds, setPendingFarmIds] = useState(farmIds);
+  const [pendingFlockIds, setPendingFlockIds] = useState(flockIds);
+  const [pendingShedIds, setPendingShedIds] = useState(shedIds);
 
   // Sync local state with URL changes (back/forward or external updates)
   useEffect(() => {
@@ -84,6 +96,18 @@ const ReportFilters = () => {
   useEffect(() => {
     setPendingIncludeDetails(includeDetails);
   }, [includeDetails]);
+  useEffect(() => {
+    setPendingBuyerIds(buyerIds);
+  }, [buyerIds]);
+  useEffect(() => {
+    setPendingFarmIds(farmIds);
+  }, [farmIds]);
+  useEffect(() => {
+    setPendingFlockIds(flockIds);
+  }, [flockIds]);
+  useEffect(() => {
+    setPendingShedIds(shedIds);
+  }, [shedIds]);
 
   const handleApplyFilters = () => {
     // Auto-set today's date for daily reports if no date is provided
@@ -103,6 +127,10 @@ const ReportFilters = () => {
       period: pendingPeriod,
       paymentStatus: pendingPaymentStatus,
       includeDetails: pendingIncludeDetails,
+      buyerIds: pendingBuyerIds,
+      farmIds: pendingFarmIds,
+      flockIds: pendingFlockIds,
+      shedIds: pendingShedIds,
     };
 
     setFilters(filtersToApply);
@@ -120,6 +148,10 @@ const ReportFilters = () => {
     setPendingPeriod("");
     setPendingPaymentStatus("all");
     setPendingIncludeDetails("true");
+    setPendingBuyerIds("");
+    setPendingFarmIds("");
+    setPendingFlockIds("");
+    setPendingShedIds("");
     reset();
   };
 
@@ -366,6 +398,42 @@ const ReportFilters = () => {
               <SelectItem value="asc">Ascending</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      {/* Entity Filters Row */}
+      <div className="space-y-4">
+        <div className="text-sm font-medium text-foreground">
+          Entity Filters
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <BuyersMultiSelect
+            value={pendingBuyerIds}
+            onChange={setPendingBuyerIds}
+            placeholder="Select buyers..."
+            maxDisplayItems={2}
+          />
+          <FarmsMultiSelect
+            value={pendingFarmIds}
+            onChange={setPendingFarmIds}
+            placeholder="Select farms..."
+            maxDisplayItems={2}
+          />
+          <FlocksMultiSelect
+            value={pendingFlockIds}
+            onChange={setPendingFlockIds}
+            placeholder="Select flocks..."
+            farmId={pendingFarmIds} // Pass all selected farms for filtering
+            shedId={pendingShedIds} // Pass all selected sheds for filtering
+            maxDisplayItems={2}
+          />
+          <ShedsMultiSelect
+            value={pendingShedIds}
+            onChange={setPendingShedIds}
+            placeholder="Select sheds..."
+            farmId={pendingFarmIds} // Pass all selected farms for filtering
+            maxDisplayItems={2}
+          />
         </div>
       </div>
 

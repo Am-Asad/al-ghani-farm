@@ -6,8 +6,8 @@ type ShedOption = { _id: string; name: string };
 
 export const useGetShedsDropdown = (params: {
   search: string;
-  farmId?: string;
-  shedId?: string;
+  farmId?: string; // Can be comma-separated string for multiple farms
+  shedId?: string; // Can be comma-separated string for multiple sheds
 }) => {
   const { search, farmId, shedId } = params;
   return useQuery({

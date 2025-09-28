@@ -6,9 +6,9 @@ type FlockOption = { _id: string; name: string };
 
 export const useGetFlocksDropdown = (params: {
   search: string;
-  farmId?: string;
-  flockId?: string;
-  shedId?: string;
+  farmId?: string; // Can be comma-separated string for multiple farms
+  flockId?: string; // Can be comma-separated string for multiple flocks
+  shedId?: string; // Can be comma-separated string for multiple sheds
 }) => {
   const { search, farmId, flockId, shedId } = params;
   return useQuery({

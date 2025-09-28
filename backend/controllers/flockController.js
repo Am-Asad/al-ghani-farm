@@ -602,17 +602,45 @@ export const getFlocksForDropdown = asyncHandler(async (req, res) => {
 
   const andConditions = [];
 
+  // Support multiple farm IDs (comma-separated)
   if (typeof farmId === "string" && farmId.trim()) {
-    andConditions.push({ farmId });
+    const farmIds = farmId
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (farmIds.length === 1) {
+      andConditions.push({ farmId: farmIds[0] });
+    } else if (farmIds.length > 1) {
+      andConditions.push({ farmId: { $in: farmIds } });
+    }
   }
 
+  // Support multiple flock IDs (comma-separated)
   if (typeof flockId === "string" && flockId.trim()) {
-    andConditions.push({ _id: flockId });
+    const flockIds = flockId
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (flockIds.length === 1) {
+      andConditions.push({ _id: flockIds[0] });
+    } else if (flockIds.length > 1) {
+      andConditions.push({ _id: { $in: flockIds } });
+    }
   }
 
+  // Support multiple shed IDs (comma-separated)
   if (typeof shedId === "string" && shedId.trim()) {
-    // Flock allocations contain shedId; ensure at least one allocation with this shed
-    andConditions.push({ "allocations.shedId": shedId });
+    const shedIds = shedId
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (shedIds.length === 1) {
+      // Flock allocations contain shedId; ensure at least one allocation with this shed
+      andConditions.push({ "allocations.shedId": shedIds[0] });
+    } else if (shedIds.length > 1) {
+      // Flock allocations contain shedId; ensure at least one allocation with any of these sheds
+      andConditions.push({ "allocations.shedId": { $in: shedIds } });
+    }
   }
 
   if (typeof search === "string" && search.trim()) {
