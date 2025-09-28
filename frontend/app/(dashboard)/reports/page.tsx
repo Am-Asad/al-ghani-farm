@@ -25,32 +25,25 @@ const ReportsPage = () => {
 
   const reportData = reportsData?.data;
 
-  // Handle both ReportData and GroupedReportData types
-  const isGroupedReport = reportData && "ledgers" in reportData;
-  const transactions = isGroupedReport
-    ? (
-        reportData as { ledgers: Array<{ transactions: ReportTransaction[] }> }
-      ).ledgers?.flatMap((ledger) => ledger.transactions || []) || []
-    : (reportData as { transactions: ReportTransaction[] })?.transactions || [];
-
+  // Handle simplified ReportData structure
+  const transactions =
+    (reportData as { transactions: ReportTransaction[] })?.transactions || [];
   const summary = reportData?.summary;
-  const pagination = isGroupedReport
-    ? { totalCount: transactions.length, hasMore: false, page: 1, limit: 10 }
-    : (
-        reportData as {
-          pagination?: {
-            totalCount: number;
-            hasMore: boolean;
-            page: number;
-            limit: number;
-          };
-        }
-      )?.pagination || {
-        totalCount: 0,
-        hasMore: false,
-        page: 1,
-        limit: 10,
+  const pagination = (
+    reportData as {
+      pagination?: {
+        totalCount: number;
+        hasMore: boolean;
+        page: number;
+        limit: number;
       };
+    }
+  )?.pagination || {
+    totalCount: 0,
+    hasMore: false,
+    page: 1,
+    limit: 10,
+  };
 
   if (reportsLoading) return <TableSkeleton />;
   if (reportsError) {

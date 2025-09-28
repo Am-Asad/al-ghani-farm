@@ -2357,17 +2357,17 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
     // Sorting and pagination
     sortBy = "date",
     sortOrder = "desc",
-    limit = 100,
-    offset = 0,
+    page = 1,
+    limit = 10,
 
-    // Grouping and aggregation
-    groupBy = "none",
+    // Aggregation
     includeDetails = true,
   } = req.query;
 
-  // Validate limit
-  const parsedLimit = Math.min(parseInt(limit) || 100, 1000);
-  const parsedOffset = Math.max(parseInt(offset) || 0, 0);
+  // Validate pagination
+  const parsedPage = Math.max(parseInt(page) || 1, 1);
+  const parsedLimit = Math.min(parseInt(limit) || 10, 1000);
+  const parsedOffset = (parsedPage - 1) * parsedLimit;
 
   // Build date range based on duration
   let dateRange = {};
@@ -2628,10 +2628,6 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
   const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : "date";
   const sortDirection = sortOrder === "asc" ? 1 : -1;
 
-  // Validate groupBy parameter
-  const allowedGroupBy = ["buyer", "farm", "flock", "shed", "date", "none"];
-  const validGroupBy = allowedGroupBy.includes(groupBy) ? groupBy : "none";
-
   // Parse includeDetails as boolean
   const parsedIncludeDetails =
     includeDetails === "true" || includeDetails === true;
@@ -2743,243 +2739,106 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
     });
   }
 
-  // Add grouping based on groupBy parameter
-  if (validGroupBy === "none") {
-    // No grouping - single summary
-    pipeline.push(
-      {
-        $group: {
-          _id: null,
-          transactions: { $push: "$$ROOT" },
-          totalTransactions: { $sum: 1 },
-          totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
-          totalGrossWeight: { $sum: "$grossWeight" },
-          totalNetWeight: { $sum: "$netWeight" },
-          totalBirds: { $sum: "$numberOfBirds" },
-          totalRate: { $sum: "$rate" },
-          totalAmount: { $sum: "$totalAmount" },
-          totalPaid: { $sum: "$amountPaid" },
-          totalBalance: { $sum: "$balance" },
-          averageRate: { $avg: "$rate" },
-          averageNetWeight: { $avg: "$netWeight" },
-          averageBirdsPerTransaction: { $avg: "$numberOfBirds" },
-          earliestDate: { $min: "$date" },
-          latestDate: { $max: "$date" },
-        },
+  // Add aggregation pipeline for summary and transactions
+  pipeline.push(
+    {
+      $group: {
+        _id: null,
+        transactions: { $push: "$$ROOT" },
+        totalTransactions: { $sum: 1 },
+        totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
+        totalGrossWeight: { $sum: "$grossWeight" },
+        totalNetWeight: { $sum: "$netWeight" },
+        totalBirds: { $sum: "$numberOfBirds" },
+        totalRate: { $sum: "$rate" },
+        totalAmount: { $sum: "$totalAmount" },
+        totalPaid: { $sum: "$amountPaid" },
+        totalBalance: { $sum: "$balance" },
+        averageRate: { $avg: "$rate" },
+        averageNetWeight: { $avg: "$netWeight" },
+        averageBirdsPerTransaction: { $avg: "$numberOfBirds" },
+        earliestDate: { $min: "$date" },
+        latestDate: { $max: "$date" },
       },
-      {
-        $project: {
-          _id: 0,
-          reportTitle: reportTitle,
-          dateRange: {
-            from: {
-              $dateToString: { format: "%Y-%m-%d", date: "$earliestDate" },
-            },
-            to: { $dateToString: { format: "%Y-%m-%d", date: "$latestDate" } },
+    },
+    {
+      $project: {
+        _id: 0,
+        reportTitle: reportTitle,
+        dateRange: {
+          from: {
+            $dateToString: { format: "%Y-%m-%d", date: "$earliestDate" },
           },
-          summary: {
-            totalTransactions: "$totalTransactions",
-            totalEmptyVehicleWeight: {
-              $round: ["$totalEmptyVehicleWeight", 2],
-            },
-            totalGrossWeight: { $round: ["$totalGrossWeight", 2] },
-            totalNetWeight: { $round: ["$totalNetWeight", 2] },
-            totalBirds: "$totalBirds",
-            totalRate: { $round: ["$totalRate", 2] },
-            totalAmount: { $round: ["$totalAmount", 2] },
-            totalPaid: { $round: ["$totalPaid", 2] },
-            totalBalance: { $round: ["$totalBalance", 2] },
-            averageRate: { $round: ["$averageRate", 2] },
-            averageNetWeight: { $round: ["$averageNetWeight", 2] },
-            averageBirdsPerTransaction: {
-              $round: ["$averageBirdsPerTransaction", 2],
-            },
+          to: { $dateToString: { format: "%Y-%m-%d", date: "$latestDate" } },
+        },
+        summary: {
+          totalTransactions: "$totalTransactions",
+          totalEmptyVehicleWeight: {
+            $round: ["$totalEmptyVehicleWeight", 2],
           },
-          transactions: parsedIncludeDetails
-            ? {
-                $slice: [
-                  {
-                    $map: {
-                      input: {
-                        $sortArray: {
-                          input: "$transactions",
-                          sortBy: { [validSortBy]: sortDirection },
-                        },
-                      },
-                      as: "transaction",
-                      in: {
-                        _id: "$$transaction._id",
-                        date: "$$transaction.date",
-                        vehicleNumber: "$$transaction.vehicleNumber",
-                        driverName: "$$transaction.driverName",
-                        driverContact: "$$transaction.driverContact",
-                        accountantName: "$$transaction.accountantName",
-                        emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
-                        grossWeight: "$$transaction.grossWeight",
-                        netWeight: "$$transaction.netWeight",
-                        numberOfBirds: "$$transaction.numberOfBirds",
-                        rate: "$$transaction.rate",
-                        totalAmount: "$$transaction.totalAmount",
-                        amountPaid: "$$transaction.amountPaid",
-                        balance: "$$transaction.balance",
-                        buyerInfo: "$$transaction.buyerInfo",
-                        farmInfo: "$$transaction.farmInfo",
-                        flockInfo: "$$transaction.flockInfo",
-                        shedInfo: "$$transaction.shedInfo",
-                        createdAt: "$$transaction.createdAt",
-                        updatedAt: "$$transaction.updatedAt",
+          totalGrossWeight: { $round: ["$totalGrossWeight", 2] },
+          totalNetWeight: { $round: ["$totalNetWeight", 2] },
+          totalBirds: "$totalBirds",
+          totalRate: { $round: ["$totalRate", 2] },
+          totalAmount: { $round: ["$totalAmount", 2] },
+          totalPaid: { $round: ["$totalPaid", 2] },
+          totalBalance: { $round: ["$totalBalance", 2] },
+          averageRate: { $round: ["$averageRate", 2] },
+          averageNetWeight: { $round: ["$averageNetWeight", 2] },
+          averageBirdsPerTransaction: {
+            $round: ["$averageBirdsPerTransaction", 2],
+          },
+        },
+        transactions: parsedIncludeDetails
+          ? {
+              $slice: [
+                {
+                  $map: {
+                    input: {
+                      $sortArray: {
+                        input: "$transactions",
+                        sortBy: { [validSortBy]: sortDirection },
                       },
                     },
+                    as: "transaction",
+                    in: {
+                      _id: "$$transaction._id",
+                      date: "$$transaction.date",
+                      vehicleNumber: "$$transaction.vehicleNumber",
+                      driverName: "$$transaction.driverName",
+                      driverContact: "$$transaction.driverContact",
+                      accountantName: "$$transaction.accountantName",
+                      emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
+                      grossWeight: "$$transaction.grossWeight",
+                      netWeight: "$$transaction.netWeight",
+                      numberOfBirds: "$$transaction.numberOfBirds",
+                      rate: "$$transaction.rate",
+                      totalAmount: "$$transaction.totalAmount",
+                      amountPaid: "$$transaction.amountPaid",
+                      balance: "$$transaction.balance",
+                      buyerInfo: "$$transaction.buyerInfo",
+                      farmInfo: "$$transaction.farmInfo",
+                      flockInfo: "$$transaction.flockInfo",
+                      shedInfo: "$$transaction.shedInfo",
+                      createdAt: "$$transaction.createdAt",
+                      updatedAt: "$$transaction.updatedAt",
+                    },
                   },
-                  parsedOffset,
-                  parsedLimit,
-                ],
-              }
-            : [],
-          pagination: {
-            totalCount: "$totalTransactions",
-            hasMore: {
-              $gt: [
-                "$totalTransactions",
-                { $add: [parsedOffset, parsedLimit] },
+                },
+                parsedOffset,
+                parsedLimit,
               ],
-            },
-          },
-        },
-      }
-    );
-  } else {
-    // Group by specified field
-    const groupField = `${validGroupBy}Id`;
-    const groupInfo = `${validGroupBy}Info`;
-
-    pipeline.push(
-      {
-        $group: {
-          _id: `$${groupField}`,
-          groupInfo: { $first: `$${groupInfo}` },
-          transactions: { $push: "$$ROOT" },
-          totalTransactions: { $sum: 1 },
-          totalEmptyVehicleWeight: { $sum: "$emptyVehicleWeight" },
-          totalGrossWeight: { $sum: "$grossWeight" },
-          totalNetWeight: { $sum: "$netWeight" },
-          totalBirds: { $sum: "$numberOfBirds" },
-          totalRate: { $sum: "$rate" },
-          totalAmount: { $sum: "$totalAmount" },
-          totalPaid: { $sum: "$amountPaid" },
-          totalBalance: { $sum: "$balance" },
-          averageRate: { $avg: "$rate" },
-          averageNetWeight: { $avg: "$netWeight" },
-          averageBirdsPerTransaction: { $avg: "$numberOfBirds" },
-          earliestDate: { $min: "$date" },
-          latestDate: { $max: "$date" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          groupId: "$_id",
-          groupInfo: "$groupInfo",
-          summary: {
-            totalTransactions: "$totalTransactions",
-            totalEmptyVehicleWeight: {
-              $round: ["$totalEmptyVehicleWeight", 2],
-            },
-            totalGrossWeight: { $round: ["$totalGrossWeight", 2] },
-            totalNetWeight: { $round: ["$totalNetWeight", 2] },
-            totalBirds: "$totalBirds",
-            totalRate: { $round: ["$totalRate", 2] },
-            totalAmount: { $round: ["$totalAmount", 2] },
-            totalPaid: { $round: ["$totalPaid", 2] },
-            totalBalance: { $round: ["$totalBalance", 2] },
-            averageRate: { $round: ["$averageRate", 2] },
-            averageNetWeight: { $round: ["$averageNetWeight", 2] },
-            averageBirdsPerTransaction: {
-              $round: ["$averageBirdsPerTransaction", 2],
-            },
-            dateRange: {
-              from: {
-                $dateToString: { format: "%Y-%m-%d", date: "$earliestDate" },
-              },
-              to: {
-                $dateToString: { format: "%Y-%m-%d", date: "$latestDate" },
-              },
-            },
-          },
-          transactions: parsedIncludeDetails
-            ? {
-                $slice: [
-                  {
-                    $map: {
-                      input: {
-                        $sortArray: {
-                          input: "$transactions",
-                          sortBy: { [validSortBy]: sortDirection },
-                        },
-                      },
-                      as: "transaction",
-                      in: {
-                        _id: "$$transaction._id",
-                        date: "$$transaction.date",
-                        vehicleNumber: "$$transaction.vehicleNumber",
-                        driverName: "$$transaction.driverName",
-                        driverContact: "$$transaction.driverContact",
-                        accountantName: "$$transaction.accountantName",
-                        emptyVehicleWeight: "$$transaction.emptyVehicleWeight",
-                        grossWeight: "$$transaction.grossWeight",
-                        netWeight: "$$transaction.netWeight",
-                        numberOfBirds: "$$transaction.numberOfBirds",
-                        rate: "$$transaction.rate",
-                        totalAmount: "$$transaction.totalAmount",
-                        amountPaid: "$$transaction.amountPaid",
-                        balance: "$$transaction.balance",
-                        buyerInfo: "$$transaction.buyerInfo",
-                        farmInfo: "$$transaction.farmInfo",
-                        flockInfo: "$$transaction.flockInfo",
-                        shedInfo: "$$transaction.shedInfo",
-                        createdAt: "$$transaction.createdAt",
-                        updatedAt: "$$transaction.updatedAt",
-                      },
-                    },
-                  },
-                  parsedOffset,
-                  parsedLimit,
-                ],
-              }
-            : [],
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          reportTitle: { $first: reportTitle },
-          ledgers: { $push: "$$ROOT" },
-          summary: {
-            $sum: {
-              totalTransactions: "$summary.totalTransactions",
-              totalEmptyVehicleWeight: "$summary.totalEmptyVehicleWeight",
-              totalGrossWeight: "$summary.totalGrossWeight",
-              totalNetWeight: "$summary.totalNetWeight",
-              totalBirds: "$summary.totalBirds",
-              totalRate: "$summary.totalRate",
-              totalAmount: "$summary.totalAmount",
-              totalPaid: "$summary.totalPaid",
-              totalBalance: "$summary.totalBalance",
-            },
+            }
+          : [],
+        pagination: {
+          totalCount: "$totalTransactions",
+          hasMore: {
+            $gt: ["$totalTransactions", { $add: [parsedOffset, parsedLimit] }],
           },
         },
       },
-      {
-        $project: {
-          _id: 0,
-          reportTitle: "$reportTitle",
-          groupBy: validGroupBy,
-          summary: "$summary",
-          ledgers: "$ledgers",
-        },
-      }
-    );
-  }
+    }
+  );
 
   // Execute aggregation
   const result = await LedgerModel.aggregate(pipeline);
@@ -2991,7 +2850,6 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
       message: "Universal report fetched successfully",
       data: {
         reportTitle: reportTitle,
-        groupBy: validGroupBy,
         summary: {
           totalTransactions: 0,
           totalEmptyVehicleWeight: 0,
@@ -3006,9 +2864,9 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
           averageNetWeight: 0,
           averageBirdsPerTransaction: 0,
         },
-        ledgers: [],
+        transactions: [],
         pagination: {
-          page: Math.floor(parsedOffset / parsedLimit) + 1,
+          page: parsedPage,
           limit: parsedLimit,
           totalCount: 0,
           hasMore: false,
@@ -3021,7 +2879,7 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
 
   // Add proper pagination values
   if (reportData.pagination) {
-    reportData.pagination.page = Math.floor(parsedOffset / parsedLimit) + 1;
+    reportData.pagination.page = parsedPage;
     reportData.pagination.limit = parsedLimit;
   }
 

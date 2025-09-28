@@ -82,21 +82,6 @@ export type ReportData = {
   };
 };
 
-export type GroupedReportData = {
-  reportTitle: string;
-  groupBy: string;
-  summary: ReportSummary;
-  ledgers: Array<{
-    groupId: string;
-    groupInfo: {
-      _id: string;
-      name: string;
-    };
-    summary: ReportSummary;
-    transactions: ReportTransaction[];
-  }>;
-};
-
 export type APIResponse<T> = {
   status: string;
   message: string;
@@ -135,11 +120,12 @@ export const useGetReports = (query?: ReportQueryParams) => {
         // Debug: Log the query being sent to API
         console.log("Reports API Query:", cleanQuery);
 
-        const response = await api.get<
-          APIResponse<ReportData | GroupedReportData>
-        >(`/reports/universal`, {
-          params: cleanQuery,
-        });
+        const response = await api.get<APIResponse<ReportData>>(
+          `/reports/universal`,
+          {
+            params: cleanQuery,
+          }
+        );
         return response.data;
       } catch (error) {
         toast.error(

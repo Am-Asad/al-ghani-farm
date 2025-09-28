@@ -31,7 +31,6 @@ const ReportFilters = () => {
     endDate,
     period,
     paymentStatus,
-    groupBy,
     includeDetails,
     setFilters,
     reset,
@@ -51,7 +50,6 @@ const ReportFilters = () => {
   const [pendingPaymentStatus, setPendingPaymentStatus] = useState(
     paymentStatus || "all"
   );
-  const [pendingGroupBy, setPendingGroupBy] = useState(groupBy);
   const [pendingIncludeDetails, setPendingIncludeDetails] =
     useState(includeDetails);
 
@@ -84,9 +82,6 @@ const ReportFilters = () => {
     setPendingPaymentStatus(paymentStatus || "all");
   }, [paymentStatus]);
   useEffect(() => {
-    setPendingGroupBy(groupBy);
-  }, [groupBy]);
-  useEffect(() => {
     setPendingIncludeDetails(includeDetails);
   }, [includeDetails]);
 
@@ -107,7 +102,6 @@ const ReportFilters = () => {
       endDate: pendingEndDate,
       period: pendingPeriod,
       paymentStatus: pendingPaymentStatus,
-      groupBy: pendingGroupBy,
       includeDetails: pendingIncludeDetails,
     };
 
@@ -125,7 +119,6 @@ const ReportFilters = () => {
     setPendingEndDate("");
     setPendingPeriod("");
     setPendingPaymentStatus("all");
-    setPendingGroupBy("none");
     setPendingIncludeDetails("true");
     reset();
   };
@@ -341,22 +334,6 @@ const ReportFilters = () => {
               <SelectItem value="paid">Paid</SelectItem>
               <SelectItem value="partial">Partial</SelectItem>
               <SelectItem value="unpaid">Unpaid</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="w-full sm:w-48">
-          <Select value={pendingGroupBy} onValueChange={setPendingGroupBy}>
-            <SelectTrigger>
-              <SelectValue placeholder="Group By" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">No Grouping</SelectItem>
-              <SelectItem value="buyer">By Buyer</SelectItem>
-              <SelectItem value="farm">By Farm</SelectItem>
-              <SelectItem value="flock">By Flock</SelectItem>
-              <SelectItem value="shed">By Shed</SelectItem>
-              <SelectItem value="date">By Date</SelectItem>
             </SelectContent>
           </Select>
         </div>

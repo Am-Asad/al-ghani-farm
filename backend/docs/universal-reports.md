@@ -59,14 +59,13 @@ All requests require authentication via the `authHandler` middleware.
 | ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sortBy`    | string | `"date"` | Field to sort by: `date`, `totalAmount`, `amountPaid`, `netWeight`, `numberOfBirds`, `rate`, `vehicleNumber`, `driverName`, `createdAt`, `updatedAt` |
 | `sortOrder` | string | `"desc"` | Sort order: `asc` or `desc`                                                                                                                          |
-| `limit`     | number | `100`    | Number of transactions to return (max: 1000)                                                                                                         |
-| `offset`    | number | `0`      | Number of transactions to skip for pagination                                                                                                        |
+| `page`      | number | `1`      | Page number for pagination                                                                                                                           |
+| `limit`     | number | `10`     | Number of transactions to return (max: 1000)                                                                                                         |
 
-### Grouping and Aggregation Parameters
+### Aggregation Parameters
 
 | Parameter        | Type   | Default  | Description                                                                                          |
 | ---------------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
-| `groupBy`        | string | `"none"` | Group results by: `buyer`, `farm`, `flock`, `shed`, `date`, `none`                                   |
 | `includeDetails` | string | `"true"` | Include individual transactions in response (`"true"` = show transactions, `"false"` = summary only) |
 
 ## Duration Types
@@ -166,10 +165,10 @@ curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f67
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-#### Multiple Farms with Grouping
+#### Multiple Farms Report
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f6789012346,64a1b2c3d4e5f6789012347&duration=monthly&groupBy=farm" \
+curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f6789012346,64a1b2c3d4e5f6789012347&duration=monthly" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -217,14 +216,14 @@ curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6
 #### Driver-Specific Report
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?driverNames=Ahmed Ali,Sara Khan&duration=period&period=30&groupBy=driver" \
+curl -X GET "http://localhost:5000/api/reports/universal?driverNames=Ahmed Ali,Sara Khan&duration=period&period=30" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 #### Accountant Performance Report
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?accountantNames=John Doe,Jane Smith&duration=monthly&groupBy=accountant&sortBy=totalAmount&sortOrder=desc" \
+curl -X GET "http://localhost:5000/api/reports/universal?accountantNames=John Doe,Jane Smith&duration=monthly&sortBy=totalAmount&sortOrder=desc" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -240,7 +239,7 @@ curl -X GET "http://localhost:5000/api/reports/universal?search=asad&duration=mo
 #### Farm Summary Report
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f6789012346&duration=yearly&groupBy=farm&includeDetails=false" \
+curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f6789012346&duration=yearly&includeDetails=false" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -338,7 +337,6 @@ curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6
   "message": "Universal report fetched successfully",
   "data": {
     "reportTitle": "Monthly Report for January 2024",
-    "groupBy": "farm",
     "grandTotal": {
       "totalTransactions": 25,
       "totalEmptyVehicleWeight": 12500.0,
@@ -431,7 +429,6 @@ curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6
   "message": "Universal report fetched successfully",
   "data": {
     "reportTitle": "Daily Report for 2024-01-15",
-    "groupBy": "none",
     "grandTotal": {
       "totalTransactions": 0,
       "totalEmptyVehicleWeight": 0,
@@ -499,7 +496,7 @@ curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6
 Compare performance across multiple farms:
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f6789012346,64a1b2c3d4e5f6789012347,64a1b2c3d4e5f6789012348&duration=monthly&groupBy=farm&includeDetails=false" \
+curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f6789012346,64a1b2c3d4e5f6789012347,64a1b2c3d4e5f6789012348&duration=monthly&includeDetails=false" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -508,7 +505,7 @@ curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f67
 Compare multiple buyers' performance:
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6789012345,64a1b2c3d4e5f6789012346&duration=quarterly&groupBy=buyer&sortBy=totalAmount&sortOrder=desc" \
+curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6789012345,64a1b2c3d4e5f6789012346&duration=quarterly&sortBy=totalAmount&sortOrder=desc" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -517,7 +514,7 @@ curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6
 Analyze specific sheds across different farms:
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?shedIds=64a1b2c3d4e5f6789012349,64a1b2c3d4e5f6789012350&duration=monthly&groupBy=shed&minNetWeight=1000" \
+curl -X GET "http://localhost:5000/api/reports/universal?shedIds=64a1b2c3d4e5f6789012349,64a1b2c3d4e5f6789012350&duration=monthly&minNetWeight=1000" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -526,7 +523,7 @@ curl -X GET "http://localhost:5000/api/reports/universal?shedIds=64a1b2c3d4e5f67
 Analyze unpaid transactions across entities:
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?paymentStatus=unpaid&duration=monthly&groupBy=buyer&minAmount=5000" \
+curl -X GET "http://localhost:5000/api/reports/universal?paymentStatus=unpaid&duration=monthly&minAmount=5000" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -535,7 +532,7 @@ curl -X GET "http://localhost:5000/api/reports/universal?paymentStatus=unpaid&du
 Track driver performance across all entities:
 
 ```bash
-curl -X GET "http://localhost:5000/api/reports/universal?driverNames=Ahmed Ali,Sara Khan,John Doe&duration=monthly&groupBy=driver&sortBy=totalAmount&sortOrder=desc" \
+curl -X GET "http://localhost:5000/api/reports/universal?driverNames=Ahmed Ali,Sara Khan,John Doe&duration=monthly&sortBy=totalAmount&sortOrder=desc" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
