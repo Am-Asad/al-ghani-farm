@@ -2,6 +2,13 @@ import { asyncHandler } from "../middleware/asyncHandler.js";
 import { BuyerModel } from "../models/buyer.js";
 import { LedgerModel } from "../models/ledger.js";
 import { AppError } from "../utils/AppError.js";
+import { getUniversalReportData } from "../services/reportService.js";
+import {
+  toCsvBuffer,
+  toExcelBuffer,
+  toJsonBuffer,
+  toPdfStream,
+} from "../utils/exporters.js";
 import { parseDateToISO } from "../utils/dateUtils.js";
 import mongoose from "mongoose";
 import {
@@ -918,5 +925,72 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
       message: "Universal report fetched successfully",
       data: responseData,
     });
+  }
+});
+
+// ==================== EXPORT UNIVERSAL REPORT ====================
+export const exportUniversalReport = asyncHandler(async (req, res) => {
+  const { format = "csv" } = req.query;
+  const { data, groupBy, reportTitle } = await getUniversalReportData({
+    ...req.query,
+    forExport: true,
+    includeDetails: true,
+  });
+
+  const safeTitle = (reportTitle || "report")
+    .replace(/[^a-z0-9-_]+/gi, "-")
+    .toLowerCase();
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+
+  switch (String(format).toLowerCase()) {
+    case "json": {
+      const buffer = toJsonBuffer({ ...data, groupBy });
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${safeTitle}-${timestamp}.json`
+      );
+      return res.status(200).send(buffer);
+    }
+    case "csv": {
+      const buffer = toCsvBuffer({ ...data, groupBy });
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${safeTitle}-${timestamp}.csv`
+      );
+      return res.status(200).send(buffer);
+    }
+    case "excel":
+    case "xlsx": {
+      const buffer = await toExcelBuffer({ ...data, groupBy, reportTitle });
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${safeTitle}-${timestamp}.xlsx`
+      );
+      return res.status(200).send(buffer);
+    }
+    case "pdf": {
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${safeTitle}-${timestamp}.pdf`
+      );
+      // pdfkit writes stream directly to res
+      toPdfStream({ ...data, groupBy, reportTitle }, res);
+      return;
+    }
+    default: {
+      throw new AppError(
+        "Unsupported export format. Use csv, pdf, excel, or json.",
+        400,
+        "UNSUPPORTED_FORMAT",
+        true
+      );
+    }
   }
 });

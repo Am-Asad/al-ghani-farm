@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { authHandler } from "../middleware/authHandler.js";
-import { getUniversalReport } from "../controllers/reportController.js";
+import {
+  getUniversalReport,
+  exportUniversalReport,
+} from "../controllers/reportController.js";
 
 const router = Router();
 
@@ -8,5 +11,6 @@ const router = Router();
 router.use(authHandler);
 
 router.get("/universal", getUniversalReport);
+router.get("/universal/export", exportUniversalReport);
 
 export default router;

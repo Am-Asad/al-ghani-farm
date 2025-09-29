@@ -10,6 +10,21 @@ The Universal Reports API is the most powerful and flexible reporting endpoint i
 GET /api/reports/universal
 ```
 
+### Export Endpoint
+
+```
+GET /api/reports/universal/export?format=csv|pdf|excel|json&<same query params as /universal>
+```
+
+Supported formats:
+
+- `csv` → text/csv
+- `pdf` → application/pdf
+- `excel` (or `xlsx`) → application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+- `json` → application/json
+
+The export endpoint accepts the exact same query parameters as the universal endpoint for filtering, grouping and pagination. The response is a downloadable file stream with a filename based on the computed report title and timestamp.
+
 ## Authentication
 
 All requests require authentication via the `authHandler` middleware.
@@ -135,6 +150,13 @@ curl -X GET "http://localhost:5000/api/reports/universal?buyerIds=64a1b2c3d4e5f6
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
+#### Export as CSV
+
+```bash
+curl -X GET "http://localhost:5000/api/reports/universal/export?format=csv&buyerIds=64a1b2c3d4e5f6789012345&duration=daily&date=2024-01-15" \
+  -H "Authorization: Bearer YOUR_TOKEN" -OJ
+```
+
 #### Multiple Buyers Monthly Report
 
 ```bash
@@ -165,6 +187,13 @@ curl -X GET "http://localhost:5000/api/reports/universal?farmIds=64a1b2c3d4e5f67
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
+#### Export as Excel
+
+```bash
+curl -X GET "http://localhost:5000/api/reports/universal/export?format=excel&farmIds=64a1b2c3d4e5f6789012346&duration=custom&startDate=2024-01-01&endDate=2024-01-31" \
+  -H "Authorization: Bearer YOUR_TOKEN" -OJ
+```
+
 #### Multiple Farms Report
 
 ```bash
@@ -181,6 +210,13 @@ curl -X GET "http://localhost:5000/api/reports/universal?flockIds=64a1b2c3d4e5f6
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
+#### Export as PDF
+
+```bash
+curl -X GET "http://localhost:5000/api/reports/universal/export?format=pdf&flockIds=64a1b2c3d4e5f6789012348&duration=weekly&date=2024-01-15" \
+  -H "Authorization: Bearer YOUR_TOKEN" -OJ
+```
+
 #### Multiple Flocks with Weight Filter
 
 ```bash
@@ -195,6 +231,13 @@ curl -X GET "http://localhost:5000/api/reports/universal?flockIds=64a1b2c3d4e5f6
 ```bash
 curl -X GET "http://localhost:5000/api/reports/universal?shedIds=64a1b2c3d4e5f6789012349&duration=daily&date=2024-01-15" \
   -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+#### Export as JSON
+
+```bash
+curl -X GET "http://localhost:5000/api/reports/universal/export?format=json&shedIds=64a1b2c3d4e5f6789012349&duration=daily&date=2024-01-15" \
+  -H "Authorization: Bearer YOUR_TOKEN" -OJ
 ```
 
 #### Multiple Sheds from Different Farms

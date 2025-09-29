@@ -4,6 +4,7 @@ import ReportFilters from "@/features/reports/components/ReportFilters";
 import ReportsTable from "@/features/reports/components/ReportsTable";
 import GroupedReportsTable from "@/features/reports/components/GroupedReportsTable";
 import ReportsSummary from "@/features/reports/components/ReportsSummary";
+import { DownloadReportsButton } from "@/features/reports/components/DownloadReportsButton";
 import { useReportQueryParams } from "@/features/reports/hooks/useReportQueryParams";
 import {
   useGetReports,
@@ -84,6 +85,10 @@ const ReportsPage = () => {
             )}
           </p>
         </div>
+        <DownloadReportsButton
+          query={query}
+          disabled={reportsLoading || !reportData?.summary}
+        />
       </div>
 
       {/* Filters */}
