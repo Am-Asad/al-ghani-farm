@@ -24,7 +24,7 @@ export type ReportTransaction = {
   balance: number;
   buyerInfo: {
     _id: string;
-    name: string;
+    name: string; //-
     contactNumber: string;
     address: string;
   };

@@ -58,6 +58,9 @@ const ReportsTable = ({
             <div className="text-sm text-muted-foreground">
               {formatSingleDigit(row.original.buyerInfo.contactNumber)}
             </div>
+            <div className="text-sm text-muted-foreground">
+              {row.original.buyerInfo.address}
+            </div>
           </div>
         );
       },
@@ -91,7 +94,14 @@ const ReportsTable = ({
             <div className="font-medium">
               {formatSingleDigit(row.original.flockInfo.name)}
             </div>
-            <Badge variant="outline" className="text-xs">
+            <Badge
+              variant={
+                row.original.flockInfo.status === "active"
+                  ? "default"
+                  : "secondary"
+              }
+              className="text-xs"
+            >
               {formatSingleDigit(row.original.flockInfo.status)}
             </Badge>
           </div>
@@ -156,6 +166,32 @@ const ReportsTable = ({
         return (
           <span className="text-center">
             {(row.original.numberOfBirds || 0).toLocaleString()}
+          </span>
+        );
+      },
+    },
+    {
+      id: "grossWeight",
+      header: "Gross Weight",
+      accessorKey: "grossWeight",
+      visible: false,
+      cell: ({ row }) => {
+        return (
+          <span className="text-center">
+            {(row.original.grossWeight || 0).toLocaleString()} kg
+          </span>
+        );
+      },
+    },
+    {
+      id: "emptyVehicleWeight",
+      header: "Empty Vehicle Weight",
+      accessorKey: "emptyVehicleWeight",
+      visible: false,
+      cell: ({ row }) => {
+        return (
+          <span className="text-center">
+            {(row.original.emptyVehicleWeight || 0).toLocaleString()} kg
           </span>
         );
       },

@@ -116,9 +116,19 @@ const ReportsSummary = ({
       icon: Users,
     },
     {
-      title: "Total Paid",
-      value: formatAmount(summary.totalPaid || 0),
-      icon: CreditCard,
+      title: "Total Rate",
+      value: `${(summary.totalRate || 0).toLocaleString()}`,
+      icon: TrendingUp,
+    },
+    {
+      title: "Empty Vehicle Weight",
+      value: `${(summary.totalEmptyVehicleWeight || 0).toLocaleString()} kg`,
+      icon: Weight,
+    },
+    {
+      title: "Gross Weight",
+      value: `${(summary.totalGrossWeight || 0).toLocaleString()} kg`,
+      icon: Weight,
     },
   ];
 
