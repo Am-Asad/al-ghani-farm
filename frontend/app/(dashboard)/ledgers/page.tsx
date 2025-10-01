@@ -44,21 +44,21 @@ const LedgersPage = () => {
     <div className="p-6 flex flex-col flex-1 overflow-y-scroll">
       {/* Ledgers header */}
       <LedgerHeader showActions={false} />
-      <div className="flex-1 overflow-y-scroll pb-1">
-        {/* Filters */}
-        <LedgerFilters />
-        {/* Ledgers grid */}
-        <div className="flex-1 overflow-y-scroll overflow-x-hidden pb-1 mt-4">
-          {ledgers.length > 0 ? (
-            <LedgersTable ledgers={ledgers} />
-          ) : (
-            <DataNotFound
-              title="ledgers"
-              icon={<Building2 className="w-10 h-10" />}
-            />
-          )}
-        </div>
+
+      {/* Filters */}
+      <LedgerFilters />
+      {/* Ledgers grid */}
+      <div className="flex-1 pb-1 my-4">
+        {ledgers.length > 0 ? (
+          <LedgersTable ledgers={ledgers} />
+        ) : (
+          <DataNotFound
+            title="ledgers"
+            icon={<Building2 className="w-10 h-10" />}
+          />
+        )}
       </div>
+
       {/* Pagination */}
       <Pagination
         page={pagination.page}

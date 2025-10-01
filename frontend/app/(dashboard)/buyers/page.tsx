@@ -41,13 +41,13 @@ const BuyersPage = () => {
   }
 
   return (
-    <div className="p-6 overflow-hidden flex flex-col flex-1">
+    <div className="p-6 overflow-y-scroll flex flex-col flex-1">
       {/* Page header */}
       <BuyerHeader showActions={false} />
       {/* Filters */}
       <BuyersFilters />
       {/* Grid */}
-      <div className="flex-1 overflow-y-scroll pb-1 mt-4">
+      <div className="flex-1 pb-1 my-4">
         {buyers.length > 0 ? (
           <BuyersTable buyers={buyers} />
         ) : (

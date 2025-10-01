@@ -376,7 +376,7 @@ export const getBuyersForDropdown = asyncHandler(async (req, res) => {
   const buyers = await BuyerModel.find(query)
     .select("_id name")
     .sort({ name: 1 })
-    .limit(50); // Increased limit to accommodate selected items + search results
+    .limit(10); // Increased limit to accommodate selected items + search results
 
   res.status(200).json({
     status: "success",

@@ -670,7 +670,7 @@ export const getFlocksForDropdown = asyncHandler(async (req, res) => {
     .select("_id name")
     .populate("farmId", "name")
     .sort({ name: 1 })
-    .limit(50); // Increased limit to accommodate selected items + search results
+    .limit(10); // Increased limit to accommodate selected items + search results
 
   res.status(200).json({
     status: "success",

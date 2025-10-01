@@ -47,7 +47,7 @@ const ShedsPage = () => {
       {/* Filters */}
       <ShedFilters />
       {/* Users grid */}
-      <div className="flex-1 overflow-y-scroll pb-1 mt-4">
+      <div className="flex-1 pb-1 my-4">
         {sheds.length > 0 ? (
           <ShedsTable sheds={sheds} />
         ) : (

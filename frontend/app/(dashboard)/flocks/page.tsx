@@ -47,7 +47,7 @@ const FlocksPage = () => {
       {/* Filters */}
       <FlockFilters />
       {/* Flocks grid */}
-      <div className="flex-1 overflow-y-scroll pb-1 mt-4">
+      <div className="flex-1 pb-1 my-4">
         {flocks.length > 0 ? (
           <FlocksTable flocks={flocks} />
         ) : (

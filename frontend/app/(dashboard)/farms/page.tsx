@@ -46,7 +46,7 @@ export default function FarmsPage() {
       {/* Filters */}
       <FarmFilters />
       {/* Grid */}
-      <div className="flex-1 overflow-y-scroll pb-1 mt-4">
+      <div className="flex-1 pb-1 my-4">
         {/* Farms grid */}
         {farms.length > 0 ? (
           <FarmsTable farms={farms} />
