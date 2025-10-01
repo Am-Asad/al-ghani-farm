@@ -32,6 +32,7 @@ export const useSigninUser = () => {
       await refetchUser();
       router.replace(from);
       router.refresh();
+      window.location.assign(from);
     },
     onError: (error) => {
       toast.error(
