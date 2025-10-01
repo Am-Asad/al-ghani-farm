@@ -30,7 +30,8 @@ export const useSigninUser = () => {
       const from = params.get("from") || "/dashboard";
       // Refetch user data to update the auth context
       await refetchUser();
-      router.push(from);
+      router.replace(from);
+      router.refresh();
     },
     onError: (error) => {
       toast.error(
