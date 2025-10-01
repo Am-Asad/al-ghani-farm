@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Settings2 } from "lucide-react";
+import { EllipsisVertical, Settings2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -345,7 +345,7 @@ const DataTable = <T,>({
                               size="sm"
                               className="h-8 w-8 p-0"
                             >
-                              <MoreHorizontal className="h-4 w-4" />
+                              <EllipsisVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">

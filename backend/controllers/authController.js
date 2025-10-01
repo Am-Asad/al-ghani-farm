@@ -87,7 +87,7 @@ export const userSignin = asyncHandler(async (req, res) => {
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/",
     domain:
       process.env.NODE_ENV === "production"
@@ -115,8 +115,8 @@ export const userSignin = asyncHandler(async (req, res) => {
 export const userLogout = asyncHandler(async (req, res) => {
   const cookieOptions = {
     httpOnly: true,
-    // secure: process.env.NODE_ENV === "production",
-    // sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/",
     maxAge: 0,
     domain:
@@ -180,8 +180,8 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
   // Enhanced cookie security settings
   const cookieOptions = {
     httpOnly: true,
-    // secure: process.env.NODE_ENV === "production",
-    // sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/",
     domain:
       process.env.NODE_ENV === "production"
