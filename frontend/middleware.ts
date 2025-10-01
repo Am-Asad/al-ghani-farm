@@ -16,6 +16,12 @@ const PROTECTED_ROUTES = [
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // frontend/middleware.ts (add before the protected-routes block)
+  if (req.nextUrl.pathname.startsWith("/sign-in")) {
+    const token = req.cookies.get("access_token")?.value;
+    if (token) return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
   if (!PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     return NextResponse.next();
   }

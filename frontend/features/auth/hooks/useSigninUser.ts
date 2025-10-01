@@ -26,9 +26,11 @@ export const useSigninUser = () => {
     },
     onSuccess: async (response) => {
       toast.success(response.message, { id: "signin" });
+      const params = new URLSearchParams(window.location.search);
+      const from = params.get("from") || "/dashboard";
       // Refetch user data to update the auth context
       await refetchUser();
-      router.push("/dashboard");
+      router.push(from);
     },
     onError: (error) => {
       toast.error(
