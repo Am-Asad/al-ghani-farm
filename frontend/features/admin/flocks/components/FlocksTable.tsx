@@ -12,6 +12,7 @@ import { useDeleteFlock } from "../hooks/useDeleteFlock";
 import { useDeleteBulkFlocks } from "../hooks/useDeleteBulkFlocks";
 import CreateEditFlockForm from "./CreateEditFlockForm";
 import { useRouter } from "next/navigation";
+import RoleGuard from "@/features/shared/components/RoleGuard";
 
 type FlocksTableProps = {
   flocks: FlockType[];
@@ -112,15 +113,21 @@ const FlocksTable = ({ flocks }: FlocksTableProps) => {
       label: "Edit",
       value: "edit",
       component: (row: FlockType) => (
-        <CreateEditFlockForm
-          selectedFlock={row}
-          triggerButton={
-            <Button variant="ghost" size="sm" className="w-full justify-start">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Flock
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin", "manager"]}>
+          <CreateEditFlockForm
+            selectedFlock={row}
+            triggerButton={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Flock
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
     {
@@ -128,22 +135,24 @@ const FlocksTable = ({ flocks }: FlocksTableProps) => {
       value: "delete",
       variant: "destructive" as const,
       component: (row: FlockType) => (
-        <ConfirmationDialog
-          title="Delete Flock"
-          description="Are you sure you want to delete this flock?"
-          confirmationText={row.name}
-          onConfirm={() => deleteFlock(row._id)}
-          trigger={
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-destructive hover:text-destructive/80"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Flock
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin"]}>
+          <ConfirmationDialog
+            title="Delete Flock"
+            description="Are you sure you want to delete this flock?"
+            confirmationText={row.name}
+            onConfirm={() => deleteFlock(row._id)}
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive hover:text-destructive/80"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Flock
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
   ];

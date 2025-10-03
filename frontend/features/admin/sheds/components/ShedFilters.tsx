@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useShedQueryParams } from "@/features/admin/sheds/hooks/useShedQueryParams";
-import EntitiesSelect from "@/features/shared/components/FarmsSelect";
+import FarmsSelect from "@/features/shared/components/FarmsSelect";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -110,7 +110,7 @@ const ShedFilters = () => {
           />
         </div>
         <div className="w-full sm:w-64">
-          <EntitiesSelect
+          <FarmsSelect
             value={pendingFarmId}
             onChange={setPendingFarmId}
             placeholder="Select farm..."

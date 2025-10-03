@@ -48,13 +48,21 @@ const FlocksSelect = ({
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = useState("");
   const [selectedFlockId, setSelectedFlockId] = useState<string>(value ?? "");
+  const [selectedFlockName, setSelectedFlockName] = useState<string>("");
 
   // Keep internal state in sync when controlled value changes
   useEffect(() => {
-    if (typeof value === "string" && value !== selectedFlockId)
+    if (typeof value === "string") {
       setSelectedFlockId(value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // Clear the selected flock name if value is empty
+      if (!value) {
+        setSelectedFlockName("");
+      }
+    }
   }, [value]);
+
+  // Note: Cascading behavior is handled by parent components
+  // The parent clears the value prop when farmId/shedId changes, which triggers the useEffect above
 
   const debouncedQuery = useDebouncedValue(query, 300);
 
@@ -66,9 +74,14 @@ const FlocksSelect = ({
   });
   const flocks: FlockOption[] = useMemo(() => data?.data || [], [data]);
 
-  const selectedFlockName = useMemo(() => {
-    if (!selectedFlockId) return "";
-    return flocks.find((f) => f._id === selectedFlockId)?.name || "";
+  // Update selected flock name when flocks data changes or when selectedFlockId changes
+  useEffect(() => {
+    if (selectedFlockId && flocks.length > 0) {
+      const flock = flocks.find((f) => f._id === selectedFlockId);
+      if (flock) {
+        setSelectedFlockName(flock.name);
+      }
+    }
   }, [selectedFlockId, flocks]);
 
   return (
@@ -114,6 +127,14 @@ const FlocksSelect = ({
                         const next =
                           currentValue === selectedFlockId ? "" : currentValue;
                         setSelectedFlockId(next);
+                        if (next) {
+                          const selectedFlock = flocks.find(
+                            (f) => f._id === next
+                          );
+                          setSelectedFlockName(selectedFlock?.name || "");
+                        } else {
+                          setSelectedFlockName("");
+                        }
                         onChange?.(next);
                         setOpen(false);
                       }}

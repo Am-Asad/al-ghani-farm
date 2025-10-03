@@ -600,36 +600,32 @@ export const deleteFlockById = asyncHandler(async (req, res, next) => {
 export const getFlocksForDropdown = asyncHandler(async (req, res) => {
   const { search = "", farmId = "", flockIds = "", shedId = "" } = req.query;
 
-  const orConditions = [];
+  let selectedFlockIds = [];
 
-  // Always include selected flocks (comma-separated list)
+  // Parse selected flock IDs
   if (typeof flockIds === "string" && flockIds.trim()) {
-    const selectedFlockIds = flockIds
+    selectedFlockIds = flockIds
       .split(",")
       .map((id) => id.trim())
       .filter(Boolean);
-    if (selectedFlockIds.length > 0) {
-      orConditions.push({ _id: { $in: selectedFlockIds } });
-    }
   }
 
-  // Include search results with farm/shed filtering
-  const andConditions = [];
-
-  // Support multiple farm IDs (comma-separated) for search results
+  // Build farm filter conditions
+  const farmConditions = [];
   if (typeof farmId === "string" && farmId.trim()) {
     const farmIds = farmId
       .split(",")
       .map((id) => id.trim())
       .filter(Boolean);
     if (farmIds.length === 1) {
-      andConditions.push({ farmId: farmIds[0] });
+      farmConditions.push({ farmId: farmIds[0] });
     } else if (farmIds.length > 1) {
-      andConditions.push({ farmId: { $in: farmIds } });
+      farmConditions.push({ farmId: { $in: farmIds } });
     }
   }
 
-  // Support multiple shed IDs (comma-separated) for search results
+  // Build shed filter conditions
+  const shedConditions = [];
   if (typeof shedId === "string" && shedId.trim()) {
     const shedIds = shedId
       .split(",")
@@ -637,44 +633,103 @@ export const getFlocksForDropdown = asyncHandler(async (req, res) => {
       .filter(Boolean);
     if (shedIds.length === 1) {
       // Flock allocations contain shedId; ensure at least one allocation with this shed
-      andConditions.push({ "allocations.shedId": shedIds[0] });
+      shedConditions.push({ "allocations.shedId": shedIds[0] });
     } else if (shedIds.length > 1) {
       // Flock allocations contain shedId; ensure at least one allocation with any of these sheds
-      andConditions.push({ "allocations.shedId": { $in: shedIds } });
+      shedConditions.push({ "allocations.shedId": { $in: shedIds } });
     }
   }
 
-  // Add search condition
+  let flocks = [];
+  let selectedFlocks = [];
+
+  // Always fetch selected flocks first if they exist
+  // Always include selected flocks regardless of current filters
+  if (selectedFlockIds.length > 0) {
+    selectedFlocks = await FlockModel.find({
+      _id: { $in: selectedFlockIds },
+    })
+      .select("_id name")
+      .populate("farmId", "name");
+  }
+
+  // If there's a search query, get search results
   if (typeof search === "string" && search.trim()) {
-    andConditions.push({ name: { $regex: search.trim(), $options: "i" } });
-  }
+    const searchQuery = { name: { $regex: search.trim(), $options: "i" } };
+    const allFilterConditions = [...farmConditions, ...shedConditions];
+    const finalQuery =
+      allFilterConditions.length > 0
+        ? { $and: [searchQuery, ...allFilterConditions] }
+        : searchQuery;
 
-  // If we have search conditions, add them to OR conditions
-  if (andConditions.length > 0) {
-    orConditions.push({ $and: andConditions });
-  }
-
-  // Build the final query
-  let query;
-  if (orConditions.length > 0) {
-    query = { $or: orConditions };
-  } else if (typeof search === "string" && search.trim()) {
-    // If there's a search but no results, return empty
-    query = { _id: { $in: [] } };
+    flocks = await FlockModel.find(finalQuery)
+      .select("_id name")
+      .populate("farmId", "name")
+      .sort({ name: 1 })
+      .limit(10);
   } else {
-    // If no search query, return default options (first 20 flocks)
-    query = {};
+    // If no search query, get default flocks
+    // We need to account for selected flocks, so we might need more than 10
+    const limitForDefault = selectedFlockIds.length > 0 ? 15 : 10;
+    const allFilterConditions = [...farmConditions, ...shedConditions];
+
+    // Build query that excludes selected flocks to avoid duplicates
+    let finalQuery = {};
+    if (allFilterConditions.length > 0) {
+      finalQuery = { $and: allFilterConditions };
+    }
+
+    // Exclude selected flocks from default results to avoid duplicates
+    if (selectedFlockIds.length > 0) {
+      if (Object.keys(finalQuery).length > 0) {
+        finalQuery = {
+          $and: [...allFilterConditions, { _id: { $nin: selectedFlockIds } }],
+        };
+      } else {
+        finalQuery = { _id: { $nin: selectedFlockIds } };
+      }
+    }
+
+    flocks = await FlockModel.find(finalQuery)
+      .select("_id name")
+      .populate("farmId", "name")
+      .sort({ name: 1 })
+      .limit(limitForDefault);
   }
 
-  const flocks = await FlockModel.find(query)
-    .select("_id name")
-    .populate("farmId", "name")
-    .sort({ name: 1 })
-    .limit(10); // Increased limit to accommodate selected items + search results
+  // Combine selected flocks with search/default results
+  const combinedFlocks = [...selectedFlocks, ...flocks];
+
+  // Remove duplicates and sort
+  const uniqueFlocks = combinedFlocks.filter(
+    (flock, index, self) =>
+      index === self.findIndex((f) => f._id.toString() === flock._id.toString())
+  );
+
+  // Sort by name and limit to 10, but ensure selected flocks are included
+  const sortedFlocks = uniqueFlocks.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
+  // If we have selected flocks, prioritize them and fill the rest with other flocks
+  let finalFlocks = [];
+  if (selectedFlockIds.length > 0) {
+    // Add selected flocks first
+    const selectedFlocksInResults = sortedFlocks.filter((flock) =>
+      selectedFlockIds.includes(flock._id.toString())
+    );
+    // Add non-selected flocks to fill up to 10
+    const otherFlocks = sortedFlocks.filter(
+      (flock) => !selectedFlockIds.includes(flock._id.toString())
+    );
+    finalFlocks = [...selectedFlocksInResults, ...otherFlocks].slice(0, 10);
+  } else {
+    finalFlocks = sortedFlocks.slice(0, 10);
+  }
 
   res.status(200).json({
     status: "success",
     message: "Flocks fetched successfully",
-    data: flocks,
+    data: finalFlocks,
   });
 });

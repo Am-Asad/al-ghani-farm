@@ -10,6 +10,7 @@ import LedgersTab from "@/features/admin/components/LedgersTab";
 import BuyersTab from "@/features/admin/components/BuyersTab";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/providers/AuthProvider";
 
 const entitiesTabs = [
   {
@@ -47,10 +48,18 @@ const entitiesTabs = [
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("farms");
   const router = useRouter();
+  const { user } = useAuthContext();
+  const isViewer = user?.role === "viewer";
 
   useEffect(() => {
     router.push(`/admin?tab=${activeTab}`);
   }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isViewer) {
+      router.push("/dashboard");
+    }
+  }, [isViewer, router]);
 
   return (
     <div className="p-6 overflow-y-scroll flex flex-col gap-2 flex-1">

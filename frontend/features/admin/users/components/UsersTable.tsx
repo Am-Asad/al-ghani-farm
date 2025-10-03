@@ -11,6 +11,7 @@ import { Edit, Eye, Mail, Trash2, User } from "lucide-react";
 import { useDeleteBulkUsers } from "../hooks/useDeleteBulkUsers";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import RoleGuard from "@/features/shared/components/RoleGuard";
 
 type UsersTableProps = {
   users: UserType[];
@@ -110,15 +111,21 @@ const UsersTable = ({ users }: UsersTableProps) => {
       label: "Edit",
       value: "edit",
       component: (row: UserType) => (
-        <CreateEditUserForm
-          selectedUser={row}
-          triggerButton={
-            <Button variant="ghost" size="sm" className="w-full justify-start">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit User
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin", "manager"]}>
+          <CreateEditUserForm
+            selectedUser={row}
+            triggerButton={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit User
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
     {
@@ -126,22 +133,24 @@ const UsersTable = ({ users }: UsersTableProps) => {
       value: "delete",
       variant: "destructive",
       component: (row: UserType) => (
-        <ConfirmationDialog
-          title="Delete User"
-          description="Are you sure you want to delete this user?"
-          confirmationText={row.username}
-          onConfirm={() => deleteUser(row._id)}
-          trigger={
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-destructive hover:text-destructive/80"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete User
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin"]}>
+          <ConfirmationDialog
+            title="Delete User"
+            description="Are you sure you want to delete this user?"
+            confirmationText={row.username}
+            onConfirm={() => deleteUser(row._id)}
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive hover:text-destructive/80"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete User
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
   ];

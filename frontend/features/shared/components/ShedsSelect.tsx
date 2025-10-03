@@ -46,13 +46,21 @@ const ShedsSelect = ({
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = useState("");
   const [selectedShedId, setSelectedShedId] = useState<string>(value ?? "");
+  const [selectedShedName, setSelectedShedName] = useState<string>("");
 
   // Keep internal state in sync when controlled value changes
   useEffect(() => {
-    if (typeof value === "string" && value !== selectedShedId)
+    if (typeof value === "string") {
       setSelectedShedId(value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // Clear the selected shed name if value is empty
+      if (!value) {
+        setSelectedShedName("");
+      }
+    }
   }, [value]);
+
+  // Note: Cascading behavior is handled by parent components
+  // The parent clears the value prop when farmId changes, which triggers the useEffect above
 
   const debouncedQuery = useDebouncedValue(query, 300);
 
@@ -63,9 +71,14 @@ const ShedsSelect = ({
   });
   const sheds: ShedOption[] = useMemo(() => data?.data || [], [data]);
 
-  const selectedShedName = useMemo(() => {
-    if (!selectedShedId) return "";
-    return sheds.find((s) => s._id === selectedShedId)?.name || "";
+  // Update selected shed name when sheds data changes or when selectedShedId changes
+  useEffect(() => {
+    if (selectedShedId && sheds.length > 0) {
+      const shed = sheds.find((s) => s._id === selectedShedId);
+      if (shed) {
+        setSelectedShedName(shed.name);
+      }
+    }
   }, [selectedShedId, sheds]);
 
   return (
@@ -111,6 +124,14 @@ const ShedsSelect = ({
                         const next =
                           currentValue === selectedShedId ? "" : currentValue;
                         setSelectedShedId(next);
+                        if (next) {
+                          const selectedShed = sheds.find(
+                            (s) => s._id === next
+                          );
+                          setSelectedShedName(selectedShed?.name || "");
+                        } else {
+                          setSelectedShedName("");
+                        }
                         onChange?.(next);
                         setOpen(false);
                       }}

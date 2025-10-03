@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useGetAllUsers } from "@/features/admin/users/hooks/useGetAllUsers";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
@@ -10,8 +10,14 @@ import UsersHeader from "@/features/admin/users/components/UsersHeader";
 import UsersFilters from "@/features/admin/users/components/UsersFilters";
 import Pagination from "@/features/shared/components/Pagination";
 import { useUsersQueryParams } from "@/features/admin/users/hooks/useUsersQueryParams";
+import { useAuthContext } from "@/providers/AuthProvider";
+import { useRouter } from "next/navigation";
 
 const UsersPage = () => {
+  const { user } = useAuthContext();
+  const router = useRouter();
+  const isViewer = user?.role === "viewer";
+
   const { query, setPage, setLimit } = useUsersQueryParams();
   const { data, isLoading, isError, error } = useGetAllUsers(query);
 
@@ -22,6 +28,12 @@ const UsersPage = () => {
     totalCount: 0,
     hasMore: false,
   };
+
+  useEffect(() => {
+    if (isViewer) {
+      router.push("/dashboard");
+    }
+  }, [isViewer, router]);
 
   if (isLoading) {
     return <TableSkeleton />;

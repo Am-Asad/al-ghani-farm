@@ -11,6 +11,7 @@ import { useDeleteBulkSheds } from "../hooks/useDeleteBulkSheds";
 import { Button } from "@/components/ui/button";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import RoleGuard from "@/features/shared/components/RoleGuard";
 
 type ShedsTableProps = {
   sheds: ShedType[];
@@ -75,15 +76,21 @@ const ShedsTable = ({ sheds }: ShedsTableProps) => {
       label: "Edit",
       value: "edit",
       component: (row: ShedType) => (
-        <CreateEditShedForm
-          selectedShed={row}
-          triggerButton={
-            <Button variant="ghost" size="sm" className="w-full justify-start">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Shed
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin", "manager"]}>
+          <CreateEditShedForm
+            selectedShed={row}
+            triggerButton={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Shed
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
     {
@@ -91,22 +98,24 @@ const ShedsTable = ({ sheds }: ShedsTableProps) => {
       value: "delete",
       variant: "destructive" as const,
       component: (row: ShedType) => (
-        <ConfirmationDialog
-          title="Delete Shed"
-          description="Are you sure you want to delete this shed?"
-          confirmationText={row.name}
-          onConfirm={() => deleteShed(row._id)}
-          trigger={
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-destructive hover:text-destructive/80"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Shed
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin"]}>
+          <ConfirmationDialog
+            title="Delete Shed"
+            description="Are you sure you want to delete this shed?"
+            confirmationText={row.name}
+            onConfirm={() => deleteShed(row._id)}
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive hover:text-destructive/80"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Shed
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
   ];

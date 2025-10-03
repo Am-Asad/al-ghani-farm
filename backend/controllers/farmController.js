@@ -47,45 +47,76 @@ export const getAllFarms = asyncHandler(async (req, res) => {
 export const getFarmsForDropdown = asyncHandler(async (req, res) => {
   const { search = "", farmIds = "" } = req.query;
 
-  const orConditions = [];
+  let selectedFarmIds = [];
 
-  // Always include selected farms (comma-separated list)
+  // Parse selected farm IDs
   if (typeof farmIds === "string" && farmIds.trim()) {
-    const selectedFarmIds = farmIds
+    selectedFarmIds = farmIds
       .split(",")
       .map((id) => id.trim())
       .filter(Boolean);
-    if (selectedFarmIds.length > 0) {
-      orConditions.push({ _id: { $in: selectedFarmIds } });
-    }
   }
 
-  // Include search results if search query is provided
+  let farms = [];
+  let selectedFarms = [];
+
+  // Always fetch selected farms first if they exist
+  if (selectedFarmIds.length > 0) {
+    selectedFarms = await FarmModel.find({
+      _id: { $in: selectedFarmIds },
+    }).select("_id name");
+  }
+
+  // If there's a search query, get search results
   if (typeof search === "string" && search.trim()) {
-    orConditions.push({ name: { $regex: search.trim(), $options: "i" } });
-  }
-
-  // Build the final query
-  let query;
-  if (orConditions.length > 0) {
-    query = { $or: orConditions };
-  } else if (typeof search === "string" && search.trim()) {
-    // If there's a search but no results, return empty
-    query = { _id: { $in: [] } };
+    farms = await FarmModel.find({
+      name: { $regex: search.trim(), $options: "i" },
+    })
+      .select("_id name")
+      .sort({ name: 1 })
+      .limit(10);
   } else {
-    // If no search query, return default options (first 20 farms)
-    query = {};
+    // If no search query, get default farms
+    // We need to account for selected farms, so we might need more than 10
+    const limitForDefault = selectedFarmIds.length > 0 ? 15 : 10;
+    farms = await FarmModel.find({})
+      .select("_id name")
+      .sort({ name: 1 })
+      .limit(limitForDefault);
   }
 
-  const farms = await FarmModel.find(query)
-    .select("_id name")
-    .sort({ name: 1 })
-    .limit(10); // Increased limit to accommodate selected items + search results
+  // Combine selected farms with search/default results
+  const combinedFarms = [...selectedFarms, ...farms];
+
+  // Remove duplicates and sort
+  const uniqueFarms = combinedFarms.filter(
+    (farm, index, self) =>
+      index === self.findIndex((f) => f._id.toString() === farm._id.toString())
+  );
+
+  // Sort by name and limit to 10, but ensure selected farms are included
+  const sortedFarms = uniqueFarms.sort((a, b) => a.name.localeCompare(b.name));
+
+  // If we have selected farms, prioritize them and fill the rest with other farms
+  let finalFarms = [];
+  if (selectedFarmIds.length > 0) {
+    // Add selected farms first
+    const selectedFarmsInResults = sortedFarms.filter((farm) =>
+      selectedFarmIds.includes(farm._id.toString())
+    );
+    // Add non-selected farms to fill up to 10
+    const otherFarms = sortedFarms.filter(
+      (farm) => !selectedFarmIds.includes(farm._id.toString())
+    );
+    finalFarms = [...selectedFarmsInResults, ...otherFarms].slice(0, 10);
+  } else {
+    finalFarms = sortedFarms.slice(0, 10);
+  }
 
   res.status(200).json({
     status: "success",
     message: "Farms fetched successfully",
-    data: farms,
+    data: finalFarms,
   });
 });
 

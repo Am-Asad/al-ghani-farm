@@ -154,67 +154,112 @@ export const getAllSheds = asyncHandler(async (req, res) => {
 export const getShedsForDropdown = asyncHandler(async (req, res) => {
   const { search = "", farmId = "", shedIds = "" } = req.query;
 
-  const orConditions = [];
+  let selectedShedIds = [];
 
-  // Always include selected sheds (comma-separated list)
+  // Parse selected shed IDs
   if (typeof shedIds === "string" && shedIds.trim()) {
-    const selectedShedIds = shedIds
+    selectedShedIds = shedIds
       .split(",")
       .map((id) => id.trim())
       .filter(Boolean);
-    if (selectedShedIds.length > 0) {
-      orConditions.push({ _id: { $in: selectedShedIds } });
-    }
   }
 
-  // Include search results with farm filtering
-  const andConditions = [];
-
-  // Support multiple farm IDs (comma-separated) for search results
+  // Build farm filter conditions first
+  const farmConditions = [];
   if (typeof farmId === "string" && farmId.trim()) {
     const farmIds = farmId
       .split(",")
       .map((id) => id.trim())
       .filter(Boolean);
     if (farmIds.length === 1) {
-      andConditions.push({ farmId: farmIds[0] });
+      farmConditions.push({ farmId: farmIds[0] });
     } else if (farmIds.length > 1) {
-      andConditions.push({ farmId: { $in: farmIds } });
+      farmConditions.push({ farmId: { $in: farmIds } });
     }
   }
 
-  // Add search condition
+  let sheds = [];
+  let selectedSheds = [];
+
+  // Always fetch selected sheds first if they exist
+  // But only include them if they belong to the filtered farms (if farm filter is applied)
+  if (selectedShedIds.length > 0) {
+    const selectedShedQuery = { _id: { $in: selectedShedIds } };
+
+    // If farm filter is applied, only include selected sheds that belong to those farms
+    if (farmConditions.length > 0) {
+      selectedSheds = await ShedModel.find({
+        $and: [selectedShedQuery, ...farmConditions],
+      })
+        .select("_id name")
+        .populate("farmId", "name");
+    } else {
+      // If no farm filter, include all selected sheds
+      selectedSheds = await ShedModel.find(selectedShedQuery)
+        .select("_id name")
+        .populate("farmId", "name");
+    }
+  }
+
+  // If there's a search query, get search results
   if (typeof search === "string" && search.trim()) {
-    andConditions.push({ name: { $regex: search.trim(), $options: "i" } });
-  }
+    const searchQuery = { name: { $regex: search.trim(), $options: "i" } };
+    const finalQuery =
+      farmConditions.length > 0
+        ? { $and: [searchQuery, ...farmConditions] }
+        : searchQuery;
 
-  // If we have search conditions, add them to OR conditions
-  if (andConditions.length > 0) {
-    orConditions.push({ $and: andConditions });
-  }
-
-  // Build the final query
-  let query;
-  if (orConditions.length > 0) {
-    query = { $or: orConditions };
-  } else if (typeof search === "string" && search.trim()) {
-    // If there's a search but no results, return empty
-    query = { _id: { $in: [] } };
+    sheds = await ShedModel.find(finalQuery)
+      .select("_id name")
+      .populate("farmId", "name")
+      .sort({ name: 1 })
+      .limit(10);
   } else {
-    // If no search query, return default options (first 20 sheds)
-    query = {};
+    // If no search query, get default sheds
+    // We need to account for selected sheds, so we might need more than 10
+    const limitForDefault = selectedShedIds.length > 0 ? 15 : 10;
+    const finalQuery =
+      farmConditions.length > 0 ? { $and: farmConditions } : {};
+
+    sheds = await ShedModel.find(finalQuery)
+      .select("_id name")
+      .populate("farmId", "name")
+      .sort({ name: 1 })
+      .limit(limitForDefault);
   }
 
-  const sheds = await ShedModel.find(query)
-    .select("_id name")
-    .populate("farmId", "name")
-    .sort({ name: 1 })
-    .limit(10); // Increased limit to accommodate selected items + search results
+  // Combine selected sheds with search/default results
+  const combinedSheds = [...selectedSheds, ...sheds];
+
+  // Remove duplicates and sort
+  const uniqueSheds = combinedSheds.filter(
+    (shed, index, self) =>
+      index === self.findIndex((s) => s._id.toString() === shed._id.toString())
+  );
+
+  // Sort by name and limit to 10, but ensure selected sheds are included
+  const sortedSheds = uniqueSheds.sort((a, b) => a.name.localeCompare(b.name));
+
+  // If we have selected sheds, prioritize them and fill the rest with other sheds
+  let finalSheds = [];
+  if (selectedShedIds.length > 0) {
+    // Add selected sheds first
+    const selectedShedsInResults = sortedSheds.filter((shed) =>
+      selectedShedIds.includes(shed._id.toString())
+    );
+    // Add non-selected sheds to fill up to 10
+    const otherSheds = sortedSheds.filter(
+      (shed) => !selectedShedIds.includes(shed._id.toString())
+    );
+    finalSheds = [...selectedShedsInResults, ...otherSheds].slice(0, 10);
+  } else {
+    finalSheds = sortedSheds.slice(0, 10);
+  }
 
   res.status(200).json({
     status: "success",
     message: "Sheds fetched successfully",
-    data: sheds,
+    data: finalSheds,
   });
 });
 

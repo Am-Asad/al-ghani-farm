@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 // Types for column configuration
 export interface Column<T> {
@@ -215,22 +216,6 @@ const DataTable = <T,>({
       {showColumnVisibilityToggle && (
         <div className="flex justify-between items-center p-4 border-b">
           <div className="flex gap-2 items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={showAllColumns}
-            >
-              Show All
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={hideAllColumns}
-            >
-              Hide All
-            </Button>
             <div className="flex gap-2 items-center">
               {selectedRows &&
                 selectedRows.length > 0 &&
@@ -249,6 +234,27 @@ const DataTable = <T,>({
               align="end"
               className="w-48 max-h-48 overflow-y-auto"
             >
+              <div className="flex gap-1 p-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 flex-1 text-xs"
+                  onClick={showAllColumns}
+                >
+                  Show All
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 flex-1 text-xs"
+                  onClick={hideAllColumns}
+                >
+                  Hide All
+                </Button>
+              </div>
+
+              <DropdownMenuSeparator />
+
               {columns.map((column) => (
                 <DropdownMenuCheckboxItem
                   key={column.id}

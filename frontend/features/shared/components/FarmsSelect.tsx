@@ -44,12 +44,17 @@ const FarmsSelect = ({
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = useState("");
   const [selectedFarmId, setSelectedFarmId] = useState<string>(value ?? "");
+  const [selectedFarmName, setSelectedFarmName] = useState<string>("");
 
   // Keep internal state in sync when controlled value changes
   useEffect(() => {
-    if (typeof value === "string" && value !== selectedFarmId)
+    if (typeof value === "string") {
       setSelectedFarmId(value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // Clear the selected farm name if value is empty
+      if (!value) {
+        setSelectedFarmName("");
+      }
+    }
   }, [value]);
 
   const debouncedQuery = useDebouncedValue(query, 300);
@@ -60,9 +65,14 @@ const FarmsSelect = ({
   });
   const farms: FarmOption[] = useMemo(() => data?.data || [], [data]);
 
-  const selectedFarmName = useMemo(() => {
-    if (!selectedFarmId) return "";
-    return farms.find((f) => f._id === selectedFarmId)?.name || "";
+  // Update selected farm name when farms data changes or when selectedFarmId changes
+  useEffect(() => {
+    if (selectedFarmId && farms.length > 0) {
+      const farm = farms.find((f) => f._id === selectedFarmId);
+      if (farm) {
+        setSelectedFarmName(farm.name);
+      }
+    }
   }, [selectedFarmId, farms]);
 
   return (
@@ -106,6 +116,14 @@ const FarmsSelect = ({
                         const next =
                           currentValue === selectedFarmId ? "" : currentValue;
                         setSelectedFarmId(next);
+                        if (next) {
+                          const selectedFarm = farms.find(
+                            (f) => f._id === next
+                          );
+                          setSelectedFarmName(selectedFarm?.name || "");
+                        } else {
+                          setSelectedFarmName("");
+                        }
                         onChange?.(next);
                         setOpen(false);
                       }}

@@ -16,6 +16,7 @@ import {
 } from "@/utils/formatting";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import RoleGuard from "@/features/shared/components/RoleGuard";
 
 type LedgersTableProps = {
   ledgers: LedgerType[];
@@ -240,15 +241,21 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
       label: "Edit",
       value: "edit",
       component: (row: LedgerType) => (
-        <CreateEditLedgerForm
-          selectedLedger={row}
-          triggerButton={
-            <Button variant="ghost" size="sm" className="w-full justify-start">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Ledger
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin", "manager"]}>
+          <CreateEditLedgerForm
+            selectedLedger={row}
+            triggerButton={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Ledger
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
     {
@@ -256,22 +263,24 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
       value: "delete",
       variant: "destructive" as const,
       component: (row: LedgerType) => (
-        <ConfirmationDialog
-          title="Delete Ledger"
-          description="Are you sure you want to delete this ledger?"
-          confirmationText={row._id}
-          onConfirm={() => deleteLedger(row._id)}
-          trigger={
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-destructive hover:text-destructive/80"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Ledger
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin"]}>
+          <ConfirmationDialog
+            title="Delete Ledger"
+            description="Are you sure you want to delete this ledger?"
+            confirmationText={row._id}
+            onConfirm={() => deleteLedger(row._id)}
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive hover:text-destructive/80"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Ledger
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
   ];

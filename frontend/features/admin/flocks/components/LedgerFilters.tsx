@@ -205,6 +205,7 @@ const LedgerFilters = () => {
               value={pendingFarmId}
               onChange={(v) => {
                 setPendingFarmId(v);
+                // Always clear shed and flock when farm changes (selected or deselected)
                 setPendingFlockId("");
                 setPendingShedId("");
               }}

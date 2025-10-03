@@ -11,6 +11,7 @@ import { Eye, Edit, Trash2 } from "lucide-react";
 import { useDeleteFarm } from "../hooks/useDeleteFarm";
 import { useDeleteBulkFarms } from "../hooks/useDeleteBulkFarms";
 import { useRouter } from "next/navigation";
+import RoleGuard from "@/features/shared/components/RoleGuard";
 
 type FarmsTableProps = {
   farms: FarmType[];
@@ -85,15 +86,21 @@ const FarmsTable = ({ farms }: FarmsTableProps) => {
       label: "Edit",
       value: "edit",
       component: (row: FarmType) => (
-        <CreateEditFarmForm
-          selectedFarm={row}
-          triggerButton={
-            <Button variant="ghost" size="sm" className="w-full justify-start">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Farm
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin", "manager"]}>
+          <CreateEditFarmForm
+            selectedFarm={row}
+            triggerButton={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Farm
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
     {
@@ -101,22 +108,24 @@ const FarmsTable = ({ farms }: FarmsTableProps) => {
       value: "delete",
       variant: "destructive",
       component: (row: FarmType) => (
-        <ConfirmationDialog
-          title="Delete Farm"
-          description="Are you sure you want to delete this farm?"
-          confirmationText={row.name}
-          onConfirm={() => deleteFarm(row._id)}
-          trigger={
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-destructive hover:text-destructive/80"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Farm
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin"]}>
+          <ConfirmationDialog
+            title="Delete Farm"
+            description="Are you sure you want to delete this farm?"
+            confirmationText={row.name}
+            onConfirm={() => deleteFarm(row._id)}
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive hover:text-destructive/80"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Farm
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
   ];

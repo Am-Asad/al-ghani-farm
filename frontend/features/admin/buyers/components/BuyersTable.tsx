@@ -10,6 +10,7 @@ import { useDeleteBuyer } from "../hooks/useDeleteBuyer";
 import { Edit, Eye, Phone, Trash2 } from "lucide-react";
 import { useDeleteBulkBuyers } from "../hooks/useDeleteBulkBuyers";
 import { Button } from "@/components/ui/button";
+import RoleGuard from "@/features/shared/components/RoleGuard";
 
 type BuyersTableProps = {
   buyers: BuyerType[];
@@ -84,15 +85,21 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
       label: "Edit",
       value: "edit",
       component: (row: BuyerType) => (
-        <CreateEditBuyerForm
-          selectedBuyer={row}
-          triggerButton={
-            <Button variant="ghost" size="sm" className="w-full justify-start">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Buyer
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin", "manager"]}>
+          <CreateEditBuyerForm
+            selectedBuyer={row}
+            triggerButton={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Buyer
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
     {
@@ -100,22 +107,24 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
       value: "delete",
       variant: "destructive",
       component: (row: BuyerType) => (
-        <ConfirmationDialog
-          title="Delete Buyer"
-          description="Are you sure you want to delete this buyer?"
-          confirmationText={row.name}
-          onConfirm={() => deleteBuyer(row._id)}
-          trigger={
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-destructive hover:text-destructive/80"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Buyer
-            </Button>
-          }
-        />
+        <RoleGuard requiredRole={["admin"]}>
+          <ConfirmationDialog
+            title="Delete Buyer"
+            description="Are you sure you want to delete this buyer?"
+            confirmationText={row.name}
+            onConfirm={() => deleteBuyer(row._id)}
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive hover:text-destructive/80"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Buyer
+              </Button>
+            }
+          />
+        </RoleGuard>
       ),
     },
   ];
