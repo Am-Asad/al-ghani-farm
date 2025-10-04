@@ -29,9 +29,12 @@
 [x] Made a single entity multi select component for all the entities.
 [x] Select entity with default entity values in the dropdown issue fixed.
 [x] Show all, hide all button moved into the columns dropdown.
+[x] On click function added on the entire table row.
+[x] Added the ability to toggle the actions column, or don't show entirely.
 [x] Viewer can only view the application, route guards added.
 
 [x] Fix the calendar, show the month and years separately for easy date range filters.
+
 [] Fix tabs responsiveness.
 [] Implement the details page
 [] Make apis for showing data on the dashboard page.
