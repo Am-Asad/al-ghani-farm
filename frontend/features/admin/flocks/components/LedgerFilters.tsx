@@ -277,6 +277,7 @@ const LedgerFilters = () => {
                     const fromStr = date ? format(date, "yyyy-MM-dd") : "";
                     setPendingDateFrom(fromStr);
                   }}
+                  captionLayout="dropdown"
                   numberOfMonths={1}
                 />
               </PopoverContent>
@@ -308,6 +309,7 @@ const LedgerFilters = () => {
                     const toStr = date ? format(date, "yyyy-MM-dd") : "";
                     setPendingDateTo(toStr);
                   }}
+                  captionLayout="dropdown"
                   numberOfMonths={1}
                 />
               </PopoverContent>

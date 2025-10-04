@@ -241,6 +241,7 @@ const ReportFilters = () => {
                   <Calendar
                     mode="single"
                     selected={pendingDate ? new Date(pendingDate) : undefined}
+                    captionLayout="dropdown"
                     onSelect={(value) => {
                       const date = value as Date | undefined;
                       const dateStr = date ? format(date, "yyyy-MM-dd") : "";
@@ -291,6 +292,7 @@ const ReportFilters = () => {
                     selected={
                       pendingStartDate ? new Date(pendingStartDate) : undefined
                     }
+                    captionLayout="dropdown"
                     onSelect={(value) => {
                       const date = value as Date | undefined;
                       const dateStr = date ? format(date, "yyyy-MM-dd") : "";
@@ -329,6 +331,7 @@ const ReportFilters = () => {
                       const dateStr = date ? format(date, "yyyy-MM-dd") : "";
                       setPendingEndDate(dateStr);
                     }}
+                    captionLayout="dropdown"
                     numberOfMonths={1}
                   />
                 </PopoverContent>

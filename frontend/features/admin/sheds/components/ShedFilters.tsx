@@ -177,6 +177,7 @@ const ShedFilters = () => {
                   selected={
                     pendingDateFrom ? new Date(pendingDateFrom) : undefined
                   }
+                  captionLayout="dropdown"
                   onSelect={(value) => {
                     const date = value as Date | undefined;
                     const fromStr = date ? format(date, "yyyy-MM-dd") : "";
@@ -213,6 +214,7 @@ const ShedFilters = () => {
                     const toStr = date ? format(date, "yyyy-MM-dd") : "";
                     setPendingDateTo(toStr);
                   }}
+                  captionLayout="dropdown"
                   numberOfMonths={1}
                 />
               </PopoverContent>

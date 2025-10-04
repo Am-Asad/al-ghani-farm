@@ -24,8 +24,16 @@
 [x] Making the application live
 [x] Reports module implemented on the client and the server.
 
-[] Update the sort by filter with multiple values.
-[] Leaving the create in bulk functionality for all modules for later.
-[] Leaving the flock chicks allocation count must not be greater than the total capacity of a shed check for now.
-[] Leaving the delete in bulk functionality for all modules for now.
-[] Remove unnecessary files and code.
+[x] Update the sort by filter with multiple values.
+[x] Made a single entity select component for all the entities.
+[x] Made a single entity multi select component for all the entities.
+[x] Select entity with default entity values in the dropdown issue fixed.
+[x] Show all, hide all button moved into the columns dropdown.
+[x] Viewer can only view the application, route guards added.
+
+[x] Fix the calendar, show the month and years separately for easy date range filters.
+[] Fix tabs responsiveness.
+[] Implement the details page
+[] Make apis for showing data on the dashboard page.
+[] Think about how to show the analytics using charts.
+[] Add different columns in the sorting dropdown.
