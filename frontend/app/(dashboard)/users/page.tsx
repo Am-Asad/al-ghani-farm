@@ -7,7 +7,8 @@ import { Users } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import UsersTable from "@/features/admin/users/components/UsersTable";
 import UsersHeader from "@/features/admin/users/components/UsersHeader";
-import UsersFilters from "@/features/admin/users/components/UsersFilters";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import Pagination from "@/features/shared/components/Pagination";
 import { useUsersQueryParams } from "@/features/admin/users/hooks/useUsersQueryParams";
 import { useAuthContext } from "@/providers/AuthProvider";
@@ -57,7 +58,10 @@ const UsersPage = () => {
       {/* Users header */}
       <UsersHeader showActions={true} />
       {/* Filters */}
-      <UsersFilters />
+      <ConfigurableFilters
+        config={ENTITY_FILTER_PRESETS.USERS}
+        queryParams={query}
+      />
       {/* Table */}
       <div className="flex-1 pb-1 my-4">
         {users.length > 0 ? (

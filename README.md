@@ -34,6 +34,7 @@
 [x] Viewer can only view the application, route guards added.
 
 [x] Fix the calendar, show the month and years separately for easy date range filters.
+[x] Implemented a unified genertic entity filtering system.
 
 [] Fix tabs responsiveness.
 [] Implement the details page

@@ -7,7 +7,8 @@ import React from "react";
 import FlockHeader from "@/features/admin/flocks/components/FlockHeader";
 import { useFlockQueryParams } from "@/features/admin/flocks/hooks/useFlockQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
-import FlockFilters from "@/features/admin/flocks/components/FlockFilters";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import FlocksTable from "@/features/admin/flocks/components/FlocksTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
@@ -45,7 +46,10 @@ const FlocksPage = () => {
       {/* Flocks header */}
       <FlockHeader showActions={false} />
       {/* Filters */}
-      <FlockFilters />
+      <ConfigurableFilters
+        config={ENTITY_FILTER_PRESETS.FLOCKS}
+        queryParams={query}
+      />
       {/* Flocks grid */}
       <div className="flex-1 pb-1 my-4">
         {flocks.length > 0 ? (

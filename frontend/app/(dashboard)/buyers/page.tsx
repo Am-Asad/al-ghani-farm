@@ -6,10 +6,11 @@ import { useGetAllBuyers } from "@/features/admin/buyers/hooks/useGetAllBuyers";
 import { Building2 } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useBuyersQueryParams } from "@/features/admin/buyers/hooks/useBuyersQueryParams";
-import BuyersFilters from "@/features/admin/buyers/components/BuyersFilters";
 import Pagination from "@/features/shared/components/Pagination";
 import BuyersTable from "@/features/admin/buyers/components/BuyersTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 
 const BuyersPage = () => {
   const { query, setPage, setLimit } = useBuyersQueryParams();
@@ -45,7 +46,10 @@ const BuyersPage = () => {
       {/* Page header */}
       <BuyerHeader showActions={false} />
       {/* Filters */}
-      <BuyersFilters />
+      <ConfigurableFilters
+        config={ENTITY_FILTER_PRESETS.BUYERS}
+        queryParams={query}
+      />
       {/* Grid */}
       <div className="flex-1 pb-1 my-4">
         {buyers.length > 0 ? (

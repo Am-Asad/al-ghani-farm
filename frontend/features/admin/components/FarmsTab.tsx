@@ -1,5 +1,4 @@
 "use client";
-import FarmFilters from "@/features/admin/farms/components/FarmFilters";
 import FarmHeader from "@/features/admin/farms/components/FarmHeader";
 import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
 import { useFarmQueryParams } from "@/features/admin/farms/hooks/useFarmQueryParams";
@@ -10,6 +9,8 @@ import { Building2 } from "lucide-react";
 import React from "react";
 import Pagination from "@/features/shared/components/Pagination";
 import FarmsTable from "@/features/admin/farms/components/FarmsTable";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 
 const FarmsTab = () => {
   const { query, setPage, setLimit } = useFarmQueryParams();
@@ -45,7 +46,10 @@ const FarmsTab = () => {
       {/* Farms header */}
       <FarmHeader showActions={true} />
       {/* Filters */}
-      <FarmFilters />
+      <ConfigurableFilters
+        config={ENTITY_FILTER_PRESETS.FARMS}
+        queryParams={query}
+      />
       {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
         {/* Farms grid */}

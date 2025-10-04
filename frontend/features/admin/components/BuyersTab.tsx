@@ -7,7 +7,8 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import BuyersHeader from "../buyers/components/BuyerHeader";
 import { useBuyersQueryParams } from "../buyers/hooks/useBuyersQueryParams";
-import BuyersFilters from "../buyers/components/BuyersFilters";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import Pagination from "@/features/shared/components/Pagination";
 import BuyersTable from "../buyers/components/BuyersTable";
 
@@ -46,7 +47,10 @@ const BuyersTab = () => {
       {/* Buyers header */}
       <BuyersHeader showActions={true} />
       {/* Filters */}
-      <BuyersFilters />
+      <ConfigurableFilters
+        config={ENTITY_FILTER_PRESETS.BUYERS}
+        queryParams={query}
+      />
       {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
         {/* Buyers grid */}

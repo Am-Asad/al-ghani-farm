@@ -7,7 +7,8 @@ import { Building2 } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ShedsHeader from "../sheds/components/ShedHeader";
 import { useShedQueryParams } from "../sheds/hooks/useShedQueryParams";
-import ShedFilters from "../sheds/components/ShedFilters";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import Pagination from "@/features/shared/components/Pagination";
 import ShedsTable from "../sheds/components/ShedsTable";
 
@@ -45,7 +46,10 @@ const ShedsTab = () => {
       {/* Sheds header */}
       <ShedsHeader showActions={true} />
       {/* Filters */}
-      <ShedFilters />
+      <ConfigurableFilters
+        config={ENTITY_FILTER_PRESETS.SHEDS}
+        queryParams={query}
+      />
       {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
         {sheds.length > 0 ? (

@@ -6,7 +6,8 @@ import { Building2 } from "lucide-react";
 import React from "react";
 import LedgerHeader from "../ledgers/components/LedgerHeader";
 import { useLedgerQueryParams } from "../ledgers/hooks/useLedgerQueryParams";
-import LedgerFilters from "../flocks/components/LedgerFilters";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import Pagination from "@/features/shared/components/Pagination";
 import LedgersTable from "../ledgers/components/LedgersTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
@@ -45,7 +46,10 @@ const LedgersTab = () => {
       {/* Ledgers header */}
       <LedgerHeader showActions={true} />
       {/* Filters */}
-      <LedgerFilters />
+      <ConfigurableFilters
+        config={ENTITY_FILTER_PRESETS.LEDGERS}
+        queryParams={query}
+      />
       {/* Ledgers grid */}
       <div className="flex-1 overflow-y-scroll pb-1">
         {ledgers.length > 0 ? (

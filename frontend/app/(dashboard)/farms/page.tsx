@@ -5,7 +5,8 @@ import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import FarmHeader from "@/features/admin/farms/components/FarmHeader";
-import FarmFilters from "@/features/admin/farms/components/FarmFilters";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import Pagination from "@/features/shared/components/Pagination";
 import { useFarmQueryParams } from "@/features/admin/farms/hooks/useFarmQueryParams";
 import FarmsTable from "@/features/admin/farms/components/FarmsTable";
@@ -44,7 +45,10 @@ export default function FarmsPage() {
     <div className="px-6 py-4 flex flex-col flex-1 overflow-y-scroll">
       <FarmHeader showActions={false} />
       {/* Filters */}
-      <FarmFilters />
+      <ConfigurableFilters
+        config={ENTITY_FILTER_PRESETS.FARMS}
+        queryParams={query}
+      />
       {/* Grid */}
       <div className="flex-1 pb-1 my-4">
         {/* Farms grid */}
