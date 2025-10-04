@@ -1,5 +1,5 @@
 "use client";
-import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useGetAllFlocks";
+import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useFlockHooks";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";

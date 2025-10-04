@@ -24,12 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCreateFlock } from "../hooks/useCreateFlock";
-import { useEditFlock } from "../hooks/useEditFlock";
+import { useCreateFlock, useEditFlock } from "../hooks/useFlockHooks";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import EntitySelect from "@/features/shared/components/EntitySelect";
-import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
-import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useGetShedsDropdown";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useFarmHooks";
+import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useShedHooks";
 
 type CreateEditFlockFormProps = {
   selectedFlock?: FlockType;

@@ -8,8 +8,7 @@ import CreateEditFarmForm from "./CreateEditFarmForm";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2 } from "lucide-react";
-import { useDeleteFarm } from "../hooks/useDeleteFarm";
-import { useDeleteBulkFarms } from "../hooks/useDeleteBulkFarms";
+import { useDeleteFarm, useDeleteBulkFarms } from "../hooks/useFarmHooks";
 import { useRouter } from "next/navigation";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 

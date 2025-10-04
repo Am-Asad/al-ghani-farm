@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useGetAllFlocks";
+import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useFlockHooks";
 import FlocksTable from "@/features/admin/flocks/components/FlocksTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";

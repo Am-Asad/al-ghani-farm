@@ -1,6 +1,6 @@
 "use client";
 import ShedsHeader from "@/features/admin/sheds/components/ShedHeader";
-import { useGetAllSheds } from "@/features/admin/sheds/hooks/useGetAllSheds";
+import { useGetAllSheds } from "@/features/admin/sheds/hooks/useShedHooks";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";

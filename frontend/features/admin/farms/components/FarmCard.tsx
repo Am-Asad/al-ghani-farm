@@ -6,7 +6,7 @@ import { Farm } from "@/types";
 import { formatDate } from "@/utils/formatting";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import CreateEditFarmForm from "./CreateEditFarmForm";
-import { useDeleteFarm } from "../hooks/useDeleteFarm";
+import { useDeleteFarm } from "../hooks/useFarmHooks";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import { formatSingleDigit } from "@/utils/formatting";
 

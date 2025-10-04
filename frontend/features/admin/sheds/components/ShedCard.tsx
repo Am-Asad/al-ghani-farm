@@ -7,7 +7,7 @@ import RoleGuard from "@/features/shared/components/RoleGuard";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { formatDate, formatSingleDigit } from "@/utils/formatting";
 import { formatAmount } from "@/utils/formatting";
-import { useDeleteShed } from "../hooks/useDeleteShed";
+import { useDeleteShed } from "../hooks/useShedHooks";
 import CreateEditShedForm from "./CreateEditShedForm";
 import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 

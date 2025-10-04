@@ -1,8 +1,7 @@
 import { Ledger, LedgerPayload } from "@/types";
 import React, { useState, useEffect } from "react";
 // import { useGetAllEntities } from "../../hooks/useGetAllEntities";
-import { useEditLedger } from "../hooks/useEditLedger";
-import { useCreateLedger } from "../hooks/useCreateLedger";
+import { useEditLedger, useCreateLedger } from "../hooks/useLedgerHooks";
 import {
   CreateEditLedgerSchema,
   createEditLedgerSchema,
@@ -30,10 +29,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import EntitySelect from "@/features/shared/components/EntitySelect";
-import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
-import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useGetFlocksDropdown";
-import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useGetShedsDropdown";
-import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useGetBuyersDropdown";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useFarmHooks";
+import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useFlockHooks";
+import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useShedHooks";
+import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useBuyerHooks";
 
 type CreateEditLedgerFormProps = {
   selectedLedger?: Ledger;

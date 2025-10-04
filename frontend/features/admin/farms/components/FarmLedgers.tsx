@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedgers";
+import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useLedgerHooks";
 import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";

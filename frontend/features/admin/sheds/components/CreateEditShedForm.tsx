@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Shed as ShedType } from "@/types";
-import { useCreateShed } from "../hooks/useCreateShed";
+import { useCreateShed } from "../hooks/useShedHooks";
 import {
   Dialog,
   DialogContent,
@@ -19,9 +19,9 @@ import {
   createEditShedSchema,
   CreateEditShedSchema,
 } from "../schemas/createEditShedSchema";
-import { useEditShed } from "../hooks/useEditShed";
+import { useEditShed } from "../hooks/useShedHooks";
 import EntitySelect from "@/features/shared/components/EntitySelect";
-import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useFarmHooks";
 
 type CreateEditShedFormProps = {
   selectedShed?: ShedType;

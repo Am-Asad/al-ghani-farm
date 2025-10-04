@@ -1,6 +1,6 @@
 "use client";
 // import CreateEditFlockForm from "@/features/admin/flocks/components/CreateEditFlockForm";
-import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useGetAllFlocks";
+import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useFlockHooks";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";

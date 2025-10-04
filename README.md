@@ -36,8 +36,11 @@
 [x] Fix the calendar, show the month and years separately for easy date range filters.
 [x] Implemented a unified genertic entity filtering system.
 
+[x] Implement the details page
+[x] Refactored the hooks throughout the codebase.
 [] Fix tabs responsiveness.
-[] Implement the details page
 [] Make apis for showing data on the dashboard page.
 [] Think about how to show the analytics using charts.
 [] Add different columns in the sorting dropdown.
+[] Show all the summary fields for reports.
+[] Show all the columns for ledgers in group by data table.

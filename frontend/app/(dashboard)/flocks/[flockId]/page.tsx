@@ -1,5 +1,5 @@
 "use client";
-import { useGetFlockById } from "@/features/admin/flocks/hooks/useGetFlockById";
+import { useGetFlockById } from "@/features/admin/flocks/hooks/useFlockHooks";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
@@ -9,7 +9,7 @@ import { ArrowLeft, Building2 } from "lucide-react";
 import FlockDetailsCard from "@/features/admin/flocks/components/FlockDetailsCard";
 import { Button } from "@/components/ui/button";
 import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
-import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedgers";
+import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useLedgerHooks";
 import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import Pagination from "@/features/shared/components/Pagination";

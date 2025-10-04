@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useGetAllSheds } from "@/features/admin/sheds/hooks/useGetAllSheds";
+import { useGetAllSheds } from "@/features/admin/sheds/hooks/useShedHooks";
 import ShedsTable from "@/features/admin/sheds/components/ShedsTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";

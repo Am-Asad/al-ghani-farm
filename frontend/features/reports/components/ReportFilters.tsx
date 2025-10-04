@@ -20,10 +20,10 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useReportQueryParams } from "../hooks/useReportQueryParams";
 import EntityMultiSelect from "@/features/shared/components/EntityMultiSelect";
-import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
-import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useGetShedsDropdown";
-import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useGetFlocksDropdown";
-import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useGetBuyersDropdown";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useFarmHooks";
+import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useShedHooks";
+import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useFlockHooks";
+import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useBuyerHooks";
 
 const ReportFilters = () => {
   const {

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import CreateEditLedgerForm from "./CreateEditLedgerForm";
-import { useDeleteLedger } from "../hooks/useDeleteLedger";
+import { useDeleteLedger } from "../hooks/useLedgerHooks";
 import { Button } from "@/components/ui/button";
 
 type LedgerCardProps = {

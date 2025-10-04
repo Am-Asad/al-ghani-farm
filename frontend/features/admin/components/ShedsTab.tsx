@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useGetAllSheds } from "../sheds/hooks/useGetAllSheds";
+import { useGetAllSheds } from "../sheds/hooks/useShedHooks";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import { Building2 } from "lucide-react";

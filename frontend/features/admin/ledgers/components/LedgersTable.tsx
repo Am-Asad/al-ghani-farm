@@ -6,8 +6,7 @@ import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog"
 import { Button } from "@/components/ui/button";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { Ledger as LedgerType } from "@/types";
-import { useDeleteLedger } from "../hooks/useDeleteLedger";
-import { useDeleteBulkLedgers } from "../hooks/useDeleteBulkLedgers";
+import { useDeleteLedger, useDeleteBulkLedgers } from "../hooks/useLedgerHooks";
 import CreateEditLedgerForm from "./CreateEditLedgerForm";
 import {
   formatAmount,

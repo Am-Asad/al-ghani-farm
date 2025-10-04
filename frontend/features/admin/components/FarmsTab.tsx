@@ -1,6 +1,6 @@
 "use client";
 import FarmHeader from "@/features/admin/farms/components/FarmHeader";
-import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
+import { useGetAllFarms } from "@/features/admin/farms/hooks/useFarmHooks";
 import { useFarmQueryParams } from "@/features/admin/farms/hooks/useFarmQueryParams";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import DataNotFound from "@/features/shared/components/DataNotFound";

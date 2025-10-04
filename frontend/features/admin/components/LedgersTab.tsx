@@ -1,5 +1,5 @@
 "use client";
-import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedgers";
+import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useLedgerHooks";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Building2 } from "lucide-react";

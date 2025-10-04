@@ -5,7 +5,7 @@ import { Building2 } from "lucide-react";
 import React from "react";
 import { useLedgerQueryParams } from "@/features/admin/ledgers/hooks/useLedgerQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
-import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedgers";
+import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useLedgerHooks";
 import LedgerHeader from "@/features/admin/ledgers/components/LedgerHeader";
 import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";

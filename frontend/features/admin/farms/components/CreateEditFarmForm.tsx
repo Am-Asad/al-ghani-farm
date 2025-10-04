@@ -5,13 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Building2 } from "lucide-react";
-import { useCreateFarm } from "../hooks/useCreateFarm";
+import { useCreateFarm, useEditFarm } from "../hooks/useFarmHooks";
 import {
   CreateEditFarmSchema,
   createEditFarmSchema,
 } from "../schemas/createEditFarmSchema";
 import { Farm as FarmType } from "@/types";
-import { useEditFarm } from "../hooks/useEditFarm";
 import {
   Dialog,
   DialogContent,

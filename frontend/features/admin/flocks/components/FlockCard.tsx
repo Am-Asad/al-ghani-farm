@@ -8,7 +8,7 @@ import { formatDate } from "@/utils/formatting";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import CreateEditFlockForm from "./CreateEditFlockForm";
-import { useDeleteFlock } from "../hooks/useDeleteFlock";
+import { useDeleteFlock } from "../hooks/useFlockHooks";
 import { formatSingleDigit } from "@/utils/formatting";
 import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 

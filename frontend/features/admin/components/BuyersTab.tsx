@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useGetAllBuyers } from "../buyers/hooks/useGetAllBuyers";
+import { useGetAllBuyers } from "../buyers/hooks/useBuyerHooks";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { Building2 } from "lucide-react";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";

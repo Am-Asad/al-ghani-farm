@@ -6,7 +6,7 @@ import { Buyer } from "@/types";
 import { formatDate } from "@/utils/formatting";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
-import { useDeleteBuyer } from "../hooks/useDeleteBuyer";
+import { useDeleteBuyer } from "../hooks/useBuyerHooks";
 import CreateEditBuyerForm from "./CreateEditBuyerForm";
 import ShowOptionsDropdown from "@/features/shared/components/ShowOptionsDropdown";
 

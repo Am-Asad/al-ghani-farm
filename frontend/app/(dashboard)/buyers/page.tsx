@@ -2,7 +2,7 @@
 import BuyerHeader from "@/features/admin/buyers/components/BuyerHeader";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import React from "react";
-import { useGetAllBuyers } from "@/features/admin/buyers/hooks/useGetAllBuyers";
+import { useGetAllBuyers } from "@/features/admin/buyers/hooks/useBuyerHooks";
 import { Building2 } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useBuyersQueryParams } from "@/features/admin/buyers/hooks/useBuyersQueryParams";

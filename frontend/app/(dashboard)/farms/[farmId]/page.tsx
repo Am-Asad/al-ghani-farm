@@ -1,5 +1,5 @@
 "use client";
-import { useGetFarmById } from "@/features/admin/farms/hooks/useGetFarmById";
+import { useGetFarmById } from "@/features/admin/farms/hooks/useFarmHooks";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";

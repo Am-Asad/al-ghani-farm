@@ -10,10 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import EntitySelect from "@/features/shared/components/EntitySelect";
-import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
-import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useGetShedsDropdown";
-import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useGetFlocksDropdown";
-import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useGetBuyersDropdown";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useFarmHooks";
+import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useShedHooks";
+import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useFlockHooks";
+import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useBuyerHooks";
 import { Input } from "@/components/ui/input";
 import {
   Popover,

@@ -1,7 +1,7 @@
 "use client";
 
 import { Building2 } from "lucide-react";
-import { useGetAllFarms } from "@/features/admin/farms/hooks/useGetAllFarms";
+import { useGetAllFarms } from "@/features/admin/farms/hooks/useFarmHooks";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import FarmHeader from "@/features/admin/farms/components/FarmHeader";
