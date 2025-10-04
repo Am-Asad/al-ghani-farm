@@ -217,8 +217,8 @@ export const ENTITY_FILTER_PRESETS = {
     searchPlaceholder: "Search ledgers for this shed...",
     showFarms: false, // Farm is already selected
     showSheds: false, // Shed is already selected
-    showFlocks: true,
-    showBuyers: true,
+    showFlocks: false,
+    showBuyers: false,
     showDateRange: true,
     showPaymentStatus: true,
     showTotalAmount: true,
@@ -238,7 +238,7 @@ export const ENTITY_FILTER_PRESETS = {
     showFarms: false, // Farm is already selected
     showSheds: false, // Shed is already selected
     showFlocks: false, // Flock is already selected
-    showBuyers: true,
+    showBuyers: false,
     showDateRange: true,
     showPaymentStatus: true,
     showTotalAmount: true,

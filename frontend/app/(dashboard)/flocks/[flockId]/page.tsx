@@ -1,35 +1,63 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { useGetFlockById } from "@/features/admin/flocks/hooks/useGetFlockById";
 import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
-import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import { ArrowLeft, Building2 } from "lucide-react";
+import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { useGetFlockById } from "@/features/admin/flocks/hooks/useGetFlockById";
+import { ArrowLeft, Building2 } from "lucide-react";
 import FlockDetailsCard from "@/features/admin/flocks/components/FlockDetailsCard";
-// import FlockReportDialog from "@/features/reports/flocks/components/FlockReportDialog";
+import { Button } from "@/components/ui/button";
+import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
+import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useGetAllLedgers";
+import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
+import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
+import Pagination from "@/features/shared/components/Pagination";
+import { useFlockLedgerQueryParams } from "@/features/admin/ledgers/hooks/useFlockLedgerQueryParams";
+import { createCustomFilterConfig } from "@/features/shared/utils/filterPresets";
 
-const FlocksDetailsPage = () => {
+const FlockDetailsPage = () => {
   const router = useRouter();
   const { flockId } = useParams();
+  const { query, setPage, setLimit } = useFlockLedgerQueryParams(
+    flockId as string
+  );
   const { data, isLoading, isError, error } = useGetFlockById(
     flockId as string
   );
   const flock = data?.data;
 
-  if (isLoading) {
+  const {
+    data: ledgersData,
+    isLoading: ledgersLoading,
+    isError: ledgersError,
+    error: ledgersErrorMsg,
+  } = useGetAllLedgers(query);
+
+  const ledgers = ledgersData?.data || [];
+  const pagination = ledgersData?.pagination ?? {
+    page: 1,
+    limit: 1,
+    totalCount: 0,
+    hasMore: false,
+  };
+
+  if (isLoading || ledgersLoading) {
     return <CardsSkeleton />;
   }
 
-  if (isError) {
+  if (isError || ledgersError) {
     return (
       <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
         <ErrorFetchingData
           title="Flock Details"
           description="Failed to load flock details"
           buttonText="Go Back"
-          error={error?.message || "Failed to load flock details"}
+          error={
+            error?.message ||
+            ledgersErrorMsg?.message ||
+            "Failed to load flock details"
+          }
         />
       </div>
     );
@@ -47,29 +75,37 @@ const FlocksDetailsPage = () => {
   }
 
   return (
-    <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
-      {/* Header with Back button and Report button */}
+    <div className="p-6 overflow-y-scroll flex flex-col flex-1 space-y-6">
+      {/* Header with Back button */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => router.back()} className="w-fit">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Flocks
         </Button>
-
-        {/* {flock && (
-          <FlockReportDialog flockId={flock._id} flockName={flock.name}>
-            <Button className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Generate Reports
-            </Button>
-          </FlockReportDialog>
-        )} */}
       </div>
 
-      <div className="flex flex-col gap-6 flex-1 overflow-y-scroll">
+      <div className="flex flex-col gap-6 flex-1">
         <FlockDetailsCard flock={flock} />
+        <ConfigurableFilters
+          config={createCustomFilterConfig(
+            ENTITY_FILTER_PRESETS.FLOCK_LEDGERS,
+            {
+              searchPlaceholder: `Search ledgers for ${flock.name}...`,
+            }
+          )}
+          queryParams={query}
+        />
+        <LedgersTable ledgers={ledgers} />
+        <Pagination
+          page={pagination.page}
+          limit={pagination.limit}
+          hasMore={pagination.hasMore}
+          onChangePage={(p) => setPage(p)}
+          onChangeLimit={(l) => setLimit(l)}
+        />
       </div>
     </div>
   );
 };
 
-export default FlocksDetailsPage;
+export default FlockDetailsPage;
