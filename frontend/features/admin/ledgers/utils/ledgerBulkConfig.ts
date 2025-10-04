@@ -262,6 +262,7 @@ export function transformLedgerRecordsToAPI(
       _id: record.buyerId,
       name: "",
       contactNumber: "",
+      address: "",
     },
     vehicleNumber: record.vehicleNumber,
     driverName: record.driverName,
