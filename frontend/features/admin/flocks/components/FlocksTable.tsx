@@ -161,6 +161,10 @@ const FlocksTable = ({ flocks }: FlocksTableProps) => {
     setSelectedFlocks(selected);
   };
 
+  const handleRowClick = (flock: FlockType) => {
+    router.push(`/flocks/${flock._id}`);
+  };
+
   return (
     <DataTable
       data={flocks}
@@ -168,6 +172,7 @@ const FlocksTable = ({ flocks }: FlocksTableProps) => {
       getRowId={(row) => row._id}
       selectionMode="multiple"
       onSelectionChange={handleSelectionChange}
+      onRowClick={handleRowClick}
       rowActions={rowActions}
       emptyMessage="No flocks found"
       showColumnVisibilityToggle={true}

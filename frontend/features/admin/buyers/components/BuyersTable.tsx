@@ -11,12 +11,14 @@ import { Edit, Eye, Phone, Trash2 } from "lucide-react";
 import { useDeleteBulkBuyers } from "../hooks/useDeleteBulkBuyers";
 import { Button } from "@/components/ui/button";
 import RoleGuard from "@/features/shared/components/RoleGuard";
+import { useRouter } from "next/navigation";
 
 type BuyersTableProps = {
   buyers: BuyerType[];
 };
 
 const BuyersTable = ({ buyers }: BuyersTableProps) => {
+  const router = useRouter();
   const [selectedBuyers, setSelectedBuyers] = useState<BuyerType[]>([]);
   const { mutate: deleteBuyer } = useDeleteBuyer();
   const { mutate: deleteBulkBuyers } = useDeleteBulkBuyers();
@@ -133,6 +135,10 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
     setSelectedBuyers(selected);
   };
 
+  const handleRowClick = (buyer: BuyerType) => {
+    router.push(`/buyers/${buyer._id}`);
+  };
+
   return (
     <DataTable
       data={buyers}
@@ -140,6 +146,7 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
       getRowId={(row) => row._id}
       selectionMode="multiple"
       onSelectionChange={handleSelectionChange}
+      onRowClick={handleRowClick}
       rowActions={rowActions}
       emptyMessage="No buyers found"
       showColumnVisibilityToggle={true}

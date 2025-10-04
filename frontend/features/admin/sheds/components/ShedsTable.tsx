@@ -124,6 +124,10 @@ const ShedsTable = ({ sheds }: ShedsTableProps) => {
     setSelectedSheds(selected);
   };
 
+  const handleRowClick = (shed: ShedType) => {
+    router.push(`/sheds/${shed._id}`);
+  };
+
   return (
     <DataTable
       data={sheds}
@@ -131,6 +135,7 @@ const ShedsTable = ({ sheds }: ShedsTableProps) => {
       getRowId={(row) => row._id}
       selectionMode="multiple"
       onSelectionChange={handleSelectionChange}
+      onRowClick={handleRowClick}
       rowActions={rowActions}
       emptyMessage="No sheds found"
       showColumnVisibilityToggle={true}

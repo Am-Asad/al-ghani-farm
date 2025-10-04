@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
 import DataTable, { RowAction } from "@/features/shared/components/DataTable";
 import { Column } from "@/features/shared/components/DataTable";
 import { ReportTransaction } from "../hooks/useGetReports";
@@ -271,27 +269,6 @@ const ReportsTable = ({
     },
   ];
 
-  const rowActions: RowAction<ReportTransaction>[] = [
-    {
-      label: "View Details",
-      value: "view",
-      component: (row: ReportTransaction) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-          onClick={() => {
-            // TODO: Implement view details functionality
-            console.log("View transaction details:", row._id);
-          }}
-        >
-          <Eye className="mr-2 h-4 w-4" />
-          View Details
-        </Button>
-      ),
-    },
-  ];
-
   // Show loading state
   if (isLoading) {
     return (
@@ -311,7 +288,7 @@ const ReportsTable = ({
           data={transactions}
           columns={columns}
           getRowId={(row) => row._id}
-          rowActions={rowActions}
+          selectionMode="none"
           emptyMessage="No transactions found"
           showColumnVisibilityToggle={true}
         />

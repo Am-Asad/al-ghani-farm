@@ -134,6 +134,10 @@ const FarmsTable = ({ farms }: FarmsTableProps) => {
     setSelectedFarms(selected);
   };
 
+  const handleRowClick = (farm: FarmType) => {
+    router.push(`/farms/${farm._id}`);
+  };
+
   return (
     <DataTable
       data={farms}
@@ -141,6 +145,7 @@ const FarmsTable = ({ farms }: FarmsTableProps) => {
       getRowId={(row) => row._id}
       selectionMode="multiple"
       onSelectionChange={handleSelectionChange}
+      onRowClick={handleRowClick}
       rowActions={rowActions}
       emptyMessage="No farms found"
       showColumnVisibilityToggle={true}

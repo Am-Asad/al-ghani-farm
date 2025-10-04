@@ -46,6 +46,7 @@ export interface DataTableProps<T> {
   selectionMode?: SelectionMode;
   onSelectionChange?: (selectedRows: T[]) => void;
   onRowAction?: (action: string, row: T) => void;
+  onRowClick?: (row: T) => void;
   rowActions?: RowAction<T>[];
   customActions?: (row: T) => React.ReactNode;
   className?: string;
@@ -62,6 +63,7 @@ const DataTable = <T,>({
   selectionMode = "multiple",
   onSelectionChange,
   onRowAction,
+  onRowClick,
   rowActions = [],
   customActions,
   className = "",
@@ -77,6 +79,9 @@ const DataTable = <T,>({
     columns.forEach((column) => {
       initialVisibility[column.id] = column.visible !== false; // Default to true unless explicitly set to false
     });
+    // Add actions column visibility (default to true if actions are available)
+    initialVisibility["actions"] =
+      rowActions.length > 0 || customActions ? true : false;
     return initialVisibility;
   });
 
@@ -122,6 +127,9 @@ const DataTable = <T,>({
     columns.forEach((column) => {
       allVisible[column.id] = true;
     });
+    // Show actions column if actions are available
+    allVisible["actions"] =
+      rowActions.length > 0 || customActions ? true : false;
     setColumnVisibility(allVisible);
   };
 
@@ -131,6 +139,8 @@ const DataTable = <T,>({
     columns.forEach((column) => {
       allHidden[column.id] = false;
     });
+    // Hide actions column
+    allHidden["actions"] = false;
     setColumnVisibility(allHidden);
   };
 
@@ -184,6 +194,13 @@ const DataTable = <T,>({
   const handleRowAction = (action: string, row: T) => {
     if (onRowAction) {
       onRowAction(action, row);
+    }
+  };
+
+  // Handle row click
+  const handleRowClick = (row: T) => {
+    if (onRowClick) {
+      onRowClick(row);
     }
   };
 
@@ -264,6 +281,14 @@ const DataTable = <T,>({
                   {column.header}
                 </DropdownMenuCheckboxItem>
               ))}
+              {(rowActions.length > 0 || customActions) && (
+                <DropdownMenuCheckboxItem
+                  checked={columnVisibility["actions"]}
+                  onCheckedChange={() => toggleColumnVisibility("actions")}
+                >
+                  Actions
+                </DropdownMenuCheckboxItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -275,9 +300,8 @@ const DataTable = <T,>({
             {visibleColumns.map((column) => (
               <col key={column.id} style={{ width: column.width || "auto" }} />
             ))}
-            {(rowActions.length > 0 || customActions) && (
-              <col className="w-20" />
-            )}
+            {(rowActions.length > 0 || customActions) &&
+              columnVisibility["actions"] && <col className="w-20" />}
           </colgroup>
           <thead>
             <tr className="border-b">
@@ -304,11 +328,12 @@ const DataTable = <T,>({
                   {column.header}
                 </th>
               ))}
-              {(rowActions.length > 0 || customActions) && (
-                <th className="p-4 text-left font-medium text-foreground">
-                  Actions
-                </th>
-              )}
+              {(rowActions.length > 0 || customActions) &&
+                columnVisibility["actions"] && (
+                  <th className="p-4 text-left font-medium text-foreground">
+                    Actions
+                  </th>
+                )}
             </tr>
           </thead>
           <tbody className="overflow-hidden">
@@ -321,7 +346,8 @@ const DataTable = <T,>({
                   key={rowId}
                   className={`border-b last:border-b-0 ${
                     isSelected ? "bg-muted/50" : "hover:bg-muted/50"
-                  }`}
+                  } ${onRowClick ? "cursor-pointer" : ""}`}
+                  onClick={() => onRowClick && handleRowClick(row)}
                 >
                   {selectionMode !== "none" && (
                     <td className="p-4">
@@ -330,6 +356,7 @@ const DataTable = <T,>({
                         onCheckedChange={(checked: boolean) =>
                           handleRowSelect(rowId, checked)
                         }
+                        onClick={(e) => e.stopPropagation()}
                         className="h-4 w-4"
                       />
                     </td>
@@ -339,51 +366,54 @@ const DataTable = <T,>({
                       {renderCell(column, row)}
                     </td>
                   ))}
-                  {(rowActions.length > 0 || customActions) && (
-                    <td className="p-4">
-                      {customActions ? (
-                        customActions(row)
-                      ) : (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                            >
-                              <EllipsisVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {rowActions.map((action) => (
-                              <div key={action.value}>
-                                {action.component ? (
-                                  // Render custom component if provided
-                                  <div onClick={(e) => e.stopPropagation()}>
-                                    {action.component(row)}
+                  {(rowActions.length > 0 || customActions) &&
+                    columnVisibility["actions"] && (
+                      <td className="p-4">
+                        {customActions ? (
+                          customActions(row)
+                        ) : (
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <EllipsisVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {rowActions.map((action) => (
+                                  <div key={action.value}>
+                                    {action.component ? (
+                                      // Render custom component if provided
+                                      <div onClick={(e) => e.stopPropagation()}>
+                                        {action.component(row)}
+                                      </div>
+                                    ) : (
+                                      // Render default dropdown item
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          handleRowAction(action.value, row)
+                                        }
+                                        className={
+                                          action.variant === "destructive"
+                                            ? "text-destructive"
+                                            : ""
+                                        }
+                                      >
+                                        {action.label}
+                                      </DropdownMenuItem>
+                                    )}
                                   </div>
-                                ) : (
-                                  // Render default dropdown item
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleRowAction(action.value, row)
-                                    }
-                                    className={
-                                      action.variant === "destructive"
-                                        ? "text-destructive"
-                                        : ""
-                                    }
-                                  >
-                                    {action.label}
-                                  </DropdownMenuItem>
-                                )}
-                              </div>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                    </td>
-                  )}
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        )}
+                      </td>
+                    )}
                 </tr>
               );
             })}
