@@ -196,9 +196,9 @@ export const ENTITY_FILTER_PRESETS = {
     showSearch: true,
     searchPlaceholder: "Search ledgers for this farm...",
     showFarms: false, // Farm is already selected
-    showSheds: true,
-    showFlocks: true,
-    showBuyers: true,
+    showSheds: false,
+    showFlocks: false,
+    showBuyers: false,
     showDateRange: true,
     showPaymentStatus: true,
     showTotalAmount: true,
