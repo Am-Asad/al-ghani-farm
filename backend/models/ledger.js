@@ -307,7 +307,7 @@ ledgerSchema.statics.getAllLedgersPaginated = function ({
         localField: "buyerId",
         foreignField: "_id",
         as: "buyerId",
-        pipeline: [{ $project: { name: 1, contactNumber: 1 } }],
+        pipeline: [{ $project: { name: 1, contactNumber: 1, address: 1 } }],
       },
     },
 

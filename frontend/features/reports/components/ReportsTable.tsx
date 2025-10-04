@@ -8,6 +8,7 @@ import { Column } from "@/features/shared/components/DataTable";
 import { ReportTransaction } from "../hooks/useGetReports";
 import {
   formatAmount,
+  formatCurrency,
   formatDateCompact,
   formatSingleDigit,
 } from "@/utils/formatting";
@@ -24,16 +25,6 @@ const ReportsTable = ({
   isLoading,
   includeDetails = true,
 }: ReportsTableProps) => {
-  const getPaymentStatusBadge = (amountPaid: number, totalAmount: number) => {
-    if (amountPaid === totalAmount) {
-      return <Badge variant="default">Paid</Badge>;
-    } else if (amountPaid > 0 && amountPaid < totalAmount) {
-      return <Badge variant="secondary">Partial</Badge>;
-    } else {
-      return <Badge variant="destructive">Unpaid</Badge>;
-    }
-  };
-
   const columns: Column<ReportTransaction>[] = [
     {
       id: "date",
@@ -45,39 +36,36 @@ const ReportsTable = ({
       },
     },
     {
-      id: "buyer",
-      header: "Buyer",
-      accessorKey: "buyerInfo" as keyof ReportTransaction,
+      id: "farm",
+      header: "Farm",
+      accessorKey: "farmInfo",
       visible: true,
       cell: ({ row }) => {
         return (
           <div>
             <div className="font-medium">
-              {formatSingleDigit(row.original.buyerInfo.name)}
+              {formatSingleDigit(row.original.farmInfo?.name)}
             </div>
             <div className="text-sm text-muted-foreground">
-              {formatSingleDigit(row.original.buyerInfo.contactNumber)}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {row.original.buyerInfo.address}
+              {formatSingleDigit(row.original.farmInfo?.supervisor)}
             </div>
           </div>
         );
       },
     },
     {
-      id: "farm",
-      header: "Farm",
-      accessorKey: "farmInfo" as keyof ReportTransaction,
+      id: "shed",
+      header: "Shed",
+      accessorKey: "shedInfo",
       visible: true,
       cell: ({ row }) => {
         return (
           <div>
             <div className="font-medium">
-              {formatSingleDigit(row.original.farmInfo.name)}
+              {formatSingleDigit(row.original.shedInfo?.name)}
             </div>
             <div className="text-sm text-muted-foreground">
-              {formatSingleDigit(row.original.farmInfo.supervisor)}
+              Cap: {formatSingleDigit(row.original.shedInfo?.capacity)}
             </div>
           </div>
         );
@@ -86,49 +74,52 @@ const ReportsTable = ({
     {
       id: "flock",
       header: "Flock",
-      accessorKey: "flockInfo" as keyof ReportTransaction,
+      accessorKey: "flockInfo",
       visible: true,
       cell: ({ row }) => {
         return (
           <div>
             <div className="font-medium">
-              {formatSingleDigit(row.original.flockInfo.name)}
+              {formatSingleDigit(row.original.flockInfo?.name)}
             </div>
             <Badge
               variant={
-                row.original.flockInfo.status === "active"
+                row.original.flockInfo?.status === "active"
                   ? "default"
                   : "secondary"
               }
               className="text-xs"
             >
-              {formatSingleDigit(row.original.flockInfo.status)}
+              {formatSingleDigit(row.original.flockInfo?.status)}
             </Badge>
           </div>
         );
       },
     },
     {
-      id: "shed",
-      header: "Shed",
-      accessorKey: "shedInfo" as keyof ReportTransaction,
+      id: "buyer",
+      header: "Buyer",
+      accessorKey: "buyerInfo",
       visible: true,
       cell: ({ row }) => {
         return (
           <div>
             <div className="font-medium">
-              {formatSingleDigit(row.original.shedInfo.name)}
+              {formatSingleDigit(row.original.buyerInfo?.name)}
             </div>
             <div className="text-sm text-muted-foreground">
-              Cap: {formatSingleDigit(row.original.shedInfo.capacity)}
+              {formatSingleDigit(row.original.buyerInfo?.contactNumber)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {row.original.buyerInfo?.address}
             </div>
           </div>
         );
       },
     },
     {
-      id: "vehicle",
-      header: "Vehicle",
+      id: "vehicleNumber",
+      header: "Vehicle Number",
       accessorKey: "vehicleNumber",
       visible: true,
       cell: ({ row }) => {
@@ -158,68 +149,62 @@ const ReportsTable = ({
       },
     },
     {
-      id: "birds",
-      header: "Birds",
-      accessorKey: "numberOfBirds",
+      id: "accountant",
+      header: "Accountant",
+      accessorKey: "accountantName",
       visible: true,
+      width: "180px",
+    },
+    {
+      id: "emptyVehicleWeight",
+      header: "Empty Vehicle Weight",
+      accessorKey: "emptyVehicleWeight",
+      visible: true,
+      width: "200px",
       cell: ({ row }) => {
-        return (
-          <span className="text-center">
-            {(row.original.numberOfBirds || 0).toLocaleString()}
-          </span>
-        );
+        return `${formatAmount(row.original.emptyVehicleWeight)} Kg`;
       },
     },
     {
       id: "grossWeight",
       header: "Gross Weight",
       accessorKey: "grossWeight",
-      visible: false,
+      visible: true,
+      width: "200px",
       cell: ({ row }) => {
-        return (
-          <span className="text-center">
-            {(row.original.grossWeight || 0).toLocaleString()} kg
-          </span>
-        );
+        return `${formatAmount(row.original.grossWeight)} Kg`;
       },
     },
-    {
-      id: "emptyVehicleWeight",
-      header: "Empty Vehicle Weight",
-      accessorKey: "emptyVehicleWeight",
-      visible: false,
-      cell: ({ row }) => {
-        return (
-          <span className="text-center">
-            {(row.original.emptyVehicleWeight || 0).toLocaleString()} kg
-          </span>
-        );
-      },
-    },
+
     {
       id: "netWeight",
       header: "Net Weight",
       accessorKey: "netWeight",
       visible: true,
+      width: "140px",
       cell: ({ row }) => {
-        return (
-          <span className="text-center">
-            {(row.original.netWeight || 0).toLocaleString()} kg
-          </span>
-        );
+        return `${formatAmount(row.original.netWeight)} Kg`;
       },
     },
+    {
+      id: "numberOfBirds",
+      header: "Number of Birds",
+      accessorKey: "numberOfBirds",
+      visible: true,
+      width: "160px",
+      cell: ({ row }) => {
+        return `${formatAmount(row.original.numberOfBirds)} Kg`;
+      },
+    },
+
     {
       id: "rate",
       header: "Rate",
       accessorKey: "rate",
       visible: true,
+      width: "120px",
       cell: ({ row }) => {
-        return (
-          <span className="text-center">
-            {formatAmount(row.original.rate || 0)}
-          </span>
-        );
+        return `${formatAmount(row.original.rate)} / kg`;
       },
     },
     {
@@ -227,12 +212,9 @@ const ReportsTable = ({
       header: "Total Amount",
       accessorKey: "totalAmount",
       visible: true,
+      width: "140px",
       cell: ({ row }) => {
-        return (
-          <span className="text-center font-medium">
-            {formatAmount(row.original.totalAmount || 0)}
-          </span>
-        );
+        return `${formatCurrency(row.original.totalAmount)}`;
       },
     },
     {
@@ -240,12 +222,9 @@ const ReportsTable = ({
       header: "Paid",
       accessorKey: "amountPaid",
       visible: true,
+      width: "140px",
       cell: ({ row }) => {
-        return (
-          <span className="text-center">
-            {formatAmount(row.original.amountPaid || 0)}
-          </span>
-        );
+        return `${formatCurrency(row.original.amountPaid)}`;
       },
     },
     {
@@ -253,28 +232,40 @@ const ReportsTable = ({
       header: "Balance",
       accessorKey: "balance",
       visible: true,
+      width: "140px",
       cell: ({ row }) => {
+        const balance = row.original.totalAmount - row.original.amountPaid;
+        const isOverdue = balance > 0;
         return (
           <span
-            className={cn(
-              "text-center",
-              row.original.balance > 0 ? "text-destructive" : "text-chart-2"
-            )}
+            className={
+              isOverdue ? "text-destructive font-medium" : "text-chart-2"
+            }
           >
-            {formatAmount(row.original.balance || 0)}
+            {formatCurrency(balance)}
           </span>
         );
       },
     },
     {
-      id: "status",
-      header: "Status",
-      accessorKey: "totalAmount" as keyof ReportTransaction,
+      id: "paymentStatus",
+      header: "Payment Status",
       visible: true,
+      width: "140px",
       cell: ({ row }) => {
-        return getPaymentStatusBadge(
-          row.original.amountPaid || 0,
-          row.original.totalAmount || 0
+        const balance = row.original.totalAmount - row.original.amountPaid;
+        const isOverdue = balance > 0;
+        return (
+          <Badge
+            variant={isOverdue ? "destructive" : "default"}
+            className={cn(
+              isOverdue
+                ? "bg-destructive/10 text-destructive"
+                : "bg-chart-2/10 text-chart-2"
+            )}
+          >
+            {isOverdue ? "Overdue" : "Paid"}
+          </Badge>
         );
       },
     },

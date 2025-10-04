@@ -13,6 +13,7 @@ import {
   formatAmount,
   formatCurrency,
   formatDateCompact,
+  formatSingleDigit,
 } from "@/utils/formatting";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -29,43 +30,94 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
 
   const columns: Column<LedgerType>[] = [
     {
-      id: "farmName",
-      header: "Farm Name",
+      id: "date",
+      header: "Date",
+      accessorKey: "date",
+      visible: true,
+      cell: ({ row }) => {
+        return formatDateCompact(row.original.date);
+      },
+    },
+    {
+      id: "farm",
+      header: "Farm",
       accessorKey: "farmId",
       visible: true,
-      width: "180px",
       cell: ({ row }) => {
-        return row.original.farmId?.name || "N/A";
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.farmId?.name)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {formatSingleDigit(row.original.farmId?.supervisor)}
+            </div>
+          </div>
+        );
       },
     },
     {
-      id: "shedName",
-      header: "Shed Name",
+      id: "shed",
+      header: "Shed",
       accessorKey: "shedId",
       visible: true,
-      width: "180px",
       cell: ({ row }) => {
-        return row.original.shedId?.name || "N/A";
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.shedId?.name)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Cap: {formatSingleDigit(row.original.shedId?.capacity)}
+            </div>
+          </div>
+        );
       },
     },
     {
-      id: "flockName",
-      header: "Flock Name",
+      id: "flock",
+      header: "Flock",
       accessorKey: "flockId",
       visible: true,
-      width: "180px",
       cell: ({ row }) => {
-        return row.original.flockId?.name || "N/A";
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.flockId?.name)}
+            </div>
+            <Badge
+              variant={
+                row.original.flockId?.status === "active"
+                  ? "default"
+                  : "secondary"
+              }
+              className="text-xs"
+            >
+              {formatSingleDigit(row.original.flockId?.status)}
+            </Badge>
+          </div>
+        );
       },
     },
     {
-      id: "buyerName",
-      header: "Buyer Name",
+      id: "buyer",
+      header: "Buyer",
       accessorKey: "buyerId",
       visible: true,
-      width: "180px",
       cell: ({ row }) => {
-        return row.original.buyerId?.name || "N/A";
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.buyerId?.name)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {formatSingleDigit(row.original.buyerId?.contactNumber)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {row.original.buyerId?.address}
+            </div>
+          </div>
+        );
       },
     },
     {
@@ -73,25 +125,35 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
       header: "Vehicle Number",
       accessorKey: "vehicleNumber",
       visible: true,
-      width: "150px",
+      cell: ({ row }) => {
+        return (
+          <span className="font-mono text-sm">
+            {formatSingleDigit(row.original.vehicleNumber)}
+          </span>
+        );
+      },
     },
     {
-      id: "driverName",
-      header: "Driver Name",
+      id: "driver",
+      header: "Driver",
       accessorKey: "driverName",
       visible: true,
-      width: "150px",
+      cell: ({ row }) => {
+        return (
+          <div>
+            <div className="font-medium">
+              {formatSingleDigit(row.original.driverName)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {formatSingleDigit(row.original.driverContact)}
+            </div>
+          </div>
+        );
+      },
     },
     {
-      id: "driverContact",
-      header: "Driver Contact",
-      accessorKey: "driverContact",
-      visible: true,
-      width: "150px",
-    },
-    {
-      id: "accountantName",
-      header: "Accountant Name",
+      id: "accountant",
+      header: "Accountant",
       accessorKey: "accountantName",
       visible: true,
       width: "180px",
@@ -205,16 +267,6 @@ const LedgersTable = ({ ledgers }: LedgersTableProps) => {
             {isOverdue ? "Overdue" : "Paid"}
           </Badge>
         );
-      },
-    },
-    {
-      id: "date",
-      header: "Date",
-      accessorKey: "date",
-      visible: true,
-      width: "120px",
-      cell: ({ row }) => {
-        return formatDateCompact(row.original.date);
       },
     },
   ];

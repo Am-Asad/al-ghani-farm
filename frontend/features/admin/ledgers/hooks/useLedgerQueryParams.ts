@@ -20,7 +20,7 @@ export type LedgerQueryParams = {
   updatedFrom?: string;
   updatedTo?: string;
   // payment status derived from totals
-  paymentStatus?: "paid" | "partial" | "unpaid" | "";
+  paymentStatus?: string;
   // numeric ranges
   totalAmountMin?: string;
   totalAmountMax?: string;
@@ -110,7 +110,7 @@ export const useLedgerQueryParams = () => {
       createdTo?: string;
       updatedFrom?: string;
       updatedTo?: string;
-      paymentStatus?: "paid" | "partial" | "unpaid" | "";
+      paymentStatus?: string;
       totalAmountMin?: string;
       totalAmountMax?: string;
       amountPaidMin?: string;

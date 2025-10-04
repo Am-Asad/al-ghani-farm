@@ -107,6 +107,7 @@ export type Ledger = {
     _id: string;
     name: string;
     contactNumber: string;
+    address: string;
   };
   vehicleNumber: string;
   driverName: string;

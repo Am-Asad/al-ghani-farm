@@ -20,6 +20,16 @@ type QueryParams = {
   status?: string;
   dateFrom?: string;
   dateTo?: string;
+  // Payment status and amount filters
+  paymentStatus?: string;
+  totalAmountMin?: string;
+  totalAmountMax?: string;
+  amountPaidMin?: string;
+  amountPaidMax?: string;
+  balanceMin?: string;
+  balanceMax?: string;
+  netWeightMin?: string;
+  netWeightMax?: string;
 };
 
 export const useGetAllLedgers = (query?: QueryParams) => {
@@ -29,8 +39,30 @@ export const useGetAllLedgers = (query?: QueryParams) => {
     queryKey: [...queryKeys.ledgers, query],
     queryFn: async () => {
       try {
+        // Clean up empty parameters and handle special values
+        const cleanQuery = Object.fromEntries(
+          Object.entries(query ?? {})
+            .filter(([key, value]) => {
+              // Keep payment status values even if they're "all" (we'll handle that in map)
+              if (key === "paymentStatus") return true;
+              // For other fields, filter out empty strings and undefined
+              return value !== "" && value !== undefined;
+            })
+            .map(([key, value]) => {
+              // Convert "all" payment status to empty string for API (which means no filter)
+              if (key === "paymentStatus" && value === "all") {
+                return [key, ""];
+              }
+              return [key, value];
+            })
+            .filter(([key, value]) => {
+              // Final filter to remove empty strings after processing
+              return value !== "";
+            })
+        );
+
         const response = await api.get<APIResponse<LedgerType[]>>(`/ledgers`, {
-          params: query ?? {},
+          params: cleanQuery,
         });
         return response.data;
       } catch (error) {

@@ -55,9 +55,9 @@ const LedgerFilters = () => {
   const [pendingSortBy, setPendingSortBy] = useState(sortBy);
   const [pendingSortOrder, setPendingSortOrder] = useState(sortOrder);
   const [pendingStatus, setPendingStatus] = useState(status);
-  const [pendingPaymentStatus, setPendingPaymentStatus] = useState<
-    "" | "paid" | "partial" | "unpaid"
-  >(paymentStatus ?? "");
+  const [pendingPaymentStatus, setPendingPaymentStatus] = useState(
+    paymentStatus || "all"
+  );
   const [pendingDateFrom, setPendingDateFrom] = useState(dateFrom ?? "");
   const [pendingDateTo, setPendingDateTo] = useState(dateTo ?? "");
   const [pendingFlockId, setPendingFlockId] = useState(flockId ?? "");
@@ -102,7 +102,7 @@ const LedgerFilters = () => {
     setPendingStatus(status);
   }, [status]);
   useEffect(() => {
-    setPendingPaymentStatus(paymentStatus ?? "");
+    setPendingPaymentStatus(paymentStatus || "all");
   }, [paymentStatus]);
   useEffect(() => {
     setPendingFlockId(flockId ?? "");
@@ -151,7 +151,7 @@ const LedgerFilters = () => {
     setPendingSortBy("createdAt");
     setPendingSortOrder("desc");
     setPendingStatus("");
-    setPendingPaymentStatus("");
+    setPendingPaymentStatus("all");
     setPendingDateFrom("");
     setPendingDateTo("");
     setPendingFlockId("");
@@ -322,22 +322,17 @@ const LedgerFilters = () => {
           </label>
           <div className="flex items-center gap-2">
             <Select
-              value={pendingPaymentStatus || undefined}
-              onValueChange={(value) =>
-                setPendingPaymentStatus(
-                  value as "" | "paid" | "partial" | "unpaid"
-                )
-              }
+              value={pendingPaymentStatus}
+              onValueChange={setPendingPaymentStatus}
             >
               <SelectTrigger className="w-36 h-9">
                 <SelectValue placeholder="Any" />
               </SelectTrigger>
               <SelectContent>
-                {paymentStatusOptions.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option || "any"}
-                  </SelectItem>
-                ))}
+                <SelectItem value="all">All Payments</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="partial">Partial</SelectItem>
+                <SelectItem value="unpaid">Unpaid</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -548,4 +543,3 @@ const sortByOptions = [
 ];
 const sortOrderOptions = ["asc", "desc"];
 const statusOptions = ["active", "completed"];
-const paymentStatusOptions = ["paid", "partial", "unpaid"];
