@@ -343,44 +343,84 @@ export const deleteBulkBuyers = asyncHandler(async (req, res, next) => {
 export const getBuyersForDropdown = asyncHandler(async (req, res) => {
   const { search = "", buyerIds = "" } = req.query;
 
-  const orConditions = [];
+  let selectedBuyerIds = [];
 
-  // Always include selected buyers (comma-separated list)
+  // Parse selected buyer IDs
   if (typeof buyerIds === "string" && buyerIds.trim()) {
-    const selectedBuyerIds = buyerIds
+    selectedBuyerIds = buyerIds
       .split(",")
       .map((id) => id.trim())
       .filter(Boolean);
-    if (selectedBuyerIds.length > 0) {
-      orConditions.push({ _id: { $in: selectedBuyerIds } });
-    }
   }
 
-  // Include search results if search query is provided
+  let buyers = [];
+  let selectedBuyers = [];
+
+  // Always fetch selected buyers first if they exist
+  if (selectedBuyerIds.length > 0) {
+    selectedBuyers = await BuyerModel.find({
+      _id: { $in: selectedBuyerIds },
+    }).select("_id name");
+  }
+
+  // If there's a search query, get search results
   if (typeof search === "string" && search.trim()) {
-    orConditions.push({ name: { $regex: search.trim(), $options: "i" } });
-  }
+    const searchQuery = { name: { $regex: search.trim(), $options: "i" } };
 
-  // Build the final query
-  let query;
-  if (orConditions.length > 0) {
-    query = { $or: orConditions };
-  } else if (typeof search === "string" && search.trim()) {
-    // If there's a search but no results, return empty
-    query = { _id: { $in: [] } };
+    buyers = await BuyerModel.find(searchQuery)
+      .select("_id name")
+      .sort({ name: 1 })
+      .limit(10);
   } else {
-    // If no search query, return default options (first 20 buyers)
-    query = {};
+    // If no search query, get default buyers
+    // We need to account for selected buyers, so we might need more than 10
+    const limitForDefault = selectedBuyerIds.length > 0 ? 15 : 10;
+
+    // Build query that excludes selected buyers to avoid duplicates
+    let finalQuery = {};
+    if (selectedBuyerIds.length > 0) {
+      finalQuery = { _id: { $nin: selectedBuyerIds } };
+    }
+
+    buyers = await BuyerModel.find(finalQuery)
+      .select("_id name")
+      .sort({ name: 1 })
+      .limit(limitForDefault);
   }
 
-  const buyers = await BuyerModel.find(query)
-    .select("_id name")
-    .sort({ name: 1 })
-    .limit(10); // Increased limit to accommodate selected items + search results
+  // Combine selected buyers with search/default results
+  const combinedBuyers = [...selectedBuyers, ...buyers];
+
+  // Remove duplicates and sort
+  const uniqueBuyers = combinedBuyers.filter(
+    (buyer, index, self) =>
+      index === self.findIndex((b) => b._id.toString() === buyer._id.toString())
+  );
+
+  // Sort by name and limit to 10, but ensure selected buyers are included
+  const sortedBuyers = uniqueBuyers.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
+  // If we have selected buyers, prioritize them and fill the rest with other buyers
+  let finalBuyers = [];
+  if (selectedBuyerIds.length > 0) {
+    // Add selected buyers first
+    const selectedBuyersInResults = sortedBuyers.filter((buyer) =>
+      selectedBuyerIds.includes(buyer._id.toString())
+    );
+    // Add non-selected buyers to fill up to 10
+    const otherBuyers = sortedBuyers.filter(
+      (buyer) => !selectedBuyerIds.includes(buyer._id.toString())
+    );
+    finalBuyers = [...selectedBuyersInResults, ...otherBuyers].slice(0, 10);
+  } else {
+    finalBuyers = sortedBuyers.slice(0, 10);
+  }
 
   res.status(200).json({
     status: "success",
     message: "Buyers fetched successfully",
-    data: buyers,
+    data: finalBuyers,
   });
 });

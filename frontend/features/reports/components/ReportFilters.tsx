@@ -19,10 +19,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useReportQueryParams } from "../hooks/useReportQueryParams";
-import BuyersMultiSelect from "@/features/shared/components/BuyersMultiSelect";
-import FarmsMultiSelect from "@/features/shared/components/FarmsMultiSelect";
-import FlocksMultiSelect from "@/features/shared/components/FlocksMultiSelect";
-import ShedsMultiSelect from "@/features/shared/components/ShedsMultiSelect";
+import EntityMultiSelect from "@/features/shared/components/EntityMultiSelect";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
+import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useGetShedsDropdown";
+import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useGetFlocksDropdown";
+import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useGetBuyersDropdown";
 
 const ReportFilters = () => {
   const {
@@ -452,7 +453,9 @@ const ReportFilters = () => {
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="w-fit">
-            <BuyersMultiSelect
+            <EntityMultiSelect
+              entityType="buyers"
+              fetchHook={useGetBuyersDropdown}
               value={pendingBuyerIds}
               onChange={setPendingBuyerIds}
               placeholder="Select buyers..."
@@ -460,7 +463,9 @@ const ReportFilters = () => {
             />
           </div>
           <div className="w-fit">
-            <FarmsMultiSelect
+            <EntityMultiSelect
+              entityType="farms"
+              fetchHook={useGetFarmsDropdown}
               value={pendingFarmIds}
               onChange={setPendingFarmIds}
               placeholder="Select farms..."
@@ -468,7 +473,9 @@ const ReportFilters = () => {
             />
           </div>
           <div className="w-fit">
-            <ShedsMultiSelect
+            <EntityMultiSelect
+              entityType="sheds"
+              fetchHook={useGetShedsDropdown}
               value={pendingShedIds}
               onChange={setPendingShedIds}
               placeholder="Select sheds..."
@@ -477,7 +484,9 @@ const ReportFilters = () => {
             />
           </div>
           <div className="w-fit">
-            <FlocksMultiSelect
+            <EntityMultiSelect
+              entityType="flocks"
+              fetchHook={useGetFlocksDropdown}
               value={pendingFlockIds}
               onChange={setPendingFlockIds}
               placeholder="Select flocks..."
