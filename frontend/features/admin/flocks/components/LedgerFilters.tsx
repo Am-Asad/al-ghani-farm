@@ -9,10 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import FarmsSelect from "@/features/shared/components/FarmsSelect";
-import ShedsSelect from "@/features/shared/components/ShedsSelect";
-import BuyersSelect from "@/features/shared/components/BuyersSelect";
-import FlocksSelect from "@/features/shared/components/FlocksSelect";
+import EntitySelect from "@/features/shared/components/EntitySelect";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
+import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useGetShedsDropdown";
+import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useGetFlocksDropdown";
+import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useGetBuyersDropdown";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -201,39 +202,39 @@ const LedgerFilters = () => {
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="w-fit">
-            <FarmsSelect
+            <EntitySelect
+              entityType="farms"
+              fetchHook={useGetFarmsDropdown}
               value={pendingFarmId}
-              onChange={(v) => {
-                setPendingFarmId(v);
-                // Always clear shed and flock when farm changes (selected or deselected)
-                setPendingFlockId("");
-                setPendingShedId("");
-              }}
+              onChange={setPendingFarmId}
               placeholder="Select farm..."
             />
           </div>
           <div className="w-fit">
-            <ShedsSelect
+            <EntitySelect
+              entityType="sheds"
+              fetchHook={useGetShedsDropdown}
               value={pendingShedId}
-              onChange={(v) => {
-                setPendingShedId(v);
-                setPendingFlockId("");
-              }}
+              onChange={setPendingShedId}
               placeholder="Select shed..."
               farmId={pendingFarmId || undefined}
             />
           </div>
           <div className="w-fit">
-            <FlocksSelect
+            <EntitySelect
+              entityType="flocks"
+              fetchHook={useGetFlocksDropdown}
               value={pendingFlockId}
-              onChange={(v) => setPendingFlockId(v)}
+              onChange={setPendingFlockId}
               placeholder="Select flock..."
               farmId={pendingFarmId || undefined}
               shedId={pendingShedId || undefined}
             />
           </div>
           <div className="w-fit">
-            <BuyersSelect
+            <EntitySelect
+              entityType="buyers"
+              fetchHook={useGetBuyersDropdown}
               value={pendingBuyerId}
               onChange={(v) => setPendingBuyerId(v)}
               placeholder="Select buyer..."

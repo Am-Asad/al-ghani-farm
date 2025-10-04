@@ -27,8 +27,9 @@ import {
 import { useCreateFlock } from "../hooks/useCreateFlock";
 import { useEditFlock } from "../hooks/useEditFlock";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import FarmsSelect from "@/features/shared/components/FarmsSelect";
-import ShedsSelect from "@/features/shared/components/ShedsSelect";
+import EntitySelect from "@/features/shared/components/EntitySelect";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
+import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useGetShedsDropdown";
 
 type CreateEditFlockFormProps = {
   selectedFlock?: FlockType;
@@ -371,7 +372,9 @@ const CreateEditFlockForm = ({
 
           {/* Farm Selection */}
           <div className="space-y-2">
-            <FarmsSelect
+            <EntitySelect
+              entityType="farms"
+              fetchHook={useGetFarmsDropdown}
               label="Farm"
               value={selectedFarm}
               onChange={setSelectedFarm}
@@ -464,7 +467,9 @@ const CreateEditFlockForm = ({
 
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-2">
-                            <ShedsSelect
+                            <EntitySelect
+                              entityType="sheds"
+                              fetchHook={useGetShedsDropdown}
                               label="Shed"
                               value={allocation.shedId}
                               onChange={(value) =>

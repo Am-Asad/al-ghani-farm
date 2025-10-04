@@ -20,7 +20,8 @@ import {
   CreateEditShedSchema,
 } from "../schemas/createEditShedSchema";
 import { useEditShed } from "../hooks/useEditShed";
-import FarmsSelect from "@/features/shared/components/FarmsSelect";
+import EntitySelect from "@/features/shared/components/EntitySelect";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
 
 type CreateEditShedFormProps = {
   selectedShed?: ShedType;
@@ -182,7 +183,9 @@ const CreateEditShedForm = ({
             <Label htmlFor="name">Farm</Label>
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <FarmsSelect
+              <EntitySelect
+                entityType="farms"
+                fetchHook={useGetFarmsDropdown}
                 placeholder="Select farm"
                 value={selectedFarm}
                 onChange={(v) => setSelectedFarm(v)}

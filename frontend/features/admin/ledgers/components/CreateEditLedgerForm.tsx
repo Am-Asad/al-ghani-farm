@@ -29,10 +29,11 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import FarmsSelect from "@/features/shared/components/FarmsSelect";
-import FlocksSelect from "@/features/shared/components/FlocksSelect";
-import ShedsSelect from "@/features/shared/components/ShedsSelect";
-import BuyersSelect from "@/features/shared/components/BuyersSelect";
+import EntitySelect from "@/features/shared/components/EntitySelect";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
+import { useGetFlocksDropdown } from "@/features/admin/flocks/hooks/useGetFlocksDropdown";
+import { useGetShedsDropdown } from "@/features/admin/sheds/hooks/useGetShedsDropdown";
+import { useGetBuyersDropdown } from "@/features/admin/buyers/hooks/useGetBuyersDropdown";
 
 type CreateEditLedgerFormProps = {
   selectedLedger?: Ledger;
@@ -235,7 +236,9 @@ const CreateEditLedgerForm = ({
             {/* Farm Id */}
             <div className="space-y-2">
               <Label>Farm *</Label>
-              <FarmsSelect
+              <EntitySelect
+                entityType="farms"
+                fetchHook={useGetFarmsDropdown}
                 placeholder="Select farm"
                 value={selectedFarm}
                 onChange={(v) => setSelectedFarm(v)}
@@ -254,7 +257,9 @@ const CreateEditLedgerForm = ({
             {/* Flock Id */}
             <div className="space-y-2">
               <Label>Flock *</Label>
-              <FlocksSelect
+              <EntitySelect
+                entityType="flocks"
+                fetchHook={useGetFlocksDropdown}
                 placeholder="Select flock"
                 value={selectedFlock}
                 onChange={(v) => setSelectedFlock(v)}
@@ -280,7 +285,9 @@ const CreateEditLedgerForm = ({
             {/* Shed Id */}
             <div className="space-y-2">
               <Label>Shed *</Label>
-              <ShedsSelect
+              <EntitySelect
+                entityType="sheds"
+                fetchHook={useGetShedsDropdown}
                 placeholder="Select shed"
                 value={selectedShed}
                 onChange={(v) => setSelectedShed(v)}
@@ -306,7 +313,9 @@ const CreateEditLedgerForm = ({
             {/* Buyer Id */}
             <div className="space-y-2">
               <Label>Buyer *</Label>
-              <BuyersSelect
+              <EntitySelect
+                entityType="buyers"
+                fetchHook={useGetBuyersDropdown}
                 placeholder="Select buyer"
                 value={selectedBuyer}
                 onChange={(v) => setSelectedBuyer(v)}

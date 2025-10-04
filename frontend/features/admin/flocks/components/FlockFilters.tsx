@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import EntitiesSelect from "@/features/shared/components/FarmsSelect";
+import EntitySelect from "@/features/shared/components/EntitySelect";
+import { useGetFarmsDropdown } from "@/features/admin/farms/hooks/useGetFarmsDropdown";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -117,7 +118,9 @@ const FlockFilters = () => {
           />
         </div>
         <div className="w-full sm:w-64">
-          <EntitiesSelect
+          <EntitySelect
+            entityType="farms"
+            fetchHook={useGetFarmsDropdown}
             value={pendingFarmId}
             onChange={setPendingFarmId}
             placeholder="Select farm..."
