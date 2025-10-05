@@ -38,9 +38,11 @@
 
 [x] Implement the details page
 [x] Refactored the hooks throughout the codebase.
+[x] refactor the users module hooks to use the generic mutations and queries hook.
 [] Fix tabs responsiveness.
 [] Make apis for showing data on the dashboard page.
 [] Think about how to show the analytics using charts.
 [] Add different columns in the sorting dropdown.
+[] Check the filters, if they are relevant for each page and details page.
 [] Show all the summary fields for reports.
 [] Show all the columns for ledgers in group by data table.

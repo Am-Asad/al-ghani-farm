@@ -256,7 +256,6 @@ export const ENTITY_FILTER_PRESETS = {
     showSearch: true,
     searchPlaceholder: "Search users...",
     showRole: true,
-    showStatus: true,
     showSorting: true,
     showApplyButton: true,
     showResetButton: true,

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { useGetAllUsers } from "@/features/admin/users/hooks/useGetAllUsers";
+import { useGetAllUsers } from "@/features/admin/users/hooks/useUserHooks";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Users } from "lucide-react";
@@ -10,7 +10,7 @@ import UsersHeader from "@/features/admin/users/components/UsersHeader";
 import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import Pagination from "@/features/shared/components/Pagination";
-import { useUsersQueryParams } from "@/features/admin/users/hooks/useUsersQueryParams";
+import { useUserQueryParams } from "@/features/admin/users/hooks/useUserQueryParams";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 
@@ -19,7 +19,7 @@ const UsersPage = () => {
   const router = useRouter();
   const isViewer = user?.role === "viewer";
 
-  const { query, setPage, setLimit } = useUsersQueryParams();
+  const { query, setPage, setLimit } = useUserQueryParams();
   const { data, isLoading, isError, error } = useGetAllUsers(query);
 
   const users = data?.data || [];

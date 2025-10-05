@@ -37,7 +37,7 @@ const DEFAULT_CONFIG: EntityFilterConfig = {
   showFarms: false,
   showSheds: false,
   showFlocks: false,
-  showBuyers: true,
+  showBuyers: false,
   showBuyersReadOnly: false,
   showDateRange: false,
   showCreatedDateRange: false,
@@ -101,6 +101,11 @@ const ConfigurableFilters = <
   const getFilterValue = (key: string): string => {
     return (queryParams as unknown as Record<string, string>)[key] || "";
   };
+
+  // Optional role options exposed by the query params config
+  type RoleOptionsCarrier = { config?: { roleOptions?: string[] } };
+  const roleOptions: string[] | undefined = (queryParams as RoleOptionsCarrier)
+    ?.config?.roleOptions;
 
   // Get filter values with fallbacks
   const farmId = getFilterValue("farmId");
@@ -649,8 +654,10 @@ const ConfigurableFilters = <
         </div>
       )}
 
-      {/* Status and Payment Row */}
-      {(mergedConfig.showStatus || mergedConfig.showPaymentStatus) && (
+      {/* Status, Role and Payment Row */}
+      {(mergedConfig.showStatus ||
+        mergedConfig.showRole ||
+        mergedConfig.showPaymentStatus) && (
         <div className="flex flex-col sm:flex-row gap-3">
           {mergedConfig.showStatus && (
             <div className="flex items-center gap-2">
@@ -668,6 +675,40 @@ const ConfigurableFilters = <
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {mergedConfig.showRole && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Role:
+              </label>
+              <Select
+                value={pendingRole || "all"}
+                onValueChange={setPendingRole}
+              >
+                <SelectTrigger className="w-36 h-9">
+                  <SelectValue placeholder="Any" />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* Prefer dynamic options if provided by query params config */}
+                  {Array.isArray(roleOptions) ? (
+                    roleOptions.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt === "all"
+                          ? "All"
+                          : opt.charAt(0).toUpperCase() + opt.slice(1)}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="manager">Manager</SelectItem>
+                      <SelectItem value="viewer">Viewer</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
