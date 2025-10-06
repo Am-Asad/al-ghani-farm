@@ -12,7 +12,7 @@ import { User as UserType } from "@/types";
 import CreateEditUserForm from "./CreateEditUserForm";
 import { formatDate } from "@/utils/formatting";
 import { cn } from "@/lib/utils";
-import { useDeleteUser } from "../hooks/useDeleteUser";
+import { useDeleteUser } from "../hooks/useUserHooks";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import { Button } from "@/components/ui/button";
