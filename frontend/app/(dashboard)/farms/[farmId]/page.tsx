@@ -5,19 +5,42 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { ArrowLeft, Building2, FileText, Users } from "lucide-react";
 import FarmDetailsCard from "@/features/admin/farms/components/FarmDetailsCard";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FarmSheds from "@/features/admin/farms/components/FarmSheds";
 import FarmFlocks from "@/features/admin/farms/components/FarmFlocks";
 import FarmLedgers from "@/features/admin/farms/components/FarmLedgers";
+import GenericTabs from "@/features/shared/components/GenericTabs";
 
 const FarmDetailsPage = () => {
   const router = useRouter();
   const { farmId } = useParams();
   const { data, isLoading, isError, error } = useGetFarmById(farmId as string);
   const farm = data?.data;
+
+  const farmDetailsTabs = [
+    {
+      label: "Sheds",
+      value: "sheds",
+      icon: <Building2 className="w-4 h-4" />,
+      component: <FarmSheds farmId={farmId as string} />,
+    },
+
+    {
+      label: "Flocks",
+      value: "flocks",
+      icon: <Users className="w-4 h-4" />,
+      component: <FarmFlocks farmId={farmId as string} />,
+    },
+
+    {
+      label: "Ledgers",
+      value: "ledgers",
+      icon: <FileText className="w-4 h-4" />,
+      component: <FarmLedgers farmId={farmId as string} />,
+    },
+  ];
 
   if (isLoading) {
     return <CardsSkeleton />;
@@ -56,27 +79,7 @@ const FarmDetailsPage = () => {
 
       <div className="flex flex-col gap-6 flex-1">
         <FarmDetailsCard farm={farm} />
-
-        {/* Tabs for Sheds, Flocks, and Ledgers */}
-        <Tabs defaultValue="sheds" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="sheds">Sheds</TabsTrigger>
-            <TabsTrigger value="flocks">Flocks</TabsTrigger>
-            <TabsTrigger value="ledgers">Ledgers</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="sheds" className="mt-6">
-            <FarmSheds farmId={farmId as string} />
-          </TabsContent>
-
-          <TabsContent value="flocks" className="mt-6">
-            <FarmFlocks farmId={farmId as string} />
-          </TabsContent>
-
-          <TabsContent value="ledgers" className="mt-6">
-            <FarmLedgers farmId={farmId as string} />
-          </TabsContent>
-        </Tabs>
+        <GenericTabs tabs={farmDetailsTabs} defaultValue="sheds" />
       </div>
     </div>
   );
