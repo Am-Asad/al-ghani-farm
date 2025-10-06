@@ -34,7 +34,6 @@ const GroupedReportsTable = ({
   groupedResults,
   groupBy,
   isLoading,
-  includeDetails = true,
 }: GroupedReportsTableProps) => {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
@@ -552,7 +551,7 @@ const GroupedReportsTable = ({
                   </div>
 
                   {/* Transactions Table */}
-                  {includeDetails && group.transactions.length > 0 && (
+                  {group.transactions.length > 0 && (
                     <DataTable
                       data={group.transactions}
                       columns={columns}
@@ -563,7 +562,7 @@ const GroupedReportsTable = ({
                     />
                   )}
 
-                  {includeDetails && group.transactions.length === 0 && (
+                  {group.transactions.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
                       No transactions found for this group
                     </div>

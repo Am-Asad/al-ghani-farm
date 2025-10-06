@@ -15,14 +15,9 @@ import { cn } from "@/lib/utils";
 type ReportsTableProps = {
   transactions: ReportTransaction[];
   isLoading?: boolean;
-  includeDetails?: boolean;
 };
 
-const ReportsTable = ({
-  transactions,
-  isLoading,
-  includeDetails = true,
-}: ReportsTableProps) => {
+const ReportsTable = ({ transactions, isLoading }: ReportsTableProps) => {
   const columns: Column<ReportTransaction>[] = [
     {
       id: "date",
@@ -283,16 +278,15 @@ const ReportsTable = ({
   return (
     <div>
       {/* Transactions Table */}
-      {includeDetails && (
-        <DataTable
-          data={transactions}
-          columns={columns}
-          getRowId={(row) => row._id}
-          selectionMode="none"
-          emptyMessage="No transactions found"
-          showColumnVisibilityToggle={true}
-        />
-      )}
+
+      <DataTable
+        data={transactions}
+        columns={columns}
+        getRowId={(row) => row._id}
+        selectionMode="none"
+        emptyMessage="No transactions found"
+        showColumnVisibilityToggle={true}
+      />
     </div>
   );
 };

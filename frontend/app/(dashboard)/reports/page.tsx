@@ -103,34 +103,33 @@ const ReportsPage = () => {
             dateRange={reportData?.dateRange}
           />
 
-          {/* Transactions Table or Grouped Results */}
-          {isGrouped ? (
-            <GroupedReportsTable
-              groupedResults={groupedResults}
-              groupBy={groupBy}
-              isLoading={reportsLoading}
-              includeDetails={query.includeDetails === "true"}
-            />
-          ) : (
-            <>
-              <ReportsTable
-                transactions={transactions}
+          {/* Details (tables) only when Include Details is true */}
+          {query.includeDetails === "true" &&
+            (isGrouped ? (
+              <GroupedReportsTable
+                groupedResults={groupedResults}
+                groupBy={groupBy}
                 isLoading={reportsLoading}
-                includeDetails={query.includeDetails === "true"}
               />
-
-              {/* Pagination - only for non-grouped results */}
-              {query.includeDetails === "true" && pagination.totalCount > 0 && (
-                <Pagination
-                  page={pagination.page || 1}
-                  limit={pagination.limit || 10}
-                  hasMore={pagination.hasMore}
-                  onChangePage={(p) => setPage(p)}
-                  onChangeLimit={(l) => setLimit(l)}
+            ) : (
+              <>
+                <ReportsTable
+                  transactions={transactions}
+                  isLoading={reportsLoading}
                 />
-              )}
-            </>
-          )}
+
+                {/* Pagination - only for non-grouped results */}
+                {pagination.totalCount > 0 && (
+                  <Pagination
+                    page={pagination.page || 1}
+                    limit={pagination.limit || 10}
+                    hasMore={pagination.hasMore}
+                    onChangePage={(p) => setPage(p)}
+                    onChangeLimit={(l) => setLimit(l)}
+                  />
+                )}
+              </>
+            ))}
         </div>
       ) : (
         <DataNotFound
