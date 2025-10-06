@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,10 +16,12 @@ import {
 } from "../hooks/useGetReports";
 import {
   formatAmount,
+  formatCurrency,
   formatDateCompact,
   formatSingleDigit,
 } from "@/utils/formatting";
 import { cn } from "@/lib/utils";
+import DataTable, { Column } from "@/features/shared/components/DataTable";
 
 type GroupedReportsTableProps = {
   groupedResults: GroupedResult[];
@@ -94,63 +96,253 @@ const GroupedReportsTable = ({
     }
   };
 
-  const getPaymentStatusBadge = (amountPaid: number, totalAmount: number) => {
-    if (amountPaid === totalAmount) {
-      return <Badge variant="default">Paid</Badge>;
-    } else if (amountPaid > 0 && amountPaid < totalAmount) {
-      return <Badge variant="secondary">Partial</Badge>;
-    } else {
-      return <Badge variant="destructive">Unpaid</Badge>;
-    }
-  };
+  // Helper removed: status is rendered inline in column cells for clarity
 
-  const renderTransactionRow = (transaction: ReportTransaction) => (
-    <div
-      key={transaction._id}
-      className="grid grid-cols-12 gap-2 p-3 border-b border-muted/50 text-sm"
-    >
-      <div className="col-span-2">{formatDateCompact(transaction.date)}</div>
-      <div className="col-span-2">
-        <div className="font-medium">
-          {formatSingleDigit(transaction.vehicleNumber)}
-        </div>
-        <div className="text-muted-foreground text-xs">
-          {formatSingleDigit(transaction.driverName)}
-        </div>
-      </div>
-      <div className="col-span-2">
-        <div className="font-medium">
-          {formatSingleDigit(transaction.farmInfo.name)}
-        </div>
-        <div className="text-muted-foreground text-xs">
-          {formatSingleDigit(transaction.flockInfo.name)}
-        </div>
-      </div>
-      <div className="col-span-1 text-center">
-        {(transaction.numberOfBirds || 0).toLocaleString()}
-      </div>
-      <div className="col-span-1 text-center">
-        {(transaction.netWeight || 0).toLocaleString()} kg
-      </div>
-      <div className="col-span-1 text-center">
-        {formatAmount(transaction.rate || 0)}
-      </div>
-      <div className="col-span-1 text-center font-medium">
-        {formatAmount(transaction.totalAmount || 0)}
-      </div>
-      <div className="col-span-1 text-center">
-        {formatAmount(transaction.amountPaid || 0)}
-      </div>
-      <div className="col-span-1 text-center">
-        <span
-          className={cn(
-            transaction.balance > 0 ? "text-destructive" : "text-chart-2"
-          )}
-        >
-          {formatAmount(transaction.balance || 0)}
-        </span>
-      </div>
-    </div>
+  const columns: Column<ReportTransaction>[] = useMemo(
+    () => [
+      {
+        id: "date",
+        header: "Date",
+        accessorKey: "date",
+        visible: true,
+        cell: ({ row }) => {
+          return formatDateCompact(row.original.date);
+        },
+      },
+      {
+        id: "farm",
+        header: "Farm",
+        accessorKey: "farmInfo",
+        visible: true,
+        cell: ({ row }) => {
+          return (
+            <div>
+              <div className="font-medium">
+                {formatSingleDigit(row.original.farmInfo?.name)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {formatSingleDigit(row.original.farmInfo?.supervisor)}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        id: "shed",
+        header: "Shed",
+        accessorKey: "shedInfo",
+        visible: true,
+        cell: ({ row }) => {
+          return (
+            <div>
+              <div className="font-medium">
+                {formatSingleDigit(row.original.shedInfo?.name)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Cap: {formatSingleDigit(row.original.shedInfo?.capacity)}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        id: "flock",
+        header: "Flock",
+        accessorKey: "flockInfo",
+        visible: true,
+        cell: ({ row }) => {
+          return (
+            <div>
+              <div className="font-medium">
+                {formatSingleDigit(row.original.flockInfo?.name)}
+              </div>
+              <Badge
+                variant={
+                  row.original.flockInfo?.status === "active"
+                    ? "default"
+                    : "secondary"
+                }
+                className="text-xs"
+              >
+                {formatSingleDigit(row.original.flockInfo?.status)}
+              </Badge>
+            </div>
+          );
+        },
+      },
+      {
+        id: "buyer",
+        header: "Buyer",
+        accessorKey: "buyerInfo",
+        visible: true,
+        cell: ({ row }) => {
+          return (
+            <div>
+              <div className="font-medium">
+                {formatSingleDigit(row.original.buyerInfo?.name)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {formatSingleDigit(row.original.buyerInfo?.contactNumber)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {row.original.buyerInfo?.address}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        id: "vehicleNumber",
+        header: "Vehicle Number",
+        accessorKey: "vehicleNumber",
+        visible: true,
+        cell: ({ row }) => {
+          return (
+            <span className="font-mono text-sm">
+              {formatSingleDigit(row.original.vehicleNumber)}
+            </span>
+          );
+        },
+      },
+      {
+        id: "driver",
+        header: "Driver",
+        accessorKey: "driverName",
+        visible: true,
+        cell: ({ row }) => {
+          return (
+            <div>
+              <div className="font-medium">
+                {formatSingleDigit(row.original.driverName)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {formatSingleDigit(row.original.driverContact)}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        id: "accountant",
+        header: "Accountant",
+        accessorKey: "accountantName",
+        visible: true,
+        width: "180px",
+      },
+      {
+        id: "emptyVehicleWeight",
+        header: "Empty Vehicle Weight",
+        accessorKey: "emptyVehicleWeight",
+        visible: true,
+        width: "200px",
+        cell: ({ row }) => {
+          return `${formatAmount(row.original.emptyVehicleWeight)} Kg`;
+        },
+      },
+      {
+        id: "grossWeight",
+        header: "Gross Weight",
+        accessorKey: "grossWeight",
+        visible: true,
+        width: "200px",
+        cell: ({ row }) => {
+          return `${formatAmount(row.original.grossWeight)} Kg`;
+        },
+      },
+      {
+        id: "netWeight",
+        header: "Net Weight",
+        accessorKey: "netWeight",
+        visible: true,
+        width: "140px",
+        cell: ({ row }) => {
+          return `${formatAmount(row.original.netWeight)} Kg`;
+        },
+      },
+      {
+        id: "numberOfBirds",
+        header: "Number of Birds",
+        accessorKey: "numberOfBirds",
+        visible: true,
+        width: "160px",
+        cell: ({ row }) => {
+          return `${formatAmount(row.original.numberOfBirds)} Kg`;
+        },
+      },
+      {
+        id: "rate",
+        header: "Rate",
+        accessorKey: "rate",
+        visible: true,
+        width: "120px",
+        cell: ({ row }) => {
+          return `${formatAmount(row.original.rate)} / kg`;
+        },
+      },
+      {
+        id: "totalAmount",
+        header: "Total Amount",
+        accessorKey: "totalAmount",
+        visible: true,
+        width: "140px",
+        cell: ({ row }) => {
+          return `${formatCurrency(row.original.totalAmount)}`;
+        },
+      },
+      {
+        id: "amountPaid",
+        header: "Paid",
+        accessorKey: "amountPaid",
+        visible: true,
+        width: "140px",
+        cell: ({ row }) => {
+          return `${formatCurrency(row.original.amountPaid)}`;
+        },
+      },
+      {
+        id: "balance",
+        header: "Balance",
+        accessorKey: "balance",
+        visible: true,
+        width: "140px",
+        cell: ({ row }) => {
+          const balance = row.original.totalAmount - row.original.amountPaid;
+          const isOverdue = balance > 0;
+          return (
+            <span
+              className={
+                isOverdue ? "text-destructive font-medium" : "text-chart-2"
+              }
+            >
+              {formatCurrency(balance)}
+            </span>
+          );
+        },
+      },
+      {
+        id: "paymentStatus",
+        header: "Payment Status",
+        visible: true,
+        width: "140px",
+        cell: ({ row }) => {
+          const balance = row.original.totalAmount - row.original.amountPaid;
+          const isOverdue = balance > 0;
+          return (
+            <Badge
+              variant={isOverdue ? "destructive" : "default"}
+              className={cn(
+                isOverdue
+                  ? "bg-destructive/10 text-destructive"
+                  : "bg-chart-2/10 text-chart-2"
+              )}
+            >
+              {isOverdue ? "Overdue" : "Paid"}
+            </Badge>
+          );
+        },
+      },
+    ],
+    []
   );
 
   // Show loading state
@@ -223,62 +415,152 @@ const GroupedReportsTable = ({
               </CollapsibleTrigger>
 
               <CollapsibleContent>
-                <CardContent className="pt-0">
-                  {/* Group Summary */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 p-4 bg-muted/30 rounded-lg">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
-                        {group.summary.totalTransactions}
+                <CardContent className="pt-0 flex flex-col gap-4">
+                  {/* Group Summary - show ALL summary fields similar to overall summary */}
+                  <div className="space-y-4">
+                    {/* Primary metrics */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-lg">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {group.summary.totalTransactions}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Transactions
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        Transactions
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {group.summary.totalAmount
+                            ? formatAmount(group.summary.totalAmount)
+                            : 0}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Total Amount
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {group.summary.totalBirds.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Birds
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {group.summary.totalNetWeight.toLocaleString()} kg
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Net Weight
+                        </div>
                       </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
-                        {group.summary.totalBirds.toLocaleString()}
+
+                    {/* Additional metrics */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="text-center p-3 rounded-lg bg-muted/30">
+                        <div className="text-xs text-muted-foreground">
+                          Average Rate
+                        </div>
+                        <div className="text-lg font-semibold">
+                          {formatAmount(group.summary.averageRate || 0)}
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">Birds</div>
+                      <div className="text-center p-3 rounded-lg bg-muted/30">
+                        <div className="text-xs text-muted-foreground">
+                          Average Weight
+                        </div>
+                        <div className="text-lg font-semibold">
+                          {(group.summary.averageNetWeight || 0).toFixed(1)} kg
+                        </div>
+                      </div>
+                      <div className="text-center p-3 rounded-lg bg-muted/30">
+                        <div className="text-xs text-muted-foreground">
+                          Birds/Transaction
+                        </div>
+                        <div className="text-lg font-semibold">
+                          {(
+                            group.summary.averageBirdsPerTransaction || 0
+                          ).toFixed(0)}
+                        </div>
+                      </div>
+                      <div className="text-center p-3 rounded-lg bg-muted/30">
+                        <div className="text-xs text-muted-foreground">
+                          Total Rate
+                        </div>
+                        <div className="text-lg font-semibold">
+                          {(group.summary.totalRate || 0).toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="text-center p-3 rounded-lg bg-muted/30">
+                        <div className="text-xs text-muted-foreground">
+                          Empty Vehicle Weight
+                        </div>
+                        <div className="text-lg font-semibold">
+                          {(
+                            group.summary.totalEmptyVehicleWeight || 0
+                          ).toLocaleString()}{" "}
+                          kg
+                        </div>
+                      </div>
+                      <div className="text-center p-3 rounded-lg bg-muted/30">
+                        <div className="text-xs text-muted-foreground">
+                          Gross Weight
+                        </div>
+                        <div className="text-lg font-semibold">
+                          {(
+                            group.summary.totalGrossWeight || 0
+                          ).toLocaleString()}{" "}
+                          kg
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
-                        {group.summary.totalNetWeight.toLocaleString()} kg
+
+                    {/* Payment summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-4 rounded-lg bg-chart-2/10 border border-chart-2/20">
+                        <p className="text-sm text-chart-2 font-medium">
+                          Total Paid
+                        </p>
+                        <p className="text-lg font-bold text-chart-2">
+                          {formatAmount(group.summary.totalPaid || 0)}
+                        </p>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        Net Weight
+                      <div className="text-center p-4 rounded-lg bg-chart-4/10 border border-chart-4/20">
+                        <p className="text-sm text-chart-4 font-medium">
+                          Balance Due
+                        </p>
+                        <p className="text-lg font-bold text-chart-4">
+                          {formatAmount(group.summary.totalBalance || 0)}
+                        </p>
                       </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
-                        {formatAmount(group.summary.totalAmount)}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Total Amount
+                      <div className="text-center p-4 rounded-lg bg-chart-1/10 border border-chart-1/20">
+                        <p className="text-sm text-chart-1 font-medium">
+                          Payment Rate
+                        </p>
+                        <p className="text-lg font-bold text-chart-1">
+                          {group.summary.totalAmount > 0
+                            ? `${(
+                                ((group.summary.totalPaid || 0) /
+                                  (group.summary.totalAmount || 1)) *
+                                100
+                              ).toFixed(1)}%`
+                            : "0%"}
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   {/* Transactions Table */}
                   {includeDetails && group.transactions.length > 0 && (
-                    <div className="border rounded-lg overflow-hidden">
-                      {/* Table Header */}
-                      <div className="grid grid-cols-12 gap-2 p-3 bg-muted/50 text-sm font-medium border-b">
-                        <div className="col-span-2">Date</div>
-                        <div className="col-span-2">Vehicle/Driver</div>
-                        <div className="col-span-2">Farm/Flock</div>
-                        <div className="col-span-1 text-center">Birds</div>
-                        <div className="col-span-1 text-center">Weight</div>
-                        <div className="col-span-1 text-center">Rate</div>
-                        <div className="col-span-1 text-center">Total</div>
-                        <div className="col-span-1 text-center">Paid</div>
-                        <div className="col-span-1 text-center">Balance</div>
-                      </div>
-
-                      {/* Table Body */}
-                      <div className="max-h-96 overflow-y-auto">
-                        {group.transactions.map(renderTransactionRow)}
-                      </div>
-                    </div>
+                    <DataTable
+                      data={group.transactions}
+                      columns={columns}
+                      getRowId={(row) => row._id}
+                      selectionMode="none"
+                      emptyMessage="No transactions found"
+                      showColumnVisibilityToggle={true}
+                    />
                   )}
 
                   {includeDetails && group.transactions.length === 0 && (

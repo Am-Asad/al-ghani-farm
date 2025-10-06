@@ -25,7 +25,6 @@ const ReportsPage = () => {
     isError: reportsError,
     error: reportsErrorMsg,
   } = useGetReports(query);
-
   const reportData = reportsData?.data;
 
   // Handle both grouped and non-grouped ReportData structure
