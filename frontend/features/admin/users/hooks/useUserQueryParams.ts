@@ -20,7 +20,7 @@ export const USER_QUERY_CONFIG: EntityQueryConfig<UserQueryParams> = {
   entityDefaults: {
     role: "all",
   },
-  sortOptions: ["createdAt", "updatedAt"],
+  sortOptions: ["createdAt", "updatedAt", "username", "email", "role"],
   roleOptions: ["all", "admin", "manager", "viewer"],
 };
 

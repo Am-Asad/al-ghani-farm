@@ -13,7 +13,8 @@ import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 
 const BuyersPage = () => {
-  const { query, setPage, setLimit } = useBuyersQueryParams();
+  const queryParams = useBuyersQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const { data, isLoading, isError, error } = useGetAllBuyers(query);
 
   const buyers = data?.data || [];
@@ -48,7 +49,7 @@ const BuyersPage = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.BUYERS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Grid */}
       <div className="flex-1 pb-1 my-4">

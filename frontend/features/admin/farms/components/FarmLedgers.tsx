@@ -16,7 +16,8 @@ type FarmLedgersProps = {
 };
 
 const FarmLedgers = ({ farmId }: FarmLedgersProps) => {
-  const { query, setPage, setLimit } = useFarmLedgerQueryParams(farmId);
+  const queryParams = useFarmLedgerQueryParams(farmId);
+  const { query, setPage, setLimit } = queryParams;
 
   const { data, isLoading, isError } = useGetAllLedgers(query);
 
@@ -50,7 +51,7 @@ const FarmLedgers = ({ farmId }: FarmLedgersProps) => {
         config={createCustomFilterConfig(ENTITY_FILTER_PRESETS.FARM_LEDGERS, {
           searchPlaceholder: "Search ledgers for this farm...",
         })}
-        queryParams={query}
+        queryParams={queryParams}
       />
 
       {/* Ledgers Table */}

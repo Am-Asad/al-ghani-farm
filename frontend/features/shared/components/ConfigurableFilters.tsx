@@ -102,10 +102,18 @@ const ConfigurableFilters = <
     return (queryParams as unknown as Record<string, string>)[key] || "";
   };
 
-  // Optional role options exposed by the query params config
-  type RoleOptionsCarrier = { config?: { roleOptions?: string[] } };
-  const roleOptions: string[] | undefined = (queryParams as RoleOptionsCarrier)
-    ?.config?.roleOptions;
+  // Optional options exposed by the query params config
+  const configOptions = (
+    queryParams as {
+      config?: {
+        roleOptions?: string[];
+        sortOptions?: string[];
+        statusOptions?: string[];
+      };
+    }
+  )?.config;
+  const roleOptions: string[] | undefined = configOptions?.roleOptions;
+  const sortOptions: string[] | undefined = configOptions?.sortOptions;
 
   // Get filter values with fallbacks
   const farmId = getFilterValue("farmId");
@@ -907,13 +915,21 @@ const ConfigurableFilters = <
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="createdAt">Created At</SelectItem>
-                  <SelectItem value="updatedAt">Updated At</SelectItem>
-                  <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="totalAmount">Total Amount</SelectItem>
-                  <SelectItem value="amountPaid">Amount Paid</SelectItem>
-                  <SelectItem value="balance">Balance</SelectItem>
-                  <SelectItem value="netWeight">Net Weight</SelectItem>
+                  {sortOptions && sortOptions.length > 0 ? (
+                    sortOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())
+                          .trim()}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <>
+                      <SelectItem value="createdAt">Created At</SelectItem>
+                      <SelectItem value="updatedAt">Updated At</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
 

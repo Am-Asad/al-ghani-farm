@@ -13,7 +13,8 @@ import ConfigurableFilters from "@/features/shared/components/ConfigurableFilter
 import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 
 const FarmsTab = () => {
-  const { query, setPage, setLimit } = useFarmQueryParams();
+  const queryParams = useFarmQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const {
     data: farmsData,
     isLoading: farmsLoading,
@@ -48,7 +49,7 @@ const FarmsTab = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.FARMS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1">

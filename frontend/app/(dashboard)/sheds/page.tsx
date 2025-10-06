@@ -13,7 +13,8 @@ import ShedsTable from "@/features/admin/sheds/components/ShedsTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 const ShedsPage = () => {
-  const { query, setPage, setLimit } = useShedQueryParams();
+  const queryParams = useShedQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const { data, isLoading, isError, error } = useGetAllSheds(query);
 
   const sheds = data?.data || [];
@@ -48,7 +49,7 @@ const ShedsPage = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.SHEDS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Users grid */}
       <div className="flex-1 pb-1 my-4">

@@ -13,7 +13,8 @@ import FarmsTable from "@/features/admin/farms/components/FarmsTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 export default function FarmsPage() {
-  const { query, setPage, setLimit } = useFarmQueryParams();
+  const queryParams = useFarmQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const { data, isLoading, isError, error } = useGetAllFarms(query);
 
   const farms = data?.data || [];
@@ -47,7 +48,7 @@ export default function FarmsPage() {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.FARMS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Grid */}
       <div className="flex-1 pb-1 my-4">

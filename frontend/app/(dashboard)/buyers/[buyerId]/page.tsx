@@ -19,9 +19,8 @@ import { createCustomFilterConfig } from "@/features/shared/utils/filterPresets"
 const BuyerDetailsPage = () => {
   const router = useRouter();
   const { buyerId } = useParams();
-  const { query, setPage, setLimit } = useBuyerLedgerQueryParams(
-    buyerId as string
-  );
+  const queryParams = useBuyerLedgerQueryParams(buyerId as string);
+  const { query, setPage, setLimit } = queryParams;
   const { data, isLoading, isError, error } = useGetBuyerById(
     buyerId as string
   );
@@ -95,7 +94,7 @@ const BuyerDetailsPage = () => {
               searchPlaceholder: `Search ledgers for ${buyer.name}...`,
             }
           )}
-          queryParams={query}
+          queryParams={queryParams}
         />
         <LedgersTable ledgers={ledgers} />
         <Pagination

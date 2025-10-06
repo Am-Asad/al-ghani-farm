@@ -13,7 +13,8 @@ import Pagination from "@/features/shared/components/Pagination";
 import ShedsTable from "../sheds/components/ShedsTable";
 
 const ShedsTab = () => {
-  const { query, setPage, setLimit } = useShedQueryParams();
+  const queryParams = useShedQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const {
     data: shedsData,
     isLoading: shedsLoading,
@@ -48,7 +49,7 @@ const ShedsTab = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.SHEDS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1">

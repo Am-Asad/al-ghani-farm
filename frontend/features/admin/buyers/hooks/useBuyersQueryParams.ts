@@ -15,7 +15,7 @@ const BUYER_QUERY_CONFIG: EntityQueryConfig<BuyerQueryParams> = {
     sortBy: "createdAt",
     sortOrder: "desc",
   },
-  sortOptions: ["createdAt", "updatedAt"],
+  sortOptions: ["createdAt", "updatedAt", "name"],
 };
 
 export const useBuyersQueryParams = () => {

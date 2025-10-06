@@ -16,7 +16,8 @@ type FarmShedsProps = {
 };
 
 const FarmSheds = ({ farmId }: FarmShedsProps) => {
-  const { query, setPage, setLimit } = useShedQueryParams();
+  const queryParams = useShedQueryParams();
+  const { query, setPage, setLimit } = queryParams;
 
   // Override the farmId in the query to filter by the selected farm
   const farmSpecificQuery = { ...query, farmId };
@@ -54,7 +55,7 @@ const FarmSheds = ({ farmId }: FarmShedsProps) => {
           showFarms: false, // Hide farm filter since farm is already selected
           searchPlaceholder: "Search sheds in this farm...",
         })}
-        queryParams={farmSpecificQuery}
+        queryParams={{ ...queryParams, query: farmSpecificQuery }}
       />
 
       {/* Sheds Table */}

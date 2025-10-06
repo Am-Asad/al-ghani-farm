@@ -30,7 +30,15 @@ const FLOCK_QUERY_CONFIG: EntityQueryConfig<FlockQueryParams> = {
     dateFrom: "",
     dateTo: "",
   },
-  sortOptions: ["createdAt", "updatedAt", "name", "capacity"],
+  sortOptions: [
+    "createdAt",
+    "updatedAt",
+    "name",
+    "startDate",
+    "endDate",
+    "status",
+    "totalChicks",
+  ],
   statusOptions: ["active", "completed"],
 };
 

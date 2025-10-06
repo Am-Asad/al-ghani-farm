@@ -19,9 +19,8 @@ import { createCustomFilterConfig } from "@/features/shared/utils/filterPresets"
 const ShedDetailsPage = () => {
   const router = useRouter();
   const { shedId } = useParams();
-  const { query, setPage, setLimit } = useShedLedgerQueryParams(
-    shedId as string
-  );
+  const queryParams = useShedLedgerQueryParams(shedId as string);
+  const { query, setPage, setLimit } = queryParams;
   const { data, isLoading, isError, error } = useGetShedById(shedId as string);
   const shed = data?.data;
 
@@ -85,7 +84,7 @@ const ShedDetailsPage = () => {
           config={createCustomFilterConfig(ENTITY_FILTER_PRESETS.SHED_LEDGERS, {
             searchPlaceholder: `Search ledgers for ${shed.name}...`,
           })}
-          queryParams={query}
+          queryParams={queryParams}
         />
         <LedgersTable ledgers={ledgers} />
         <Pagination

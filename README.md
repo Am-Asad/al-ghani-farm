@@ -42,7 +42,7 @@
 [x] Fix tabs responsiveness.
 [x] Show all the summary fields for reports.
 [x] Show all the columns for ledgers in group by data table.
+[x] Add different columns in the sorting dropdown.
+[] Check the filters, if they are relevant for each page and details page.
 [] Make apis for showing data on the dashboard page.
 [] Think about how to show the analytics using charts.
-[] Add different columns in the sorting dropdown.
-[] Check the filters, if they are relevant for each page and details page.

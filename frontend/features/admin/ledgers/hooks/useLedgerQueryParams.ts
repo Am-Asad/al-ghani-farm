@@ -88,8 +88,11 @@ export const LEDGER_QUERY_CONFIG: EntityQueryConfig<LedgerQueryParams> = {
     "date",
     "totalAmount",
     "amountPaid",
-    "balance",
     "netWeight",
+    "numberOfBirds",
+    "rate",
+    "vehicleNumber",
+    "driverName",
   ],
   statusOptions: ["active", "completed"],
 };

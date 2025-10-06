@@ -19,7 +19,8 @@ const UsersPage = () => {
   const router = useRouter();
   const isViewer = user?.role === "viewer";
 
-  const { query, setPage, setLimit } = useUserQueryParams();
+  const queryParams = useUserQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const { data, isLoading, isError, error } = useGetAllUsers(query);
 
   const users = data?.data || [];
@@ -60,7 +61,7 @@ const UsersPage = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.USERS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Table */}
       <div className="flex-1 pb-1 my-4">

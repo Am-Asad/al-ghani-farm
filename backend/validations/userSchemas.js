@@ -3,10 +3,16 @@ import z from "zod";
 export const getAllUsersSchema = z.object({
   query: z.object({
     search: z.string().optional().default(""),
-    role: z.enum(["admin", "manager", "viewer", ""]).optional().default(""),
+    role: z
+      .enum(["admin", "manager", "viewer", "", "all"])
+      .optional()
+      .default(""),
     limit: z.string().optional().default("10"),
     page: z.string().optional().default("1"),
-    sortBy: z.enum(["createdAt", "updatedAt"]).optional().default("createdAt"),
+    sortBy: z
+      .enum(["createdAt", "updatedAt", "username", "email", "role"])
+      .optional()
+      .default("createdAt"),
     sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
   }),
   body: z.object({}).optional(),

@@ -13,7 +13,8 @@ import LedgersTable from "../ledgers/components/LedgersTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 const LedgersTab = () => {
-  const { query, setPage, setLimit } = useLedgerQueryParams();
+  const queryParams = useLedgerQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const {
     data: ledgersData,
     isLoading: ledgersLoading,
@@ -48,7 +49,7 @@ const LedgersTab = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.LEDGERS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Ledgers grid */}
       <div className="flex-1 overflow-y-scroll pb-1">

@@ -33,6 +33,7 @@ export const getAllFlocks = asyncHandler(async (req, res) => {
     "name",
     "startDate",
     "endDate",
+    "status",
   ];
   const sortField = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
   const sortDir = sortOrder === "asc" ? 1 : -1;

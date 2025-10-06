@@ -15,7 +15,7 @@ const FARM_QUERY_CONFIG: EntityQueryConfig<FarmQueryParams> = {
     sortBy: "createdAt",
     sortOrder: "desc",
   },
-  sortOptions: ["createdAt", "updatedAt", "name"],
+  sortOptions: ["createdAt", "updatedAt", "name", "supervisor"],
 };
 
 export const useFarmQueryParams = () => {

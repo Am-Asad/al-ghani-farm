@@ -14,7 +14,8 @@ import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import FlocksTable from "@/features/admin/flocks/components/FlocksTable";
 
 const FlocksTab = () => {
-  const { query, setPage, setLimit } = useFlockQueryParams();
+  const queryParams = useFlockQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const {
     data: flocksData,
     isLoading: flocksLoading,
@@ -49,7 +50,7 @@ const FlocksTab = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.FLOCKS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Flocks grid */}
       <div className="flex-1 overflow-y-scroll pb-1">

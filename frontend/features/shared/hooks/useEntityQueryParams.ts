@@ -104,10 +104,19 @@ export const useEntityQueryParams = <
     entityName,
     defaults: baseDefaults,
     entityDefaults = {} as Partial<T>,
-    sortOptions = ["createdAt", "updatedAt"],
-    statusOptions = [],
-    roleOptions = [],
+    sortOptions: configSortOptions = ["createdAt", "updatedAt"],
+    statusOptions: configStatusOptions = [],
+    roleOptions: configRoleOptions = [],
   } = config;
+
+  // Ensure we have valid arrays
+  const sortOptions = Array.isArray(configSortOptions)
+    ? configSortOptions
+    : ["createdAt", "updatedAt"];
+  const statusOptions = Array.isArray(configStatusOptions)
+    ? configStatusOptions
+    : [];
+  const roleOptions = Array.isArray(configRoleOptions) ? configRoleOptions : [];
 
   // Merge base defaults with entity defaults
   const allDefaults = {

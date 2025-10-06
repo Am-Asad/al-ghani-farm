@@ -13,7 +13,8 @@ import FlocksTable from "@/features/admin/flocks/components/FlocksTable";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 
 const FlocksPage = () => {
-  const { query, setPage, setLimit } = useFlockQueryParams();
+  const queryParams = useFlockQueryParams();
+  const { query, setPage, setLimit } = queryParams;
   const { data, isLoading, isError, error } = useGetAllFlocks(query);
 
   const flocks = data?.data || [];
@@ -48,7 +49,7 @@ const FlocksPage = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.FLOCKS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Flocks grid */}
       <div className="flex-1 pb-1 my-4">

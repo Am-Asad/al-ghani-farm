@@ -19,9 +19,8 @@ import { createCustomFilterConfig } from "@/features/shared/utils/filterPresets"
 const FlockDetailsPage = () => {
   const router = useRouter();
   const { flockId } = useParams();
-  const { query, setPage, setLimit } = useFlockLedgerQueryParams(
-    flockId as string
-  );
+  const queryParams = useFlockLedgerQueryParams(flockId as string);
+  const { query, setPage, setLimit } = queryParams;
   const { data, isLoading, isError, error } = useGetFlockById(
     flockId as string
   );
@@ -93,7 +92,7 @@ const FlockDetailsPage = () => {
               searchPlaceholder: `Search ledgers for ${flock.name}...`,
             }
           )}
-          queryParams={query}
+          queryParams={queryParams}
         />
         <LedgersTable ledgers={ledgers} />
         <Pagination

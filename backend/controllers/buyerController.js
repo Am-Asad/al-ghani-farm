@@ -16,7 +16,7 @@ export const getAllBuyers = asyncHandler(async (req, res) => {
   const limitNum = Math.max(parseInt(limit, 10) || 10, 0);
   const pageNum = Math.max(parseInt(page, 10) || 1, 1);
   const offsetNum = (pageNum - 1) * limitNum;
-  const sortField = ["createdAt", "updatedAt"].includes(sortBy)
+  const sortField = ["createdAt", "updatedAt", "name"].includes(sortBy)
     ? sortBy
     : "createdAt";
   const sortDir = sortOrder === "asc" ? "asc" : "desc";

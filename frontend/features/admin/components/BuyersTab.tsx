@@ -13,7 +13,9 @@ import Pagination from "@/features/shared/components/Pagination";
 import BuyersTable from "../buyers/components/BuyersTable";
 
 const BuyersTab = () => {
-  const { query, setPage, setLimit } = useBuyersQueryParams();
+  const queryParams = useBuyersQueryParams();
+  const { query, setPage, setLimit } = queryParams;
+
   const {
     data: buyersData,
     isLoading: buyersLoading,
@@ -49,7 +51,7 @@ const BuyersTab = () => {
       {/* Filters */}
       <ConfigurableFilters
         config={ENTITY_FILTER_PRESETS.BUYERS}
-        queryParams={query}
+        queryParams={queryParams}
       />
       {/* Grid */}
       <div className="flex-1 overflow-y-scroll pb-1">

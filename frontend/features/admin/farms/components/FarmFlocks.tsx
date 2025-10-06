@@ -16,7 +16,8 @@ type FarmFlocksProps = {
 };
 
 const FarmFlocks = ({ farmId }: FarmFlocksProps) => {
-  const { query, setPage, setLimit } = useFlockQueryParams();
+  const queryParams = useFlockQueryParams();
+  const { query, setPage, setLimit } = queryParams;
 
   // Override the farmId in the query to filter by the selected farm
   const farmSpecificQuery = { ...query, farmId };
@@ -54,7 +55,7 @@ const FarmFlocks = ({ farmId }: FarmFlocksProps) => {
           showFarms: false, // Hide farm filter since farm is already selected
           searchPlaceholder: "Search flocks in this farm...",
         })}
-        queryParams={farmSpecificQuery}
+        queryParams={{ ...queryParams, query: farmSpecificQuery }}
       />
 
       {/* Flocks Table */}
