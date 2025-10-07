@@ -207,13 +207,13 @@ ledgerSchema.statics.getAllLedgersPaginated = function ({
 
   // Numeric range filters
   const addNumericRangeFilter = (field, min, max) => {
-    if (min || max) {
+    if (min !== "" || max !== "") {
       const range = {};
-      if (min) {
+      if (min !== "") {
         const minNum = parseFloat(min);
         if (!isNaN(minNum)) range.$gte = minNum;
       }
-      if (max) {
+      if (max !== "") {
         const maxNum = parseFloat(max);
         if (!isNaN(maxNum)) range.$lte = maxNum;
       }
@@ -228,34 +228,33 @@ ledgerSchema.statics.getAllLedgersPaginated = function ({
   addNumericRangeFilter("netWeight", netWeightMin, netWeightMax);
 
   // Balance range filter (calculated field)
-  if (balanceMin || balanceMax) {
-    const balanceRange = {};
-    if (balanceMin) {
+  if (balanceMin !== "" || balanceMax !== "") {
+    const balanceConditions = [];
+
+    if (balanceMin !== "") {
       const minNum = parseFloat(balanceMin);
-      if (!isNaN(minNum)) balanceRange.$gte = minNum;
+      if (!isNaN(minNum)) {
+        balanceConditions.push({
+          $gte: [{ $subtract: ["$totalAmount", "$amountPaid"] }, minNum],
+        });
+      }
     }
-    if (balanceMax) {
+
+    if (balanceMax !== "") {
       const maxNum = parseFloat(balanceMax);
-      if (!isNaN(maxNum)) balanceRange.$lte = maxNum;
+      if (!isNaN(maxNum)) {
+        balanceConditions.push({
+          $lte: [{ $subtract: ["$totalAmount", "$amountPaid"] }, maxNum],
+        });
+      }
     }
-    if (Object.keys(balanceRange).length > 0) {
+
+    if (balanceConditions.length > 0) {
       matchConditions.push({
-        $expr: {
-          $and: [
-            {
-              $gte: [
-                { $subtract: ["$totalAmount", "$amountPaid"] },
-                balanceRange.$gte || 0,
-              ],
-            },
-            {
-              $lte: [
-                { $subtract: ["$totalAmount", "$amountPaid"] },
-                balanceRange.$lte || Number.MAX_SAFE_INTEGER,
-              ],
-            },
-          ],
-        },
+        $expr:
+          balanceConditions.length === 1
+            ? balanceConditions[0]
+            : { $and: balanceConditions },
       });
     }
   }
