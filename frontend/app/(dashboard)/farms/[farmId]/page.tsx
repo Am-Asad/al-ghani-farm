@@ -5,7 +5,13 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { ArrowLeft, Building2, FileText, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Building2,
+  Warehouse,
+  Feather,
+  Receipt,
+} from "lucide-react";
 import FarmDetailsCard from "@/features/admin/farms/components/FarmDetailsCard";
 import { Button } from "@/components/ui/button";
 import FarmSheds from "@/features/admin/farms/components/FarmSheds";
@@ -23,21 +29,21 @@ const FarmDetailsPage = () => {
     {
       label: "Sheds",
       value: "sheds",
-      icon: <Building2 className="w-4 h-4" />,
+      icon: <Warehouse className="w-4 h-4" />,
       component: <FarmSheds farmId={farmId as string} />,
     },
 
     {
       label: "Flocks",
       value: "flocks",
-      icon: <Users className="w-4 h-4" />,
+      icon: <Feather className="w-4 h-4" />,
       component: <FarmFlocks farmId={farmId as string} />,
     },
 
     {
       label: "Ledgers",
       value: "ledgers",
-      icon: <FileText className="w-4 h-4" />,
+      icon: <Receipt className="w-4 h-4" />,
       component: <FarmLedgers farmId={farmId as string} />,
     },
   ];

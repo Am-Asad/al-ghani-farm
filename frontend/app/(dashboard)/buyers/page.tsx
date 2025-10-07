@@ -3,7 +3,7 @@ import BuyerHeader from "@/features/admin/buyers/components/BuyerHeader";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import React from "react";
 import { useGetAllBuyers } from "@/features/admin/buyers/hooks/useBuyerHooks";
-import { Building2 } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useBuyersQueryParams } from "@/features/admin/buyers/hooks/useBuyersQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
@@ -58,7 +58,7 @@ const BuyersPage = () => {
         ) : (
           <DataNotFound
             title="buyers"
-            icon={<Building2 className="w-10 h-10" />}
+            icon={<UserCheck className="w-10 h-10" />}
           />
         )}
       </div>

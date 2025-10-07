@@ -5,7 +5,7 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { ArrowLeft, Warehouse } from "lucide-react";
 import ShedDetailsCard from "@/features/admin/sheds/components/ShedDetailsCard";
 import { Button } from "@/components/ui/button";
 import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
@@ -63,7 +63,7 @@ const ShedDetailsPage = () => {
   if (!shed) {
     return (
       <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
-        <DataNotFound title="shed" icon={<Building2 className="w-10 h-10" />} />
+        <DataNotFound title="shed" icon={<Warehouse className="w-10 h-10" />} />
       </div>
     );
   }

@@ -2,7 +2,7 @@
 import { Shed } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React from "react";
-import { Users } from "lucide-react";
+import { Warehouse } from "lucide-react";
 import RoleGuard from "@/features/shared/components/RoleGuard";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
 import { formatDate, formatSingleDigit } from "@/utils/formatting";
@@ -23,7 +23,7 @@ const ShedCard = ({ shed, showActions = true }: ShedCardProps) => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Users className="w-5 h-5 text-primary" />
+            <Warehouse className="w-5 h-5 text-primary" />
             <CardTitle className="text-lg">{shed.name}</CardTitle>
           </div>
           {!showActions && (

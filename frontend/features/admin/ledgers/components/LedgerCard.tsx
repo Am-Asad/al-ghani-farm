@@ -2,7 +2,14 @@ import React from "react";
 import { Ledger as LedgerType } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Truck, User, Weight, Calendar, Expand } from "lucide-react";
+import {
+  Building2,
+  Receipt,
+  UserCheck,
+  Weight,
+  Calendar,
+  Expand,
+} from "lucide-react";
 import { formatAmount, formatDate } from "@/utils/formatting";
 import { cn } from "@/lib/utils";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
@@ -28,7 +35,7 @@ const LedgerCard = ({ ledger, showActions = true }: LedgerCardProps) => {
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Truck className="w-5 h-5 text-primary" />
+              <Receipt className="w-5 h-5 text-primary" />
               {ledger.vehicleNumber}
             </CardTitle>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -75,7 +82,7 @@ const LedgerCard = ({ ledger, showActions = true }: LedgerCardProps) => {
 
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <User className="w-4 h-4" />
+              <UserCheck className="w-4 h-4" />
               Buyer
             </div>
             <p className="text-sm font-medium">{ledger.buyerId.name}</p>

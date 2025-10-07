@@ -5,7 +5,7 @@ import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import React from "react";
-import { Building2 } from "lucide-react";
+import { Feather } from "lucide-react";
 import FlockHeader from "@/features/admin/flocks/components/FlockHeader";
 import { useFlockQueryParams } from "@/features/admin/flocks/hooks/useFlockQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
@@ -59,7 +59,7 @@ const FlocksTab = () => {
         ) : (
           <DataNotFound
             title="flocks"
-            icon={<Building2 className="w-10 h-10" />}
+            icon={<Feather className="w-10 h-10" />}
           />
         )}
       </div>

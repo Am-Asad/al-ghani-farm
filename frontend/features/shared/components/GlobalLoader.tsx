@@ -1,5 +1,5 @@
 import React from "react";
-import { Loader2, Wheat, Truck, Users, BarChart3 } from "lucide-react";
+import { Loader2, Building2, Truck, Feather, BarChart3 } from "lucide-react";
 
 const GlobalLoader = () => {
   return (
@@ -12,7 +12,7 @@ const GlobalLoader = () => {
 
           {/* Central farm icon */}
           <div className="relative w-24 h-24 bg-card rounded-full shadow-lg flex items-center justify-center border-4 border-border">
-            <Wheat className="w-12 h-12 text-primary animate-bounce" />
+            <Building2 className="w-12 h-12 text-primary animate-bounce" />
           </div>
 
           {/* Rotating icons around the center */}
@@ -24,7 +24,7 @@ const GlobalLoader = () => {
               />
             </div>
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-2">
-              <Users
+              <Feather
                 className="w-6 h-6 text-chart-2 animate-spin"
                 style={{
                   animationDuration: "3s",

@@ -5,7 +5,7 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { ArrowLeft, Feather } from "lucide-react";
 import FlockDetailsCard from "@/features/admin/flocks/components/FlockDetailsCard";
 import { Button } from "@/components/ui/button";
 import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
@@ -65,10 +65,7 @@ const FlockDetailsPage = () => {
   if (!flock) {
     return (
       <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
-        <DataNotFound
-          title="flock"
-          icon={<Building2 className="w-10 h-10" />}
-        />
+        <DataNotFound title="flock" icon={<Feather className="w-10 h-10" />} />
       </div>
     );
   }

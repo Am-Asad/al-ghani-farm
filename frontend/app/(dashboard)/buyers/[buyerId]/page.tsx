@@ -5,7 +5,7 @@ import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { ArrowLeft, UserCheck } from "lucide-react";
 import BuyerDetailsCard from "@/features/admin/buyers/components/BuyerDetailsCard";
 import { Button } from "@/components/ui/button";
 import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
@@ -67,7 +67,7 @@ const BuyerDetailsPage = () => {
       <div className="p-6 overflow-hidden flex flex-col flex-1 space-y-6">
         <DataNotFound
           title="buyer"
-          icon={<Building2 className="w-10 h-10" />}
+          icon={<UserCheck className="w-10 h-10" />}
         />
       </div>
     );

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2 } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import { Buyer } from "@/types";
 import { formatDate } from "@/utils/formatting";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
@@ -23,7 +23,7 @@ const BuyerCard = ({ buyer, showActions = true }: BuyerCardProps) => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Building2 className="w-5 h-5 text-primary" />
+            <UserCheck className="w-5 h-5 text-primary" />
             <CardTitle className="text-lg">{buyer.name}</CardTitle>
           </div>
 

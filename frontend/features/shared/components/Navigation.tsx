@@ -5,28 +5,28 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Building2,
-  Users,
-  Truck,
-  // FileText,
+  Feather,
+  Warehouse,
+  UserCheck,
+  Receipt,
   BarChart3,
   // Settings,
   Shield,
-  FileText,
 } from "lucide-react";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
   { name: "Farms", href: "/farms", icon: Building2 },
-  { name: "Flocks", href: "/flocks", icon: Users },
-  { name: "Sheds", href: "/sheds", icon: Truck },
-  { name: "Buyers", href: "/buyers", icon: Users },
-  { name: "Ledgers", href: "/ledgers", icon: FileText },
+  { name: "Flocks", href: "/flocks", icon: Feather },
+  { name: "Sheds", href: "/sheds", icon: Warehouse },
+  { name: "Buyers", href: "/buyers", icon: UserCheck },
+  { name: "Ledgers", href: "/ledgers", icon: Receipt },
   { name: "Reports", href: "/reports", icon: BarChart3 },
   {
     name: "Users",
     href: "/users",
-    icon: Users,
+    icon: UserCheck,
     requiredRole: ["admin", "manager"],
   },
   {

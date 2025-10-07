@@ -2,7 +2,7 @@
 import React from "react";
 import { useGetAllBuyers } from "../buyers/hooks/useBuyerHooks";
 import DataNotFound from "@/features/shared/components/DataNotFound";
-import { Building2 } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
 import BuyersHeader from "../buyers/components/BuyerHeader";
@@ -61,7 +61,7 @@ const BuyersTab = () => {
         ) : (
           <DataNotFound
             title="buyers"
-            icon={<Building2 className="w-10 h-10" />}
+            icon={<UserCheck className="w-10 h-10" />}
           />
         )}
       </div>

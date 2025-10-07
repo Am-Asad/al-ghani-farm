@@ -3,7 +3,7 @@ import ShedsHeader from "@/features/admin/sheds/components/ShedHeader";
 import { useGetAllSheds } from "@/features/admin/sheds/hooks/useShedHooks";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import { Building2 } from "lucide-react";
+import { Warehouse } from "lucide-react";
 import React from "react";
 import { useShedQueryParams } from "@/features/admin/sheds/hooks/useShedQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
@@ -58,7 +58,7 @@ const ShedsPage = () => {
         ) : (
           <DataNotFound
             title="sheds"
-            icon={<Building2 className="w-10 h-10" />}
+            icon={<Warehouse className="w-10 h-10" />}
           />
         )}
       </div>

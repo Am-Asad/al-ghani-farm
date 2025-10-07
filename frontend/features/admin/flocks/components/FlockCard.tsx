@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users } from "lucide-react";
+import { Feather } from "lucide-react";
 import { Flock } from "@/types";
 import { formatDate } from "@/utils/formatting";
 import ConfirmationDialog from "@/features/shared/components/ConfirmationDialog";
@@ -38,7 +38,7 @@ const FlockCard = ({ flock, showActions = true }: FlockCardProps) => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Users className="w-5 h-5 text-primary" />
+            <Feather className="w-5 h-5 text-primary" />
             <CardTitle className="text-lg">{flock.name}</CardTitle>
           </div>
           <div className="flex items-center gap-2">

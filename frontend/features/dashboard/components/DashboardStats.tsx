@@ -6,14 +6,16 @@ import { DashboardSummary } from "../hooks/useDashboardData";
 import { formatAmount } from "@/utils/formatting";
 import {
   Building2,
-  Users,
-  FileText,
+  Feather,
+  Receipt,
   DollarSign,
   TrendingUp,
   TrendingDown,
   CreditCard,
   Package,
   Weight,
+  UserCheck,
+  Warehouse,
 } from "lucide-react";
 
 type DashboardStatsProps = {
@@ -54,7 +56,7 @@ const DashboardStats = ({ data, isLoading }: DashboardStatsProps) => {
     {
       title: "Active Flocks",
       value: (data.entityCounts.activeFlocks || 0).toString(),
-      icon: Users,
+      icon: Feather,
       color: "text-chart-2",
       bgColor: "bg-chart-2/10",
       description: "Currently raising birds",
@@ -87,19 +89,19 @@ const DashboardStats = ({ data, isLoading }: DashboardStatsProps) => {
     {
       title: "Total Buyers",
       value: (data.entityCounts.totalBuyers || 0).toString(),
-      icon: Users,
+      icon: UserCheck,
       description: "Active buyers",
     },
     {
       title: "Total Sheds",
       value: (data.entityCounts.totalSheds || 0).toString(),
-      icon: Building2,
+      icon: Warehouse,
       description: "Available sheds",
     },
     {
       title: "Total Transactions",
       value: (data.financialSummary.totalTransactions || 0).toString(),
-      icon: FileText,
+      icon: Receipt,
       description: "All transactions",
     },
   ];
@@ -108,7 +110,7 @@ const DashboardStats = ({ data, isLoading }: DashboardStatsProps) => {
     {
       title: "This Month's Birds",
       value: (data.thisMonth.birdsSold || 0).toLocaleString(),
-      icon: Users,
+      icon: Feather,
       description: "Birds sold this month",
     },
     {

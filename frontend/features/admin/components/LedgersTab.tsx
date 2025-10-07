@@ -2,7 +2,7 @@
 import { useGetAllLedgers } from "@/features/admin/ledgers/hooks/useLedgerHooks";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import { Building2 } from "lucide-react";
+import { Receipt } from "lucide-react";
 import React from "react";
 import LedgerHeader from "../ledgers/components/LedgerHeader";
 import { useLedgerQueryParams } from "../ledgers/hooks/useLedgerQueryParams";
@@ -58,7 +58,7 @@ const LedgersTab = () => {
         ) : (
           <DataNotFound
             title="ledgers"
-            icon={<Building2 className="w-10 h-10" />}
+            icon={<Receipt className="w-10 h-10" />}
           />
         )}
       </div>

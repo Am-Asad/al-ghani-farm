@@ -8,7 +8,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building2, Users, Truck, FileText } from "lucide-react";
+import {
+  Building2,
+  Feather,
+  Warehouse,
+  UserCheck,
+  Receipt,
+} from "lucide-react";
 import {
   useDashboardSummary,
   useRecentActivity,
@@ -106,7 +112,7 @@ export default function DashboardPage() {
               className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors"
               onClick={() => router.push("/admin?tab=sheds")}
             >
-              <Truck className="w-6 h-6 text-primary mb-2" />
+              <Warehouse className="w-6 h-6 text-primary mb-2" />
               <div className="text-sm font-medium">Create Shed</div>
               <div className="text-xs text-muted-foreground">
                 Create new shed
@@ -117,7 +123,7 @@ export default function DashboardPage() {
               className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors"
               onClick={() => router.push("/admin?tab=flocks")}
             >
-              <Users className="w-6 h-6 text-primary mb-2" />
+              <Feather className="w-6 h-6 text-primary mb-2" />
               <div className="text-sm font-medium">Start Flock</div>
               <div className="text-xs text-muted-foreground">
                 Begin new flock
@@ -128,7 +134,7 @@ export default function DashboardPage() {
               className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors"
               onClick={() => router.push("/admin?tab=buyers")}
             >
-              <Users className="w-6 h-6 text-primary mb-2" />
+              <UserCheck className="w-6 h-6 text-primary mb-2" />
               <div className="text-sm font-medium">Create Buyer</div>
               <div className="text-xs text-muted-foreground">
                 Create new buyer
@@ -139,7 +145,7 @@ export default function DashboardPage() {
               className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors"
               onClick={() => router.push("/admin?tab=ledgers")}
             >
-              <FileText className="w-6 h-6 text-primary mb-2" />
+              <Receipt className="w-6 h-6 text-primary mb-2" />
               <div className="text-sm font-medium">Create Ledger</div>
               <div className="text-xs text-muted-foreground">
                 New transaction

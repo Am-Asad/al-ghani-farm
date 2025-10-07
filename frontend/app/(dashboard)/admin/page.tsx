@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Building2, Users, Home, UserCheck, FileText } from "lucide-react";
+import {
+  Building2,
+  Feather,
+  Warehouse,
+  UserCheck,
+  Receipt,
+} from "lucide-react";
 import FarmsTab from "@/features/admin/components/FarmsTab";
 import FlocksTab from "@/features/admin/components/FlocksTab";
 import ShedsTab from "@/features/admin/components/ShedsTab";
@@ -21,13 +27,13 @@ const entitiesTabs = [
   {
     label: "Sheds",
     value: "sheds",
-    icon: <Home className="w-4 h-4" />,
+    icon: <Warehouse className="w-4 h-4" />,
     component: <ShedsTab />,
   },
   {
     label: "Flocks",
     value: "flocks",
-    icon: <Users className="w-4 h-4" />,
+    icon: <Feather className="w-4 h-4" />,
     component: <FlocksTab />,
   },
   {
@@ -39,7 +45,7 @@ const entitiesTabs = [
   {
     label: "Ledgers",
     value: "ledgers",
-    icon: <FileText className="w-4 h-4" />,
+    icon: <Receipt className="w-4 h-4" />,
     component: <LedgersTab />,
   },
 ];

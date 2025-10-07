@@ -2,7 +2,7 @@
 import { useGetAllFlocks } from "@/features/admin/flocks/hooks/useFlockHooks";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-import { Building2 } from "lucide-react";
+import { Feather } from "lucide-react";
 import React from "react";
 import FlockHeader from "@/features/admin/flocks/components/FlockHeader";
 import { useFlockQueryParams } from "@/features/admin/flocks/hooks/useFlockQueryParams";
@@ -58,7 +58,7 @@ const FlocksPage = () => {
         ) : (
           <DataNotFound
             title="flocks"
-            icon={<Building2 className="w-10 h-10" />}
+            icon={<Feather className="w-10 h-10" />}
           />
         )}
       </div>

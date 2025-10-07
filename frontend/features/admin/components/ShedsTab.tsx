@@ -3,7 +3,7 @@ import React from "react";
 import { useGetAllSheds } from "../sheds/hooks/useShedHooks";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import TableSkeleton from "@/features/shared/components/TableSkeleton";
-import { Building2 } from "lucide-react";
+import { Warehouse } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import ShedsHeader from "../sheds/components/ShedHeader";
 import { useShedQueryParams } from "../sheds/hooks/useShedQueryParams";
@@ -58,7 +58,7 @@ const ShedsTab = () => {
         ) : (
           <DataNotFound
             title="sheds"
-            icon={<Building2 className="w-10 h-10" />}
+            icon={<Warehouse className="w-10 h-10" />}
           />
         )}
       </div>
