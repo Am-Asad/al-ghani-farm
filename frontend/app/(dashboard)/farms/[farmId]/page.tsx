@@ -1,6 +1,6 @@
 "use client";
 import { useGetFarmById } from "@/features/admin/farms/hooks/useFarmHooks";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import FarmDetailsPageSkeleton from "@/features/admin/farms/components/FarmDetailsPageSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
@@ -49,7 +49,7 @@ const FarmDetailsPage = () => {
   ];
 
   if (isLoading) {
-    return <CardsSkeleton />;
+    return <FarmDetailsPageSkeleton />;
   }
 
   if (isError) {

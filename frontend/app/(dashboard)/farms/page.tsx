@@ -10,7 +10,7 @@ import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import Pagination from "@/features/shared/components/Pagination";
 import { useFarmQueryParams } from "@/features/admin/farms/hooks/useFarmQueryParams";
 import FarmsTable from "@/features/admin/farms/components/FarmsTable";
-import TableSkeleton from "@/features/shared/components/TableSkeleton";
+import FarmsPageSkeleton from "@/features/admin/farms/components/FarmsPageSkeleton";
 
 export default function FarmsPage() {
   const queryParams = useFarmQueryParams();
@@ -26,7 +26,7 @@ export default function FarmsPage() {
   };
 
   if (isLoading) {
-    return <TableSkeleton />;
+    return <FarmsPageSkeleton />;
   }
 
   if (isError) {

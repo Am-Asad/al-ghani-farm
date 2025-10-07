@@ -10,7 +10,7 @@ import Pagination from "@/features/shared/components/Pagination";
 import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import FlocksTable from "@/features/admin/flocks/components/FlocksTable";
-import TableSkeleton from "@/features/shared/components/TableSkeleton";
+import FlocksPageSkeleton from "@/features/admin/flocks/components/FlocksPageSkeleton";
 
 const FlocksPage = () => {
   const queryParams = useFlockQueryParams();
@@ -26,7 +26,7 @@ const FlocksPage = () => {
   };
 
   if (isLoading) {
-    return <TableSkeleton />;
+    return <FlocksPageSkeleton />;
   }
 
   if (isError) {

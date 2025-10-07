@@ -8,7 +8,7 @@ import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useBuyersQueryParams } from "@/features/admin/buyers/hooks/useBuyersQueryParams";
 import Pagination from "@/features/shared/components/Pagination";
 import BuyersTable from "@/features/admin/buyers/components/BuyersTable";
-import TableSkeleton from "@/features/shared/components/TableSkeleton";
+import BuyersPageSkeleton from "@/features/admin/buyers/components/BuyersPageSkeleton";
 import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 
@@ -26,7 +26,7 @@ const BuyersPage = () => {
   };
 
   if (isLoading) {
-    return <TableSkeleton />;
+    return <BuyersPageSkeleton />;
   }
 
   if (isError) {

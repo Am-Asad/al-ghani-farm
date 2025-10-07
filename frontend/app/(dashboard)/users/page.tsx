@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { useGetAllUsers } from "@/features/admin/users/hooks/useUserHooks";
-import TableSkeleton from "@/features/shared/components/TableSkeleton";
+import UsersPageSkeleton from "@/features/admin/users/components/UsersPageSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import { Users } from "lucide-react";
 import DataNotFound from "@/features/shared/components/DataNotFound";
@@ -38,7 +38,7 @@ const UsersPage = () => {
   }, [isViewer, router]);
 
   if (isLoading) {
-    return <TableSkeleton />;
+    return <UsersPageSkeleton />;
   }
 
   if (isError) {

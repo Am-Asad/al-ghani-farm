@@ -1,6 +1,6 @@
 "use client";
 import { useGetShedById } from "@/features/admin/sheds/hooks/useShedHooks";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import ShedDetailsPageSkeleton from "@/features/admin/sheds/components/ShedDetailsPageSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
@@ -40,7 +40,7 @@ const ShedDetailsPage = () => {
   };
 
   if (isLoading || ledgersLoading) {
-    return <CardsSkeleton />;
+    return <ShedDetailsPageSkeleton />;
   }
 
   if (isError || ledgersError) {

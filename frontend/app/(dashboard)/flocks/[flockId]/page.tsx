@@ -1,6 +1,6 @@
 "use client";
 import { useGetFlockById } from "@/features/admin/flocks/hooks/useFlockHooks";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import FlockDetailsPageSkeleton from "@/features/admin/flocks/components/FlockDetailsPageSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
@@ -42,7 +42,7 @@ const FlockDetailsPage = () => {
   };
 
   if (isLoading || ledgersLoading) {
-    return <CardsSkeleton />;
+    return <FlockDetailsPageSkeleton />;
   }
 
   if (isError || ledgersError) {

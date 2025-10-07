@@ -10,7 +10,7 @@ import LedgerHeader from "@/features/admin/ledgers/components/LedgerHeader";
 import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import LedgersTable from "@/features/admin/ledgers/components/LedgersTable";
-import TableSkeleton from "@/features/shared/components/TableSkeleton";
+import LedgersPageSkeleton from "@/features/admin/ledgers/components/LedgersPageSkeleton";
 
 const LedgersPage = () => {
   const queryParams = useLedgerQueryParams();
@@ -26,7 +26,7 @@ const LedgersPage = () => {
   };
 
   if (isLoading) {
-    return <TableSkeleton />;
+    return <LedgersPageSkeleton />;
   }
 
   if (isError) {

@@ -1,6 +1,6 @@
 "use client";
 import { useGetBuyerById } from "@/features/admin/buyers/hooks/useBuyerHooks";
-import CardsSkeleton from "@/features/shared/components/CardsSkeleton";
+import BuyerDetailsPageSkeleton from "@/features/admin/buyers/components/BuyerDetailsPageSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
 import DataNotFound from "@/features/shared/components/DataNotFound";
 import { useParams, useRouter } from "next/navigation";
@@ -42,7 +42,7 @@ const BuyerDetailsPage = () => {
   };
 
   if (isLoading || ledgersLoading) {
-    return <CardsSkeleton />;
+    return <BuyerDetailsPageSkeleton />;
   }
 
   if (isError || ledgersError) {

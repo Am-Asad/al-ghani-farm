@@ -10,7 +10,7 @@ import Pagination from "@/features/shared/components/Pagination";
 import ConfigurableFilters from "@/features/shared/components/ConfigurableFilters";
 import { ENTITY_FILTER_PRESETS } from "@/features/shared/utils/filterPresets";
 import ShedsTable from "@/features/admin/sheds/components/ShedsTable";
-import TableSkeleton from "@/features/shared/components/TableSkeleton";
+import ShedsPageSkeleton from "@/features/admin/sheds/components/ShedsPageSkeleton";
 
 const ShedsPage = () => {
   const queryParams = useShedQueryParams();
@@ -26,7 +26,7 @@ const ShedsPage = () => {
   };
 
   if (isLoading) {
-    return <TableSkeleton />;
+    return <ShedsPageSkeleton />;
   }
 
   if (isError) {
