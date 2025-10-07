@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
-// import { Building2, Users, Truck, FileText } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Building2, Users, Truck, FileText } from "lucide-react";
 import {
   useDashboardSummary,
   useRecentActivity,
@@ -18,10 +18,10 @@ import RecentActivity from "@/features/dashboard/components/RecentActivity";
 import TopBuyers from "@/features/dashboard/components/TopBuyers";
 import DashboardSkeleton from "@/features/dashboard/components/DashboardSkeleton";
 import ErrorFetchingData from "@/features/shared/components/ErrorFetchingData";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  // const router = useRouter();
+  const router = useRouter();
 
   const {
     data: dashboardData,
@@ -84,7 +84,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      {/* <Card>
+      <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>Common tasks and shortcuts</CardDescription>
@@ -104,12 +104,34 @@ export default function DashboardPage() {
 
             <button
               className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors"
+              onClick={() => router.push("/admin?tab=sheds")}
+            >
+              <Truck className="w-6 h-6 text-primary mb-2" />
+              <div className="text-sm font-medium">Create Shed</div>
+              <div className="text-xs text-muted-foreground">
+                Create new shed
+              </div>
+            </button>
+
+            <button
+              className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors"
               onClick={() => router.push("/admin?tab=flocks")}
             >
               <Users className="w-6 h-6 text-primary mb-2" />
               <div className="text-sm font-medium">Start Flock</div>
               <div className="text-xs text-muted-foreground">
                 Begin new flock
+              </div>
+            </button>
+
+            <button
+              className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors"
+              onClick={() => router.push("/admin?tab=buyers")}
+            >
+              <Users className="w-6 h-6 text-primary mb-2" />
+              <div className="text-sm font-medium">Create Buyer</div>
+              <div className="text-xs text-muted-foreground">
+                Create new buyer
               </div>
             </button>
 
@@ -123,20 +145,9 @@ export default function DashboardPage() {
                 New transaction
               </div>
             </button>
-
-            <button
-              className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors"
-              onClick={() => router.push("/admin?tab=vehicles")}
-            >
-              <Truck className="w-6 h-6 text-primary mb-2" />
-              <div className="text-sm font-medium">Assign Vehicle</div>
-              <div className="text-xs text-muted-foreground">
-                Transport setup
-              </div>
-            </button>
           </div>
         </CardContent>
-      </Card> */}
+      </Card>
     </div>
   );
 }

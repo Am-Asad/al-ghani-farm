@@ -7,7 +7,7 @@ import FlocksTab from "@/features/admin/components/FlocksTab";
 import ShedsTab from "@/features/admin/components/ShedsTab";
 import LedgersTab from "@/features/admin/components/LedgersTab";
 import BuyersTab from "@/features/admin/components/BuyersTab";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
 import GenericTabs from "@/features/shared/components/GenericTabs";
 
@@ -19,16 +19,16 @@ const entitiesTabs = [
     component: <FarmsTab />,
   },
   {
-    label: "Flocks",
-    value: "flocks",
-    icon: <Users className="w-4 h-4" />,
-    component: <FlocksTab />,
-  },
-  {
     label: "Sheds",
     value: "sheds",
     icon: <Home className="w-4 h-4" />,
     component: <ShedsTab />,
+  },
+  {
+    label: "Flocks",
+    value: "flocks",
+    icon: <Users className="w-4 h-4" />,
+    component: <FlocksTab />,
   },
   {
     label: "Buyers",
@@ -45,7 +45,10 @@ const entitiesTabs = [
 ];
 
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState("farms");
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "farms"
+  );
   const router = useRouter();
   const { user } = useAuthContext();
   const isViewer = user?.role === "viewer";

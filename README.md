@@ -46,4 +46,5 @@
 [x] Check the filters, if they are relevant for each page and details page.
 [x] Please understand how the duration filters in reports work. Yearly duration filter return the date from Sep 27, 2025 - Nov 23, 2025.
 [x] Make apis for showing data on the dashboard page.
+[] Review the icons used for each entity and fix those.
 [] Think about how to show the analytics using charts.
