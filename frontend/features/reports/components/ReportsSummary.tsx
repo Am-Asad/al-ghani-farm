@@ -23,6 +23,7 @@ type ReportsSummaryProps = {
     from: string;
     to: string;
   };
+  duration?: string;
 };
 
 const ReportsSummary = ({
@@ -30,7 +31,29 @@ const ReportsSummary = ({
   isLoading,
   reportTitle,
   dateRange,
+  duration,
 }: ReportsSummaryProps) => {
+  // Helper function to get clarification message based on duration type
+  const getDateRangeClarification = () => {
+    if (!duration) return null;
+
+    switch (duration) {
+      case "yearly":
+        return "Transactions found within the selected year (filter: January 1 - December 31)";
+      case "monthly":
+        return "Transactions found within the selected month (filter: first day to last day of month)";
+      case "weekly":
+        return "Transactions found within the selected week (week calculation: Sunday to Saturday)";
+      case "daily":
+        return "Transactions found for the selected day";
+      case "custom":
+        return "Transactions found within the selected date range";
+      case "period":
+        return "Transactions found within the specified period";
+      default:
+        return "Transactions found within the selected time period";
+    }
+  };
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -143,14 +166,32 @@ const ReportsSummary = ({
                 <h3 className="text-lg font-semibold">
                   {reportTitle || "Report Summary"}
                 </h3>
-                {dateRange && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      {formatDate(dateRange.from)} - {formatDate(dateRange.to)}
-                    </span>
-                  </div>
-                )}
+                <div className="mt-1 space-y-1">
+                  {dateRange ? (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {formatDate(dateRange.from)} -{" "}
+                        {formatDate(dateRange.to)}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        No transactions found for this period
+                      </span>
+                    </div>
+                  )}
+                  {getDateRangeClarification() && (
+                    <div className="flex items-center gap-2 ml-6">
+                      <div className="w-1 h-1 bg-muted-foreground rounded-full" />
+                      <span className="text-xs text-muted-foreground italic">
+                        {getDateRangeClarification()}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
               <Badge variant="secondary" className="text-xs">
                 {summary.totalTransactions} transactions

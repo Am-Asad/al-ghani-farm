@@ -101,6 +101,7 @@ const ReportsPage = () => {
             isLoading={reportsLoading}
             reportTitle={reportData?.reportTitle}
             dateRange={reportData?.dateRange}
+            duration={query.duration}
           />
 
           {/* Details (tables) only when Include Details is true */}

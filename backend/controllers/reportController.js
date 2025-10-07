@@ -161,7 +161,10 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
           $gte: new Date(parsedDate.startOfDay),
           $lte: new Date(parsedDate.endOfDay),
         };
-        reportTitle = `Daily Report for ${parsedDate.date}`;
+        reportTitle = `Daily Report for ${format(
+          new Date(parsedDate.startOfDay),
+          "MMMM dd, yyyy"
+        )}`;
         break;
 
       case "weekly":
@@ -224,7 +227,10 @@ export const getUniversalReport = asyncHandler(async (req, res) => {
           $gte: new Date(start.startOfDay),
           $lte: new Date(end.endOfDay),
         };
-        reportTitle = `Custom Report (${start.date} - ${end.date})`;
+        reportTitle = `Custom Report (${format(
+          new Date(start.startOfDay),
+          "MMMM dd, yyyy"
+        )} - ${format(new Date(end.startOfDay), "MMMM dd, yyyy")})`;
         break;
 
       case "period":
