@@ -48,4 +48,5 @@
 [x] Make apis for showing data on the dashboard page.
 [x] Review the icons used for each entity and fix those.
 [x] Skeleton components implemented for each page.
+[x] Review each skeleton component and fix it.
 [] Think about how to show the analytics using charts.

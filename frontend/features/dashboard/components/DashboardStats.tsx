@@ -133,6 +133,36 @@ const DashboardStats = ({ data, isLoading }: DashboardStatsProps) => {
     },
   ];
 
+  const paymentStatusCards: Array<{
+    key: keyof DashboardSummary["paymentStatus"];
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    accentClass: string;
+    containerClass: string;
+  }> = [
+    {
+      key: "paid",
+      label: "Paid",
+      icon: CreditCard,
+      accentClass: "text-chart-2",
+      containerClass: "bg-chart-2/10 border border-chart-2/20",
+    },
+    {
+      key: "partial",
+      label: "Partial",
+      icon: TrendingUp,
+      accentClass: "text-chart-3",
+      containerClass: "bg-chart-3/10 border border-chart-3/20",
+    },
+    {
+      key: "unpaid",
+      label: "Unpaid",
+      icon: TrendingDown,
+      accentClass: "text-destructive",
+      containerClass: "bg-destructive/10 border border-destructive/20",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Primary Stats */}
@@ -224,36 +254,28 @@ const DashboardStats = ({ data, isLoading }: DashboardStatsProps) => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 rounded-lg bg-green-50 border border-green-200">
-              <CreditCard className="w-6 h-6 text-green-600 mx-auto mb-2" />
-              <p className="text-sm text-green-600 font-medium">Paid</p>
-              <p className="text-lg font-bold text-green-600">
-                {data.paymentStatus.paid?.count || 0}
-              </p>
-              <p className="text-xs text-green-600">
-                {formatAmount(data.paymentStatus.paid?.totalAmount || 0)}
-              </p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-yellow-50 border border-yellow-200">
-              <TrendingUp className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
-              <p className="text-sm text-yellow-600 font-medium">Partial</p>
-              <p className="text-lg font-bold text-yellow-600">
-                {data.paymentStatus.partial?.count || 0}
-              </p>
-              <p className="text-xs text-yellow-600">
-                {formatAmount(data.paymentStatus.partial?.totalAmount || 0)}
-              </p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-red-50 border border-red-200">
-              <TrendingDown className="w-6 h-6 text-red-600 mx-auto mb-2" />
-              <p className="text-sm text-red-600 font-medium">Unpaid</p>
-              <p className="text-lg font-bold text-red-600">
-                {data.paymentStatus.unpaid?.count || 0}
-              </p>
-              <p className="text-xs text-red-600">
-                {formatAmount(data.paymentStatus.unpaid?.totalAmount || 0)}
-              </p>
-            </div>
+            {paymentStatusCards.map(
+              ({ key, label, icon: Icon, accentClass, containerClass }) => {
+                const statusData = data.paymentStatus[key];
+                return (
+                  <div
+                    key={key}
+                    className={`text-center p-4 rounded-lg ${containerClass}`}
+                  >
+                    <Icon className={`w-6 h-6 mx-auto mb-2 ${accentClass}`} />
+                    <p className={`text-sm font-medium ${accentClass}`}>
+                      {label}
+                    </p>
+                    <p className={`text-lg font-bold ${accentClass}`}>
+                      {statusData?.count || 0}
+                    </p>
+                    <p className={`text-xs ${accentClass}`}>
+                      {formatAmount(statusData?.totalAmount || 0)}
+                    </p>
+                  </div>
+                );
+              }
+            )}
           </div>
         </CardContent>
       </Card>
